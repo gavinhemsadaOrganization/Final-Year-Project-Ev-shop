@@ -9,8 +9,6 @@ export interface ISeller extends Document {
   website?: string;
   rating?: number;
   total_reviews: number;
-  created_at: Date;
-  updated_at: Date;
 }
 
 const SellerSchema = new Schema<ISeller>({
