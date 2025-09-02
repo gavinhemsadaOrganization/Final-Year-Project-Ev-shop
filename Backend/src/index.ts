@@ -1,12 +1,16 @@
-import express from 'express';
-import cors from 'cors';
+import app from "./app";
+import DB from "./config/DBConnection";
 
-const app = express();
-app.use(cors());
+const PORT = process.env.PORT;
+const start = async () => {
+  try {
+    await DB();
+    app.listen(PORT, () => {
+      console.log(`Server running on ${process.env.CLIENT_URL}:${PORT}`);
+    });
+  } catch (err) {
+    console.error("Failed to start server:", err);
+  }
+};
 
-app.get("/", (req, res) => {
-  res.send("Hello");
-});
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
-});
+start();
