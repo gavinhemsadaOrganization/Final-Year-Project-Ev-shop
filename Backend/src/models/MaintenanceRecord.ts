@@ -11,7 +11,7 @@ export interface IMaintenanceRecord extends Document {
 }
 
 const MaintenanceRecordSchema = new Schema<IMaintenanceRecord>({
-  seller_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  seller_id: { type: Schema.Types.ObjectId, ref: 'Seller', required: true },
   service_type: { type: String, required: true },
   service_date: { type: Date, required: true },
   description: { type: String },

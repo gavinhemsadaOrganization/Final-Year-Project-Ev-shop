@@ -1,9 +1,11 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import bcrypt from 'bcrypt';
 
 export enum UserRole {
   ADMIN = 'admin',
   USER = 'user',
   SELLER = 'seller',
+  FINANCE = 'finance'
 }
 
 export interface IUser extends Document {
@@ -19,6 +21,7 @@ export interface IUser extends Document {
   province?: string;
   postal_code?: string;
   last_login?: Date;
+  comparePassword(raw: string): Promise<boolean>;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -34,5 +37,14 @@ const UserSchema = new Schema<IUser>({
   postal_code: String,
   last_login: Date,
 }, { timestamps: true });
+
+UserSchema.pre<IUser>('save', async function () {
+  if (!this.isModified('password')) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+UserSchema.methods.comparePassword = function (raw: string) {
+  return bcrypt.compare(raw, this.password);
+};
 
 export default model<IUser>('User', UserSchema);

@@ -24,8 +24,8 @@ export interface IOrder extends Document {
 
 const OrderSchema = new Schema<IOrder>({
   user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  listing_id: { type: Schema.Types.ObjectId, ref: 'Listing', required: true },
-  seller_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  listing_id: { type: Schema.Types.ObjectId, ref: 'Listing' },
+  seller_id: { type: Schema.Types.ObjectId, ref: 'Seller', required: true },
   booking_id: { type: Schema.Types.ObjectId, ref: 'Booking' },
   order_status: { type: String, enum: Object.values(OrderStatus), required: true },
   payment_status: { type: String, required: true },

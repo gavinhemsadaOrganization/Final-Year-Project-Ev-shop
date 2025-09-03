@@ -22,7 +22,7 @@ export interface IFinancingApplication extends Document {
 
 const FinancingApplicationSchema = new Schema<IFinancingApplication>({
   user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+  product_id: { type: Schema.Types.ObjectId, ref: 'FinancialProduct', required: true },
   message_text: { type: String },
   application_data: { type: Map, of: Schema.Types.Mixed, required: true },
   status: { type: String, enum: Object.values(ApplicationStatus), required: true },
