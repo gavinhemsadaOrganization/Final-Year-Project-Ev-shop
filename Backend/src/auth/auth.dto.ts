@@ -1,6 +1,23 @@
-import { IsEmail, IsString, MinLength, Validate, ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  Matches,
+  IsString,
+  MinLength,
+  Validate,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  ValidationArguments,
+} from "class-validator";
 
-@ValidatorConstraint({ name: 'MatchPassword', async: false })
+export enum UserRole {
+  ADMIN = "admin",
+  USER = "user",
+  SELLER = "seller",
+  FINANCE = "finance",
+}
+
+@ValidatorConstraint({ name: "MatchPassword", async: false })
 class MatchPasswordConstraint implements ValidatorConstraintInterface {
   validate(confirmPassword: any, args: ValidationArguments) {
     const object = args.object as any;
@@ -8,28 +25,34 @@ class MatchPasswordConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'Password confirmation does not match password';
+    return "Password confirmation does not match password";
   }
 }
 
 export class RegisterDto {
-  @IsEmail()
+  @IsEmail({}, { message: "Please provide a valid email address" })
   email!: string;
 
-  @MinLength(6)
+  @MinLength(6, { message: "Password must be at least 6 characters long" })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/, { 
+    message: "Password must contain uppercase, lowercase, number, and special character" 
+  })
   @IsString()
   password!: string;
 
   @IsString()
   @Validate(MatchPasswordConstraint)
   confirmPassword!: string;
+
+  @IsEnum(UserRole, { message: "Role must be admin, user, seller, or finance" })
+  role!: UserRole;
 }
 
 export class LoginDTO {
-  @IsEmail()
+  @IsEmail({}, { message: "Please provide a valid email address" })
   email!: string;
 
-  @MinLength(6)
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
   @IsString()
   password!: string;
 }
