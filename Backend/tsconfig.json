@@ -12,6 +12,7 @@
     "declaration": true,              // optional: generate .d.ts files
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true, 
+    "types": ["node"],
   },
   "include": ["src/**/*"],           // include all TS files in src
   "exclude": ["node_modules", "dist"]
