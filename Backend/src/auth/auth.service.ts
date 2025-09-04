@@ -12,7 +12,7 @@ export function authService(authRepo: IAuthRepository): IAuthService {
       const { email, password, role } = data;
       const existingUser = await authRepo.findByEmail(email);
       if (existingUser) {
-        throw new Error("User already exists");
+        return null;
       }
       const newUser = await authRepo.save(email, password, role);
       return newUser;
@@ -21,7 +21,7 @@ export function authService(authRepo: IAuthRepository): IAuthService {
       const { email, password } = data;
       const user = await authRepo.findUser(email, password);
       if (!user) {
-        throw new Error("Invalid email or password");
+        return null;
       }
       return user;
     },

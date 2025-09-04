@@ -14,6 +14,7 @@ export function authController(authService: IAuthService): IAuthController {
       try {
         const data: RegisterDto = req.body;
         const result = await authService.register(data);
+        if(result == null) return res.status(400).json({message: "User already exists"});
         return res
           .status(201)
           .json({ message: "User registered successfully", result });
@@ -27,10 +28,11 @@ export function authController(authService: IAuthService): IAuthController {
       try {
         const data: LoginDTO = req.body;
         const result = await authService.login(data);
+        if(result == null) return res.status(400).json({message: "Invalid email or password"});
         const token = Jwt.sign({ userId: result._id }, process.env.JWT_SECRET!, {
           expiresIn: "24h",
         });
-        return res.status(200).json({ message: "User logged in successfully", token });
+        return res.status(200).json({ message: "User logged in successfully", token, role: result.role });
       } catch (error: any) {
         return res
           .status(500)

@@ -8,7 +8,7 @@ export interface IAuthRepository {
 
 export const AuthRepository: IAuthRepository = {
   findByEmail: async (email: string) => {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ email  }).select("-password");
     return user;
   },
   save: async (email: string, password: string, role: string) => {
@@ -16,7 +16,7 @@ export const AuthRepository: IAuthRepository = {
     return newUser;
   },
   findUser: async (email: string, password: string) => {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ email  });
     if (!user) return null;
     const isMatch = user?.comparePassword(password);
     if (!isMatch) return null;

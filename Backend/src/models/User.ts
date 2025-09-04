@@ -33,20 +33,40 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: Object.values(UserRole), required: true },
-    name: { type: String, required: true },
+    name: { type: String },
     profile_image: String,
     date_of_birth: Date,
     address: {
-      street: { type: String, required: true },
-      city: { type: String, required: true },
-      state: { type: String, required: true },
-      zipCode: { type: String, required: true },
-      country: { type: String, required: true },
+      street: { type: String },
+      city: { type: String },
+      state: { type: String },
+      zipCode: { type: String },
+      country: { type: String },
     },
-    phone: { type: String, required: true },
+    phone: { type: String },
     last_login: Date,
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      transform(_doc, ret: any) {
+        delete ret.password;
+        delete ret.salt;
+        delete ret.__v;
+        delete ret.createdAt;
+        delete ret.updatedAt;
+      },
+    },
+    toObject: {
+      transform(_doc, ret: any) {
+        delete ret.password;
+        delete ret.salt;
+        delete ret.__v;
+        delete ret.createdAt;
+        delete ret.updatedAt;
+      },
+    },
+  }
 );
 
 UserSchema.pre<IUser>("save", async function () {
