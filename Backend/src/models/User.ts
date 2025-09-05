@@ -12,7 +12,7 @@ export interface IUser extends Document {
   _id: Types.ObjectId;
   email: string;
   password: string;
-  role: UserRole;
+  role: UserRole[];
   name: string;
   profile_image?: string;
   date_of_birth?: Date;
@@ -32,7 +32,16 @@ const UserSchema = new Schema<IUser>(
   {
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: Object.values(UserRole), required: true },
+    role: {
+      type: [String],
+      enum: Object.values(UserRole),
+      required: true,
+      validate: [
+        (val: string[]) => val.length > 0 && val.length <= 2, 
+        "User must have 1 or 2 roles only",
+      ],
+      default: [UserRole.USER]
+    },
     name: { type: String },
     profile_image: String,
     date_of_birth: Date,

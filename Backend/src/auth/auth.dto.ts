@@ -1,6 +1,6 @@
 import {
   IsEmail,
-  IsEnum,
+  IsNotEmpty,
   Matches,
   IsString,
   MinLength,
@@ -43,9 +43,6 @@ export class RegisterDto {
   @IsString()
   @Validate(MatchPasswordConstraint)
   confirmPassword!: string;
-
-  @IsEnum(UserRole, { message: "Role must be admin, user, seller, or finance" })
-  role!: UserRole;
 }
 
 export class LoginDTO {
@@ -55,4 +52,16 @@ export class LoginDTO {
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   @IsString()
   password!: string;
+}
+
+export class GoogleLoginDTO {
+  @IsString()
+  @IsNotEmpty({ message: 'Google token must not be empty' })
+  token!: string;
+}
+
+export class FacebookLoginDTO {
+  @IsString()
+  @IsNotEmpty({ message: 'Facebook token must not be empty' })
+  token!: string;
 }
