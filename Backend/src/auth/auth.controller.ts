@@ -1,7 +1,7 @@
 import { IAuthService } from "./auth.service";
 import { Request, Response, NextFunction } from "express";
 import { RegisterDto, LoginDTO } from "./auth.dto";
-import {passport} from "./passport";
+import {initializePassport} from "./passport";
 import Jwt from "jsonwebtoken";
 
 export interface IAuthController {
@@ -14,6 +14,7 @@ export interface IAuthController {
 }
 
 export function authController(authService: IAuthService): IAuthController {
+  const passport = initializePassport();
   return {
     register: async (req: Request, res: Response) => {
       try {

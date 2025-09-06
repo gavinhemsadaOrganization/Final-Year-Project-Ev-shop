@@ -1,11 +1,10 @@
 import express from "express";
 import type { Application } from "express";
 import cors from "cors";
-
 import helmet from "helmet";
 import bodyParser from "body-parser";
 import { authRouter } from "./auth/auth.router";
-import { passport } from "./auth/passport";
+import  {initializePassport } from "./auth/passport";
 import session from "express-session";
 import "./auth/passport";
 
@@ -16,7 +15,21 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true })); 
 app.use(express.static("public"));
@@ -30,7 +43,7 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
-
+const passport = initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 

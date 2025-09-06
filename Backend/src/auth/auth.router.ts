@@ -5,7 +5,7 @@ import { IAuthController } from "./auth.controller";
 import { RegisterDto, LoginDTO } from "./auth.dto";
 import { container } from "./auth.di";
 
-export function authRouter(): Router {
+export const authRouter = (): Router => {
   const router = Router();
 
   const controller = container.resolve<IAuthController>("IAuthController");
