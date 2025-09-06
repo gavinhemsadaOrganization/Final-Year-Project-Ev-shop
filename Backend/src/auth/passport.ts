@@ -54,12 +54,13 @@ export const initializePassport = () => {
         clientID: facebookClientId,
         clientSecret: facebookClientSecret,
         callbackURL: facebookCallbackUrl,
-        profileFields: ["id", "emails", "name", "displayName"],
+        profileFields: ["id", "emails", "name"],
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
           const email = profile.emails?.[0].value!;
           const name = profile.displayName;
+          console.log("Facebook profile:", profile);
           const result = await service.oauthLogin(email, name);
           if (result.success) {
             return done(null, result.user);

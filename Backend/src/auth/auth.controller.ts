@@ -105,7 +105,7 @@ export function authController(authService: IAuthService): IAuthController {
     },
     facebookAuth: (req: Request, res: Response, next: NextFunction) => {
       passport.authenticate("facebook", {
-        scope: ["email"],
+        scope: ["public_profile","email","user_gender","user_location"],
       })(req, res, next);
     },
     facebookCallback: (req: Request, res: Response, next: NextFunction) => {
