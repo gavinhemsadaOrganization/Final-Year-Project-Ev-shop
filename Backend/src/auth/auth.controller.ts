@@ -1,18 +1,16 @@
 import { IAuthService } from "./auth.service";
-import { Request, Response } from "express";
-import {
-  RegisterDto,
-  LoginDTO,
-  GoogleLoginDTO,
-  FacebookLoginDTO,
-} from "./auth.dto";
+import { Request, Response, NextFunction } from "express";
+import { RegisterDto, LoginDTO } from "./auth.dto";
+import {passport} from "./passport";
 import Jwt from "jsonwebtoken";
 
 export interface IAuthController {
   register(req: Request, res: Response): Promise<Response>;
   login(req: Request, res: Response): Promise<Response>;
-  googleLogin(req: Request, res: Response): Promise<Response>;
-  facebookLogin(req: Request, res: Response): Promise<Response>;
+  googleAuth(req: Request, res: Response, next: NextFunction): void;
+  googleCallback(req: Request, res: Response, next: NextFunction): void;
+  facebookAuth(req: Request, res: Response, next: NextFunction): void;
+  facebookCallback(req: Request, res: Response, next: NextFunction): void;
 }
 
 export function authController(authService: IAuthService): IAuthController {
@@ -57,36 +55,97 @@ export function authController(authService: IAuthService): IAuthController {
           .json({ error: error?.message || "Internal server error" });
       }
     },
-
-    googleLogin: async (req: Request, res: Response) => {
-      try {
-        const token = <GoogleLoginDTO>req.body;
-        const user = await authService.googleLogin(token);
-        const jwtToken = Jwt.sign(
-          { userId: user.user.id },
-          process.env.JWT_SECRET!,
-          {
-            expiresIn: "24h",
-          }
-        );
-        return res.status(200).json({ ...user, token: jwtToken });
-      } catch (err) {
-        return res.status(500).json({ error: err || "Internal server error" });
-      }
+    googleAuth: (req: Request, res: Response, next: NextFunction) => {
+      passport.authenticate("google", {
+        scope: ["profile", "email"],
+      })(req, res, next);
     },
+    googleCallback: (req: Request, res: Response, next: NextFunction) => {
+      passport.authenticate("google", { session: false }, async (err: any, user: any) => {
+        try {
+          if (err) {
+            return res.status(400).json({ 
+              success: false, 
+              message: "Google authentication failed",
+              error: err.message 
+            });
+          }
 
-    facebookLogin: async (req: Request, res: Response) => {
-      try{
-      const token = <FacebookLoginDTO>req.body;
-      const user = await authService.facebookLogin(token);
-      const jwtToken = Jwt.sign(
-        { userId: user.user.id },
-        process.env.JWT_SECRET!,
-      );
-      return res.status(200).json({ ...user, token: jwtToken });
-      }catch(err){
-        return res.status(500).json({ error: err || "Internal server error" });
-      }
+          if (!user) {
+            return res.status(400).json({ 
+              success: false, 
+              message: "Google authentication failed - no user data" 
+            });
+          }
+
+          // Generate JWT token
+          const token = Jwt.sign(
+            { userId: user.id },
+            process.env.JWT_SECRET!,
+            { expiresIn: "24h" }
+          );
+          
+
+          return res.status(200).json({
+            success: true,
+            message: "Google authentication successful",
+            token,
+            user: { id: user.id, email: user.email, name: user.name }
+          });
+
+        } catch (error: any) {
+          return res.status(500).json({ 
+            success: false, 
+            message: "Internal server error",
+            error: error.message 
+          });
+        }
+      })(req, res, next);
+    },
+    facebookAuth: (req: Request, res: Response, next: NextFunction) => {
+      passport.authenticate("facebook", {
+        scope: ["email"],
+      })(req, res, next);
+    },
+    facebookCallback: (req: Request, res: Response, next: NextFunction) => {
+      passport.authenticate("facebook", { session: false }, async (err: any, user: any) => {
+        try {
+          if (err) {
+            return res.status(400).json({ 
+              success: false, 
+              message: "Facebook authentication failed",
+              error: err.message 
+            });
+          }
+
+          if (!user) {
+            return res.status(400).json({ 
+              success: false, 
+              message: "Facebook authentication failed - no user data" 
+            });
+          }
+
+          const token = Jwt.sign(
+            { userId: user.id },
+            process.env.JWT_SECRET!,
+            { expiresIn: "24h" }
+          );
+          
+          return res.status(200).json({
+            success: true,
+            message: "Facebook authentication successful",
+            token,
+            user: { id: user.id, email: user.email, name: user.name }
+          });
+
+        } catch (error: any) {
+          return res.status(500).json({ 
+            success: false, 
+            message: "Internal server error",
+            error: error.message 
+          });
+        }
+      })(req, res, next);
     },
   };
 }

@@ -2,7 +2,7 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 
 import { Router } from "express";
 import { IAuthController } from "./auth.controller";
-import { RegisterDto, LoginDTO, GoogleLoginDTO, FacebookLoginDTO } from "./auth.dto";
+import { RegisterDto, LoginDTO } from "./auth.dto";
 import { container } from "./auth.di";
 
 export function authRouter(): Router {
@@ -16,11 +16,20 @@ export function authRouter(): Router {
   router.post("/login", validateDto(LoginDTO), (req, res) =>
     controller.login(req, res)
   );
-  router.post("/google", validateDto(GoogleLoginDTO), (req, res) =>
-    controller.googleLogin(req, res)
+  router.get("/google", (req, res, next) =>
+    controller.googleAuth(req, res, next)
   );
-  router.post("/facebook", validateDto(FacebookLoginDTO), (req, res) =>
-    controller.facebookLogin(req, res)
+
+  router.get("/google/callback", (req, res, next) =>
+    controller.googleCallback(req, res, next)
+  );
+
+  router.get("/facebook", (req, res, next) =>
+    controller.facebookAuth(req, res, next)
+  );
+
+  router.get("/facebook/callback", (req, res, next) =>
+    controller.facebookCallback(req, res, next)
   );
 
   return router;

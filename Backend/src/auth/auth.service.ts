@@ -1,6 +1,5 @@
 import { IAuthRepository } from "./auth.repository";
 import { RegisterDto, LoginDTO } from "./auth.dto";
-import { OAuth2Client } from "google-auth-library";
 
 export interface IAuthService {
   register(
@@ -9,20 +8,13 @@ export interface IAuthService {
   login(
     data: LoginDTO
   ): Promise<{ success: boolean; user?: any; error?: string }>;
-  googleLogin(
-    token: any
-  ): Promise<{ success: boolean; user?: any; error?: string }>;
-  facebookLogin(
-    token: any
-  ): Promise<{ success: boolean; user?: any; error?: string }>;
+  oauthLogin(
+    email: string,
+    name: string
+  ): Promise<{ success: boolean; user?: any; error?: string; checkpass?: boolean }>;
 }
 
 export function authService(authRepo: IAuthRepository): IAuthService {
-  const googleClient = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET
-  );
-
   return {
     register: async (data: RegisterDto) => {
       try {
@@ -49,35 +41,13 @@ export function authService(authRepo: IAuthRepository): IAuthService {
         return { success: false, error: "Login failed" };
       }
     },
-    googleLogin: async (token: any) => {
+    oauthLogin: async (email: string, name: string) => {
       try {
-        const ticket = await googleClient.verifyIdToken({
-          idToken: token,
-          audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        const email = payload?.email!;
-        const name = payload?.name!;
         const user = authRepo.findOrCreate(email, name);
         const checkpass = await authRepo.checkPassword(email);
         return { success: true, user, checkpass };
       } catch (err) {
-        return { success: false, error: "Google login failed" };
-      }
-    },
-    facebookLogin: async (token: any) => {
-      try {
-        const response = await fetch(
-          `https://graph.facebook.com/me?access_token=${token}&fields=id,name,email`
-        );
-        const data = await response.json();
-        const email = data?.email!;
-        const name = data?.name!;
-        const user = await authRepo.findOrCreate(email, name);
-        const checkpass = await authRepo.checkPassword(email);
-        return { success: true, user, checkpass };
-      } catch (err) {
-        return { success: false, error: "Facebook login failed" };
+        return { success: false, error: "OAuth login failed" };
       }
     },
   };
