@@ -7,13 +7,12 @@ import bodyParser from "body-parser";
 import { authRouter } from "./auth/auth.router";
 import { passport } from "./auth/passport";
 import session from "express-session";
-import "./auth/auth.di";
 import "./auth/passport";
 
 const app: Application = express();
 
 app.use(cors({
-  origin:"http://localhost:3000",
+  origin: ["http://localhost:3000", "http://127.0.0.1:5500"],
   credentials: true,
 }));
 app.use(express.json());
