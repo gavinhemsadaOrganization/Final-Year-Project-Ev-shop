@@ -8,6 +8,12 @@ export enum UserRole {
   FINANCE = "finance",
 }
 
+interface ResetOtp {
+  otpHash: string;
+  expiresAt: Date;
+  attempts: number;
+}
+
 export interface IUser extends Document {
   _id: Types.ObjectId;
   email: string;
@@ -25,8 +31,15 @@ export interface IUser extends Document {
   };
   phone: string;
   last_login?: Date;
+  resetOtp?: ResetOtp;
   comparePassword(raw: string): Promise<boolean>;
 }
+
+const ResetOtpSchema = new Schema<ResetOtp>({
+  otpHash: { type: String, required: true },
+  expiresAt: { type: Date, required: true },
+  attempts: { type: Number, default: 0 },
+}, { _id: false });
 
 const UserSchema = new Schema<IUser>(
   {
@@ -53,6 +66,7 @@ const UserSchema = new Schema<IUser>(
       country: { type: String },
     },
     phone: { type: String },
+    resetOtp: ResetOtpSchema,
     last_login: Date,
   },
   {

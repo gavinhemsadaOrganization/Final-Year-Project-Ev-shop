@@ -1,31 +1,23 @@
 import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail", // or smtp host like smtp.mailtrap.io
-  auth: {
-    user: process.env.EMAIL_USER, // your email
-    pass: process.env.EMAIL_PASS, // app password / smtp password
-  },
-});
+export const sendOtpEmail = async (to: string, otp: number, subject: string, text: string, html: string) => {
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT) || 587,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
 
-export const sendEmail = async (
-  to: string,
-  subject: string,
-  html: string,
-  text?: string
-): Promise<void> => {
-  try {
-    const info = await transporter.sendMail({
-      from: `"My App" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      text: text || "",
-      html,
-    });
+  await transporter.verify();
 
-    console.log("Email sent:", info.messageId);
-  } catch (err) {
-    console.error("Error sending email:", err);
-    throw err; // rethrow so service layer can handle
-  }
+  return transporter.sendMail({
+    from: `"No Reply" <no-reply@example.com>`,
+    to,
+    subject: subject,
+    text: text,
+    html: html,
+  });
 }

@@ -52,3 +52,26 @@ export class LoginDTO {
   @IsString()
   password!: string;
 }
+
+export class ForgetPasswordDTO {
+  @IsEmail({}, { message: "Please provide a valid email address" })
+  email!: string;
+}
+
+export class OTPverifyDTO {
+  @IsEmail({}, { message: "Please provide a valid email address" })
+  email!: string;
+  @IsString()
+  otp!: string;
+}
+
+export class ResetPasswordDTO {
+  @IsEmail({}, { message: "Please provide a valid email address" })
+  email!: string;
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/, { 
+    message: "Password must contain uppercase, lowercase, number, and special character" 
+  })
+  @IsString()
+  password!: string;  
+}

@@ -1,6 +1,6 @@
 import { IAuthService } from "./auth.service";
 import { Request, Response, NextFunction } from "express";
-import { RegisterDto, LoginDTO } from "./auth.dto";
+import { RegisterDto, LoginDTO, ForgetPasswordDTO, OTPverifyDTO, ResetPasswordDTO } from "./auth.dto";
 import {initializePassport} from "./passport";
 import Jwt from "jsonwebtoken";
 
@@ -11,6 +11,9 @@ export interface IAuthController {
   googleCallback(req: Request, res: Response, next: NextFunction): void;
   facebookAuth(req: Request, res: Response, next: NextFunction): void;
   facebookCallback(req: Request, res: Response, next: NextFunction): void;
+  forgetpassword(req: Request, res: Response): Promise<Response>;
+  verifyOTP(req: Request, res: Response): Promise<Response>;
+  resetPassword(req: Request, res: Response): Promise<Response>;
 }
 
 export function authController(authService: IAuthService): IAuthController {
@@ -148,5 +151,40 @@ export function authController(authService: IAuthService): IAuthController {
         }
       })(req, res, next);
     },
+    forgetpassword: async (req: Request, res: Response) => {
+      try {
+        const data = <ForgetPasswordDTO>req.body;
+        const result = await authService.forgetPassword(data);
+        if (!result.success)
+          return res.status(400).json({ message: result.error });
+        return res.status(200).json({
+          message: "OTP sent to email if it exists in our system",
+        });
+      } catch (err) {
+        return res.status(500).json({ error: err || "Internal server error" });
+      }
+    },
+    verifyOTP: async (req: Request, res: Response) => {
+      try {
+        const data = <OTPverifyDTO>req.body;
+        const result = await authService.verifyOTP(data);
+        if (!result.success)
+          return res.status(400).json({ message: result.error });
+        return res.status(200).json({ message: "OTP verified successfully" });
+      } catch (err) {
+        return res.status(500).json({ error: err || "Internal server error" });
+      }
+    },
+    resetPassword: async (req: Request, res: Response) => {
+      try {
+        const data = <ResetPasswordDTO>req.body;
+        const result = await authService.resetPassword(data);
+        if (!result.success)
+          return res.status(400).json({ message: result.error });
+        return res.status(200).json({ message: "Password reset successfully" });
+      } catch (err) {
+        return res.status(500).json({ error: err || "Internal server error" });
+      }
+    }
   };
 }

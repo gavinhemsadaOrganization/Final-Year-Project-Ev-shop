@@ -2,7 +2,7 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 
 import { Router } from "express";
 import { IAuthController } from "./auth.controller";
-import { RegisterDto, LoginDTO } from "./auth.dto";
+import { RegisterDto, LoginDTO, ForgetPasswordDTO, OTPverifyDTO, ResetPasswordDTO } from "./auth.dto";
 import { container } from "./auth.di";
 
 export const authRouter = (): Router => {
@@ -32,5 +32,17 @@ export const authRouter = (): Router => {
     controller.facebookCallback(req, res, next)
   );
 
+  router.post("/forgetpassword", validateDto(ForgetPasswordDTO), (req, res) =>
+    controller.forgetpassword(req, res)
+  );
+
+  router.post("/verifyotp", validateDto(OTPverifyDTO), (req, res) =>
+    controller.verifyOTP(req, res)
+  );
+
+  router.post("/resetpassword", validateDto(ResetPasswordDTO), (req, res) =>
+    controller.resetPassword(req, res)
+  );
+  
   return router;
 }
