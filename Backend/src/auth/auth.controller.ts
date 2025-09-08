@@ -1,7 +1,13 @@
 import { IAuthService } from "./auth.service";
 import { Request, Response, NextFunction } from "express";
-import { RegisterDto, LoginDTO, ForgetPasswordDTO, OTPverifyDTO, ResetPasswordDTO } from "./auth.dto";
-import {initializePassport} from "./passport";
+import {
+  RegisterDto,
+  LoginDTO,
+  ForgetPasswordDTO,
+  OTPverifyDTO,
+  ResetPasswordDTO,
+} from "./auth.dto";
+import { initializePassport } from "./passport";
 import Jwt from "jsonwebtoken";
 
 export interface IAuthController {
@@ -14,6 +20,7 @@ export interface IAuthController {
   forgetpassword(req: Request, res: Response): Promise<Response>;
   verifyOTP(req: Request, res: Response): Promise<Response>;
   resetPassword(req: Request, res: Response): Promise<Response>;
+  logout(req: Request, res: Response): void;
 }
 
 export function authController(authService: IAuthService): IAuthController {
@@ -40,17 +47,34 @@ export function authController(authService: IAuthService): IAuthController {
         const result = await authService.login(data);
         if (!result.success)
           return res.status(400).json({ message: result.error });
-
+        // Generate JWT token
         const token = Jwt.sign(
-          { userId: result.user.id },
+          { userId: result.user.id, role: result.user.role },
           process.env.JWT_SECRET!,
           {
             expiresIn: "24h",
           }
         );
+        // Generate Refresh Token
+        const refreshToken = Jwt.sign(
+          { userId: result.user.id, role: result.user.role },
+          process.env.JWT_REFRESH_SECRET!,
+          { expiresIn: "7d" }
+        );
+
+        // Store tokens and user info in session
+        req.session.jwt = token;
+        req.session.userId = result.user.id;
+        req.session.refreshToken = refreshToken;
+        req.session.role = result.user.role;
+       req.session.save(err => {
+    if (err) {
+      console.error("Failed to save session:", err);
+    }
+  });
+
         return res.status(200).json({
           message: "User logged in successfully",
-          token,
           user: result.user.id,
         });
       } catch (error: any) {
@@ -65,91 +89,135 @@ export function authController(authService: IAuthService): IAuthController {
       })(req, res, next);
     },
     googleCallback: (req: Request, res: Response, next: NextFunction) => {
-      passport.authenticate("google", { session: false }, async (err: any, user: any) => {
-        try {
-          if (err) {
-            return res.status(400).json({ 
-              success: false, 
-              message: "Google authentication failed",
-              error: err.message 
+      passport.authenticate(
+        "google",
+        { session: false },
+        async (err: any, user: any) => {
+          try {
+            if (err) {
+              return res.status(400).json({
+                success: false,
+                message: "Google authentication failed",
+                error: err.message,
+              });
+            }
+
+            if (!user) {
+              return res.status(400).json({
+                success: false,
+                message: "Google authentication failed - no user data",
+              });
+            }
+
+            // Generate JWT token
+            const token = Jwt.sign(
+              { userId: user.id, role: user.role },
+              process.env.JWT_SECRET!,
+              {
+                expiresIn: "24h",
+              }
+            );
+            // Generate Refresh Token
+            const refreshToken = Jwt.sign(
+              { userId: user.id, role: user.role },
+              process.env.JWT_REFRESH_SECRET!,
+              { expiresIn: "7d" }
+            );
+
+            // Store tokens and user info in session
+            req.session.jwt = token;
+            req.session.userId = user.id;
+            req.session.refreshToken = refreshToken;
+            req.session.role = user.role;
+            req.session.save(err => {
+    if (err) {
+      console.error("Failed to save session:", err);
+    }
+  });
+
+            return res.status(200).json({
+              success: true,
+              message: "Google authentication successful",
+              userid: user.id,
+              checkpass: user.checkpass,
+            });
+          } catch (error: any) {
+            return res.status(500).json({
+              success: false,
+              message: "Internal server error",
+              error: error.message,
             });
           }
-
-          if (!user) {
-            return res.status(400).json({ 
-              success: false, 
-              message: "Google authentication failed - no user data" 
-            });
-          }
-
-          // Generate JWT token
-          const token = Jwt.sign(
-            { userId: user.id },
-            process.env.JWT_SECRET!,
-            { expiresIn: "24h" }
-          );
-          
-
-          return res.status(200).json({
-            success: true,
-            message: "Google authentication successful",
-            token,
-            user: { id: user.id, email: user.email, name: user.name }
-          });
-
-        } catch (error: any) {
-          return res.status(500).json({ 
-            success: false, 
-            message: "Internal server error",
-            error: error.message 
-          });
         }
-      })(req, res, next);
+      )(req, res, next);
     },
     facebookAuth: (req: Request, res: Response, next: NextFunction) => {
       passport.authenticate("facebook", {
-        scope: ["public_profile","email","user_gender","user_location"],
+        scope: ["public_profile", "email", "user_gender", "user_location"],
       })(req, res, next);
     },
     facebookCallback: (req: Request, res: Response, next: NextFunction) => {
-      passport.authenticate("facebook", { session: false }, async (err: any, user: any) => {
-        try {
-          if (err) {
-            return res.status(400).json({ 
-              success: false, 
-              message: "Facebook authentication failed",
-              error: err.message 
+      passport.authenticate(
+        "facebook",
+        { session: false },
+        async (err: any, user: any) => {
+          try {
+            if (err) {
+              return res.status(400).json({
+                success: false,
+                message: "Facebook authentication failed",
+                error: err.message,
+              });
+            }
+
+            if (!user) {
+              return res.status(400).json({
+                success: false,
+                message: "Facebook authentication failed - no user data",
+              });
+            }
+
+             // Generate JWT token
+            const token = Jwt.sign(
+              { userId: user.id, role: user.role },
+              process.env.JWT_SECRET!,
+              {
+                expiresIn: "24h",
+              }
+            );
+            // Generate Refresh Token
+            const refreshToken = Jwt.sign(
+              { userId: user.id, role: user.role },
+              process.env.JWT_REFRESH_SECRET!,
+              { expiresIn: "7d" }
+            );
+
+            // Store tokens and user info in session
+            req.session.jwt = token;
+            req.session.userId = user.id;
+            req.session.refreshToken = refreshToken;
+            req.session.role = user.role;
+            req.session.save(err => {
+    if (err) {
+      console.error("Failed to save session:", err);
+    }
+  });
+
+            return res.status(200).json({
+              success: true,
+              message: "Facebook authentication successful",
+              userid: user.id,
+              checkpass: user.checkpass,
+            });
+          } catch (error: any) {
+            return res.status(500).json({
+              success: false,
+              message: "Internal server error",
+              error: error.message,
             });
           }
-
-          if (!user) {
-            return res.status(400).json({ 
-              success: false, 
-              message: "Facebook authentication failed - no user data" 
-            });
-          }
-
-          const token = Jwt.sign(
-            { userId: user.id },
-            process.env.JWT_SECRET!,
-            { expiresIn: "24h" }
-          );
-          
-          return res.status(200).json({
-            success: true,
-            message: "Facebook authentication successful",
-            token,
-            user: { id: user.id, email: user.email, name: user.name }
-          });
-
-        } catch (error: any) {
-          return res.status(500).json({ 
-            success: false, 
-            message: "Internal server error",
-            error: error.message 
-          });
         }
-      })(req, res, next);
+      )(req, res, next);
     },
     forgetpassword: async (req: Request, res: Response) => {
       try {
@@ -185,6 +253,22 @@ export function authController(authService: IAuthService): IAuthController {
       } catch (err) {
         return res.status(500).json({ error: err || "Internal server error" });
       }
-    }
+    },
+     logout: async (req: Request, res: Response) => {
+      try {
+        req.session.destroy((err) => {
+          if (err) {
+            console.error('Session destroy error:', err);
+            return res.status(500).json({ error: "Logout failed" });
+          }
+          
+          res.clearCookie('connect.sid'); // Clear session cookie
+          return res.status(200).json({ message: "Logout successful" });
+        });
+      } catch (error) {
+        return res.status(500).json({ error: "Logout failed" });
+      }
+    },
+
   };
 }

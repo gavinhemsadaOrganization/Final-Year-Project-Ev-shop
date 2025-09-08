@@ -12,7 +12,7 @@
     "declaration": true,              // optional: generate .d.ts files
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true, 
-    "types": ["node"],
+    "types": ["node","express-session"],
     "typeRoots": ["./src/types", "./node_modules/@types"],
   },
   "include": ["src/**/*"],           // include all TS files in src

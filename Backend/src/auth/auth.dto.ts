@@ -9,13 +9,6 @@ import {
   ValidationArguments,
 } from "class-validator";
 
-export enum UserRole {
-  ADMIN = "admin",
-  USER = "user",
-  SELLER = "seller",
-  FINANCE = "finance",
-}
-
 @ValidatorConstraint({ name: "MatchPassword", async: false })
 class MatchPasswordConstraint implements ValidatorConstraintInterface {
   validate(confirmPassword: any, args: ValidationArguments) {
