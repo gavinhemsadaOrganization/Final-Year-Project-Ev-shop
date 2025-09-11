@@ -4,7 +4,7 @@ import { UserDTO } from "../dtos/user.DTO";
 
 export interface IUserController {
   createUser(req: Request, res: Response): Promise<Response>;
-  getUser(req: Request, res: Response): Promise<Response>;
+  getUserByID(req: Request, res: Response): Promise<Response>;
   updateUser(req: Request, res: Response): Promise<Response>;
   deleteUser(req: Request, res: Response): Promise<Response>;
   findAllUsers(req: Request, res: Response): Promise<Response>;
@@ -15,7 +15,7 @@ export function userController(userService: IUserService): IUserController {
     createUser: async (req, res) => {
       try {
         const data = <UserDTO>req.body;
-        const file = req.file!;
+        const file = req.file;
         const result = await userService.create(data, file);
         if (!result.success)
           return res.status(400).json({ message: result.error });
@@ -26,7 +26,7 @@ export function userController(userService: IUserService): IUserController {
         return res.status(500).json({ error: err || "Internal server error" });
       }
     },
-    getUser: async (req, res) => {
+    getUserByID: async (req, res) => {
       try {
         const result = await userService.findById(req.params.id);
         if (!result.success)
@@ -38,14 +38,21 @@ export function userController(userService: IUserService): IUserController {
     },
     updateUser: async (req, res) => {
       try {
-
-        return res.status(200).json({ message: "User updated" });
+        const data = <UserDTO>req.body;
+        const id = req.params.id;
+        const file = req.file;
+        const result = await userService.update(id,data,file);
+        if(!result.success) res.status(400).json({ message: result.error });
+        return res.status(200).json({ message: "User updated", user: result.user });
       } catch (err) {
         return res.status(500).json({ error: err || "Internal server error" });
       }
     },
     deleteUser: async (req, res) => {
       try {
+        const id = req.params.id;
+        const result = await userService.delete(id);
+        if(!result.success) res.status(400).json({ message: result.error });
         return res.status(200).json({ message: "User deleted" });
       } catch (err) {
         return res.status(500).json({ error: err || "Internal server error" });
