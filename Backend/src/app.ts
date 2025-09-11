@@ -23,21 +23,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
-      session({
-        store: connectMongo.create({
-          mongoUrl: process.env.MONGO_URI,
-          ttl: 24 * 60 * 60, // 24 hours
-        }),
-        secret: process.env.SESSION_SECRET!,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-          maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        },
-      })
-    );
+  session({
+    store: connectMongo.create({
+      mongoUrl: process.env.MONGO_URI,
+      ttl: 24 * 60 * 60, // 24 hours
+    }),
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
 app.use(
   helmet({
@@ -64,10 +64,18 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRouter());
+app.use("/user",);
 
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err.stack);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+);
 
 export default app;

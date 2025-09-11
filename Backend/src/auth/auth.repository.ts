@@ -6,6 +6,7 @@ export interface IAuthRepository {
   findUser(email: string, password: string): Promise<IUser | null>;
   findOrCreate(email: string, name: string): Promise<IUser | null>;
   checkPassword(email: string): Promise<boolean>;
+  updateLastLogin(userId: string, lastLogin: Date): Promise<void>;
 }
 
 export const AuthRepository: IAuthRepository = {
@@ -35,5 +36,8 @@ export const AuthRepository: IAuthRepository = {
     const user = await User.findOne({ email });
     if (!user || !user.password) return false;
     return true;
+  },
+  updateLastLogin: async (userId: string, lastLogin: Date) => {
+    await User.findByIdAndUpdate(userId, { last_login: lastLogin });
   },
 };

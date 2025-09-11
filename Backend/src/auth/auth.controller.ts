@@ -67,11 +67,11 @@ export function authController(authService: IAuthService): IAuthController {
         req.session.userId = result.user.id;
         req.session.refreshToken = refreshToken;
         req.session.role = result.user.role;
-       req.session.save(err => {
-    if (err) {
-      console.error("Failed to save session:", err);
-    }
-  });
+        req.session.save((err) => {
+          if (err) {
+            console.error("Failed to save session:", err);
+          }
+        });
 
         return res.status(200).json({
           message: "User logged in successfully",
@@ -129,11 +129,11 @@ export function authController(authService: IAuthService): IAuthController {
             req.session.userId = user.id;
             req.session.refreshToken = refreshToken;
             req.session.role = user.role;
-            req.session.save(err => {
-    if (err) {
-      console.error("Failed to save session:", err);
-    }
-  });
+            req.session.save((err) => {
+              if (err) {
+                console.error("Failed to save session:", err);
+              }
+            });
 
             return res.status(200).json({
               success: true,
@@ -177,7 +177,7 @@ export function authController(authService: IAuthService): IAuthController {
               });
             }
 
-             // Generate JWT token
+            // Generate JWT token
             const token = Jwt.sign(
               { userId: user.id, role: user.role },
               process.env.JWT_SECRET!,
@@ -197,11 +197,11 @@ export function authController(authService: IAuthService): IAuthController {
             req.session.userId = user.id;
             req.session.refreshToken = refreshToken;
             req.session.role = user.role;
-            req.session.save(err => {
-    if (err) {
-      console.error("Failed to save session:", err);
-    }
-  });
+            req.session.save((err) => {
+              if (err) {
+                console.error("Failed to save session:", err);
+              }
+            });
 
             return res.status(200).json({
               success: true,
@@ -254,21 +254,23 @@ export function authController(authService: IAuthService): IAuthController {
         return res.status(500).json({ error: err || "Internal server error" });
       }
     },
-     logout: async (req: Request, res: Response) => {
+    logout: async (req: Request, res: Response) => {
       try {
+        const lastlogin = new Date();
+        const userid = req.session.userId as string;
+        await authService.updateLastLogin(userid, lastlogin);
         req.session.destroy((err) => {
           if (err) {
-            console.error('Session destroy error:', err);
+            console.error("Session destroy error:", err);
             return res.status(500).json({ error: "Logout failed" });
           }
-          
-          res.clearCookie('connect.sid'); // Clear session cookie
+
+          res.clearCookie("connect.sid"); // Clear session cookie
           return res.status(200).json({ message: "Logout successful" });
         });
       } catch (error) {
         return res.status(500).json({ error: "Logout failed" });
       }
     },
-
   };
 }

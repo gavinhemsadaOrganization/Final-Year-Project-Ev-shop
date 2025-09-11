@@ -26,6 +26,7 @@ export interface IAuthService {
   resetPassword(
     data: ResetPasswordDTO
   ): Promise<{ success: boolean; error?: string }>;
+  updateLastLogin(userId: string, lastLogin: Date): Promise<void>;
 }
 
 export function authService(authRepo: IAuthRepository): IAuthService {
@@ -157,6 +158,13 @@ export function authService(authRepo: IAuthRepository): IAuthService {
         return { success: true };
       } catch (err) {
         return { success: false, error: "Reset password process failed" };
+      }
+    },
+    updateLastLogin: async (userId: string, lastLogin: Date) => {
+      try {
+        await authRepo.updateLastLogin(userId, lastLogin);
+      } catch (err) {
+        console.error("Failed to update last login:", err);
       }
     },
   };
