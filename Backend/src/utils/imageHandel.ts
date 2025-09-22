@@ -17,37 +17,33 @@ export const upload = multer({
   },
 });
 
-//   ** singel image haddel **
+//   ** single image handle **
 
 export const addImage = (
   file: Express.Multer.File,
-  filename: string
+  folderName: string
 ): string => {
   try {
-    var filepath = "";
+    const uploadDir = path.join(process.cwd(), "uploads", folderName);
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-    // This points to your project root (where package.json is)
-    const imageDir = path.join(process.cwd(), "uploads", filename);
-    if (!fs.existsSync(imageDir)) fs.mkdirSync(imageDir, { recursive: true });
+    const fileName = `${uuid()}-${file.originalname}`;
+    const fullPath = path.join(uploadDir, fileName);
 
-    const fileName = `${uuid()}-${file!.originalname}`;
-    const Path = path.join(imageDir, fileName);
+    fs.writeFileSync(fullPath, file.buffer);
 
-    fs.writeFileSync(Path, file!.buffer);
-    if (fileName != null) {
-      return (filepath = Path);
-    }
-    return filepath;
+    // return relative path instead of full system path
+    return path.join("uploads", folderName, fileName).replace(/\\/g, "/");
   } catch (err) {
-    return `img uploard error: ${err}`;
+    return `img upload error: ${err}`;
   }
 };
 
-export const deleteImage = (imageFullPath: string): boolean => {
+export const deleteImage = (relativePath: string): boolean => {
   try {
-    const normalizedPath = path.normalize(imageFullPath);
-    if (fs.existsSync(normalizedPath)) {
-      fs.unlinkSync(normalizedPath);
+    const fullPath = path.join(process.cwd(), relativePath);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
       return true;
     }
     return false;
@@ -63,27 +59,39 @@ export const getOriginalFileName = (imagePath: string): string => {
   return index !== -1 ? fileName.substring(index + 1) : fileName;
 };
 
-//    ** multipulle images haddel **
+//   ** multiple images handle **
 
 export const addImages = (
   files: Express.Multer.File[],
   folderName: string
 ): string[] => {
-  const imageDir = path.join(process.cwd(), "uploads", folderName);
-  if (!fs.existsSync(imageDir)) fs.mkdirSync(imageDir, { recursive: true });
+  const uploadDir = path.join(process.cwd(), "uploads", folderName);
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
   const filePaths: string[] = [];
 
   for (const file of files) {
     const uniqueFileName = `${uuid()}-${file.originalname}`;
-    const fullPath = path.join(imageDir, uniqueFileName);
+    const fullPath = path.join(uploadDir, uniqueFileName);
     fs.writeFileSync(fullPath, file.buffer);
-    filePaths.push(fullPath);
+
+    // store relative path
+    filePaths.push(path.join("uploads", folderName, uniqueFileName).replace(/\\/g, "/"));
   }
 
   return filePaths;
 };
 
-export const deleteImages = (imagePaths: string[]): boolean[] => {
-  return imagePaths.map((imgPath) => deleteImage(imgPath));
+export const deleteImages = (relativePaths: string[]): boolean[] => {
+  return relativePaths.map((relPath) => deleteImage(relPath));
+};
+
+// helpers to extract folder & file name
+
+export const getFileName = (filePath: string): string => {
+  return path.basename(filePath);
+};
+
+export const getFolderName = (filePath: string): string => {
+  return path.basename(path.dirname(filePath));
 };

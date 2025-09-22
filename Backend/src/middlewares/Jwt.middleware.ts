@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+export const protectJWT = (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.session.jwt;
 

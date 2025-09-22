@@ -3,10 +3,6 @@ import { UserDTO } from "../dtos/user.DTO";
 import { addImage, deleteImage } from "../utils/imageHandel";
 
 export interface IUserService {
-  create(
-    data: UserDTO,
-    file?: Express.Multer.File
-  ): Promise<{ success: boolean; user?: any; error?: string }>;
   findById(
     id: string
   ): Promise<{ success: boolean; user?: any; error?: string }>;
@@ -22,25 +18,6 @@ export interface IUserService {
 export function userService(userRepo: IUserRepository): IUserService {
   const folderName = "UserProfile";
   return {
-    create: async (data, file) => {
-      try {
-        let imageurl = "";
-        if (file) {
-          imageurl = addImage(file, folderName);
-          if (!imageurl)
-            return { success: false, error: "Failed image upload" };
-        }
-        const userData = {
-          ...data,
-          profile_image: imageurl,
-        };
-        const user = await userRepo.save(userData);
-        return { success: true, user };
-      } catch (err) {
-        return { success: false, error: "Failed to create user" };
-      }
-    },
-
     findById: async (id) => {
       try {
         const user = await userRepo.findById(id);

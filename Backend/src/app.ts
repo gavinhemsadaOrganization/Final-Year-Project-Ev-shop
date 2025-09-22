@@ -3,11 +3,20 @@ import type { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bodyParser from "body-parser";
-import { authRouter } from "./auth/auth.router";
+// Oauth
 import { initializePassport } from "./auth/passport";
 import "./auth/passport";
+// Session
 import connectMongo from "connect-mongo";
 import session from "express-session";
+// file system
+import fs from "fs";
+import path from "path";
+// JWT
+import { protectJWT } from "./middlewares/Jwt.middleware";
+// routers
+import { authRouter } from "./auth/auth.router";
+import { userRouter } from "./routers/user.router";
 
 const app: Application = express();
 
@@ -64,7 +73,20 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRouter());
-app.use("/user",);
+app.use("/user", protectJWT, userRouter());
+
+// app.use("/images/public", express.static(path.join(process.cwd(), "uploads/public")));
+app.get("/images/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const filepath = path.join(__dirname, "uploads", filename);
+
+  // Check if file exists
+  if (fs.existsSync(filepath)) {
+    res.sendFile(filepath);
+  } else {
+    res.status(404).json({ error: "Image not found" });
+  }
+});
 
 app.use(
   (
