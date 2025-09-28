@@ -11,4 +11,4 @@ const ChatbotConversationSchema = new Schema<IChatbotConversation>({
   message_text: { type: String, required: true },
 }, { timestamps: true });
 
-export default model<IChatbotConversation>('ChatbotConversation', ChatbotConversationSchema);
+export const ChatbotConversation = model<IChatbotConversation>('ChatbotConversation', ChatbotConversationSchema);

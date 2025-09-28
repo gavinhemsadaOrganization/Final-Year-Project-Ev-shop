@@ -18,6 +18,7 @@ import { protectJWT } from "./middlewares/Jwt.middleware";
 import { authRouter } from "./auth/auth.router";
 import { userRouter } from "./routers/user.router";
 import { notificationRouter } from "./routers/notification.router";
+import { chatbotRouter } from "./routers/chatbot.router";
 
 const app: Application = express();
 
@@ -76,6 +77,7 @@ app.use(passport.session());
 app.use("/auth", authRouter());
 app.use("/user", protectJWT, userRouter());
 app.use("/notification", protectJWT, notificationRouter());
+app.use("/chatbot", protectJWT, chatbotRouter());
 
 // app.use("/images/public", express.static(path.join(process.cwd(), "uploads/public")));
 app.get("/images/:filename", (req, res) => {

@@ -13,4 +13,4 @@ const PredictionSchema = new Schema<IPrediction>({
   prediction_result: { type: Object, required: true },
 }, { timestamps: true });
 
-export default model<IPrediction>('Prediction', PredictionSchema);
+export const Prediction = model<IPrediction>('Prediction', PredictionSchema);
