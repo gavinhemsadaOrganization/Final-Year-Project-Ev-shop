@@ -1,12 +1,6 @@
 import { Schema, model, Document, Types } from "mongoose";
 import bcrypt from "bcrypt";
-
-export enum UserRole {
-  ADMIN = "admin",
-  USER = "user",
-  SELLER = "seller",
-  FINANCE = "finance",
-}
+import { UserRole } from "../enum/enum";
 
 interface ResetOtp {
   otpHash: string;
