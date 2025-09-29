@@ -1,14 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-
-export enum OrderStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  PROCESSING = 'processing',
-  SHIPPED = 'shipped',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-  RETURNED = 'returned'
-}
+import { OrderStatus } from '../enum/enum';
 
 export interface IOrder extends Document {
   _id: Types.ObjectId;
@@ -32,5 +23,14 @@ const OrderSchema = new Schema<IOrder>({
   total_amount: { type: Number, required: true },
   order_date: { type: Date, required: true },
 }, { timestamps: true });
+
+// Indexes for efficient queries
+OrderSchema.index({ user_id: 1 });
+OrderSchema.index({ listing_id: 1 });
+OrderSchema.index({ seller_id: 1 });
+OrderSchema.index({ booking_id: 1 });
+OrderSchema.index({ order_status: 1 });
+OrderSchema.index({ payment_status: 1 });
+OrderSchema.index({ order_date: -1 });
 
 export default model<IOrder>('Order', OrderSchema);

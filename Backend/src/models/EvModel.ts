@@ -33,4 +33,11 @@ const EvModelSchema = new Schema<IEvModel>({
   images: [{ type: String }],
 }, { timestamps: true });
 
+// Indexes for efficient queries
+EvModelSchema.index({ category_id: 1 });
+EvModelSchema.index({ brand_id: 1 });
+EvModelSchema.index({ model_name: 1 });
+EvModelSchema.index({ year: -1 });
+EvModelSchema.index({ price_range: 1 });
+
 export default model<IEvModel>('EvModel', EvModelSchema);

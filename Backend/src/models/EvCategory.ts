@@ -11,4 +11,7 @@ const EvCategorySchema = new Schema<IEvCategory>({
   description: { type: String },
 }, { timestamps: true });
 
+// Index for efficient queries
+EvCategorySchema.index({ category_name: 1 });
+
 export default model<IEvCategory>('EvCategory', EvCategorySchema);

@@ -31,4 +31,9 @@ const FinancialProductSchema = new Schema<IFinancialProduct>({
   is_active: { type: Boolean, default: true },
 }, { timestamps: true });
 
+// Indexes for efficient queries
+FinancialProductSchema.index({ institution_id: 1 });
+FinancialProductSchema.index({ product_type: 1 });
+FinancialProductSchema.index({ is_active: 1 });
+
 export default model<IFinancialProduct>('FinancialProduct', FinancialProductSchema);

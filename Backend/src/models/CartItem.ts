@@ -15,4 +15,9 @@ const CartItemSchema = new Schema<ICartItem>({
   quantity: { type: Number, required: true },
 }, { timestamps: true });
 
+// Indexes for efficient queries
+CartItemSchema.index({ cart_id: 1 });
+CartItemSchema.index({ listing_id: 1 });
+CartItemSchema.index({ order_id: 1 });
+
 export default model<ICartItem>('CartItem', CartItemSchema);

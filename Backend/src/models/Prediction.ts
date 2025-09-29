@@ -13,4 +13,7 @@ const PredictionSchema = new Schema<IPrediction>({
   prediction_result: { type: Object, required: true },
 }, { timestamps: true });
 
+// Indexes for efficient queries
+PredictionSchema.index({ conversation_id: 1 });
+
 export const Prediction = model<IPrediction>('Prediction', PredictionSchema);

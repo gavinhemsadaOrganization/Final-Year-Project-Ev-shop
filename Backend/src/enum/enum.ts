@@ -15,3 +15,36 @@ export enum NotificationType {
   SELLER_APPLICATION_APPROVED = 'SELLER_APPLICATION_APPROVED',
   SELLER_APPLICATION_REJECTED = 'SELLER_APPLICATION_REJECTED',
 }
+
+export enum PaymentMethod {
+  CREDIT_CARD = 'credit_card',
+  DEBIT_CARD = 'debit_card',
+  PAYPAL = 'paypal',
+  BANK_TRANSFER = 'bank_transfer',
+  CASH = 'cash'
+}
+
+export enum PaymentType {
+  PURCHASE = 'purchase',
+  REFUND = 'refund',
+  PARTIAL_REFUND = 'partial_refund'
+}
+
+export enum PaymentStatus {
+  CONFIRMED = 'confirmed',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+}
+
+export enum OrderStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'cancelled',
+}
+
+export enum ApplicationStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  UNDER_REVIEW = 'under_review'
+}

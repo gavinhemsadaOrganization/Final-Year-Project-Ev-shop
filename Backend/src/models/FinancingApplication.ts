@@ -1,11 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-
-export enum ApplicationStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-  UNDER_REVIEW = 'under_review'
-}
+import { ApplicationStatus } from '../enum/enum';
 
 export interface IFinancingApplication extends Document {
   _id: Types.ObjectId;
@@ -31,5 +25,10 @@ const FinancingApplicationSchema = new Schema<IFinancingApplication>({
   rejection_reason: { type: String },
   processed_at: { type: Date },
 }, { timestamps: true });
+
+// Indexes for efficient queries
+FinancingApplicationSchema.index({ user_id: 1 });
+FinancingApplicationSchema.index({ product_id: 1 });
+FinancingApplicationSchema.index({ status: 1 });
 
 export default model<IFinancingApplication>('FinancingApplication', FinancingApplicationSchema);

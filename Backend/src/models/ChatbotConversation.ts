@@ -11,4 +11,7 @@ const ChatbotConversationSchema = new Schema<IChatbotConversation>({
   message_text: { type: String, required: true },
 }, { timestamps: true });
 
+// Indexes for efficient queries
+ChatbotConversationSchema.index({ user_id: 1 });
+
 export const ChatbotConversation = model<IChatbotConversation>('ChatbotConversation', ChatbotConversationSchema);

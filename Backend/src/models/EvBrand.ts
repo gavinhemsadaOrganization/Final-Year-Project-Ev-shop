@@ -13,4 +13,7 @@ const EvBrandSchema = new Schema<IEvBrand>({
   description: { type: String },
 }, { timestamps: true });
 
+// Indexes for efficient queries
+EvBrandSchema.index({ brand_name: 1 });
+
 export default model<IEvBrand>('EvBrand', EvBrandSchema);

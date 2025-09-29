@@ -1,18 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-
-export enum PaymentMethod {
-  CREDIT_CARD = 'credit_card',
-  DEBIT_CARD = 'debit_card',
-  PAYPAL = 'paypal',
-  BANK_TRANSFER = 'bank_transfer',
-  CASH = 'cash'
-}
-
-export enum PaymentType {
-  PURCHASE = 'purchase',
-  REFUND = 'refund',
-  PARTIAL_REFUND = 'partial_refund'
-}
+import { PaymentStatus, PaymentMethod, PaymentType } from '../enum/enum';
 
 export interface IPayment extends Document {
   _id: Types.ObjectId;
@@ -21,7 +8,7 @@ export interface IPayment extends Document {
   payment_type: PaymentType;
   amount: number;
   tax_amount?: number;
-  status: string;
+  status: PaymentStatus;
 }
 
 const PaymentSchema = new Schema<IPayment>({
@@ -30,7 +17,13 @@ const PaymentSchema = new Schema<IPayment>({
   payment_type: { type: String, enum: Object.values(PaymentType), required: true },
   amount: { type: Number, required: true },
   tax_amount: { type: Number },
-  status: { type: String, required: true },
+  status: { type: String, enum: Object.values(PaymentStatus), required: true },
 }, { timestamps: true });
+
+// Indexes for efficient queries
+PaymentSchema.index({ order_id: 1 });
+PaymentSchema.index({ payment_method: 1 });
+PaymentSchema.index({ payment_type: 1 });
+PaymentSchema.index({ status: 1 });
 
 export default model<IPayment>('Payment', PaymentSchema);

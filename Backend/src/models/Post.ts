@@ -12,11 +12,11 @@ export interface IPost extends Document {
 
 const PostSchema = new Schema<IPost>({
   user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  title: { type: String, required: true },
+  title: { type: String, required: true },  
   content: { type: String, required: true },
   views: { type: Number, default: 0 },
   reply_count: { type: Number, default: 0 },
   last_reply_by: { type: Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
-export default model<IPost>('Post', PostSchema);
+export const Post = model<IPost>('Post', PostSchema);

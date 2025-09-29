@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface IReview extends Document {
   _id: Types.ObjectId;
@@ -10,13 +10,21 @@ export interface IReview extends Document {
   comment?: string;
 }
 
-const ReviewSchema = new Schema<IReview>({
-  reviewer_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  target_type: { type: String, required: true },
-  target_id: { type: Schema.Types.ObjectId, required: true },
-  rating: { type: Number, min: 1, max: 5, required: true },
-  title: String,
-  comment: String,
-}, { timestamps: true });
+const ReviewSchema = new Schema<IReview>(
+  {
+    reviewer_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    target_type: { type: String, required: true },
+    target_id: { type: Schema.Types.ObjectId, required: true },
+    rating: { type: Number, min: 1, max: 5, required: true },
+    title: String,
+    comment: String,
+  },
+  { timestamps: true }
+);
 
-export default model<IReview>('Review', ReviewSchema);
+// Indexes for efficient queries
+ReviewSchema.index({ reviewer_id: 1 });
+ReviewSchema.index({ target_id: 1 });
+ReviewSchema.index({ rating: 1 });
+
+export default model<IReview>("Review", ReviewSchema);

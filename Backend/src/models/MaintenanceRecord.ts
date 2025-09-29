@@ -19,4 +19,9 @@ const MaintenanceRecordSchema = new Schema<IMaintenanceRecord>({
   location: { type: String },
 }, { timestamps: true });
 
+// Indexes for efficient queries
+MaintenanceRecordSchema.index({ seller_id: 1 });
+MaintenanceRecordSchema.index({ service_date: -1 });
+MaintenanceRecordSchema.index({ service_type: 1 });
+
 export default model<IMaintenanceRecord>('MaintenanceRecord', MaintenanceRecordSchema);

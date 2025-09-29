@@ -13,4 +13,4 @@ const PostReplySchema = new Schema<IPostReply>({
   content: { type: String, required: true },
 }, { timestamps: true });
 
-export default model<IPostReply>('PostReply', PostReplySchema);
+export const PostReply = model<IPostReply>('PostReply', PostReplySchema);

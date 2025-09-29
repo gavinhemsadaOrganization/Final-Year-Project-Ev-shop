@@ -18,4 +18,9 @@ const NotificationSchema = new Schema<INotification>({
   is_read: { type: Boolean, default: false },
 }, { timestamps: true });
 
+// Indexes for efficient queries
+NotificationSchema.index({ user_id: 1 });
+NotificationSchema.index({ type: 1 });
+NotificationSchema.index({ is_read: 1 });
+
 export const Notification = model<INotification>('Notification', NotificationSchema);

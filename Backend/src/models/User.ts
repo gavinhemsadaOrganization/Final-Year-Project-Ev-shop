@@ -94,5 +94,9 @@ UserSchema.pre<IUser>("save", async function () {
 UserSchema.methods.comparePassword = function (raw: string) {
   return bcrypt.compare(raw, this.password);
 };
+// Indexes for efficient queries
+UserSchema.index({ role: 1, last_login: -1 });
+UserSchema.index({ email: 1 });
+UserSchema.index({ "resetOtp.expiresAt": 1 }, { expireAfterSeconds: 0 });
 
 export const User = model<IUser>("User", UserSchema);

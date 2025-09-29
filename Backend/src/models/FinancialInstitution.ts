@@ -24,6 +24,11 @@ const FinancialInstitutionSchema = new Schema<IFinancialInstitution>(
   { timestamps: true }
 );
 
+// Indexes for efficient queries
+FinancialInstitutionSchema.index({ user_id: 1 });
+FinancialInstitutionSchema.index({ name: 1 });
+FinancialInstitutionSchema.index({ type: 1 });
+
 export default model<IFinancialInstitution>(
   "FinancialInstitution",
   FinancialInstitutionSchema
