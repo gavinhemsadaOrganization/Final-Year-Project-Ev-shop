@@ -19,6 +19,9 @@ import { authRouter } from "./auth/auth.router";
 import { userRouter } from "./routers/user.router";
 import { notificationRouter } from "./routers/notification.router";
 import { chatbotRouter } from "./routers/chatbot.router";
+import { postRouter } from "./routers/post.router";
+
+// logging 
 import morgan from "morgan";
 import logger from "./utils/logger";
 
@@ -99,7 +102,10 @@ app.use("/auth", authRouter());
 app.use("/user", protectJWT, userRouter());
 app.use("/notification", protectJWT, notificationRouter());
 app.use("/chatbot", protectJWT, chatbotRouter());
+app.use("/post", protectJWT, postRouter());
 
+
+// Serve images from the uploads directory
 // app.use("/images/public", express.static(path.join(process.cwd(), "uploads/public")));
 app.get("/images/:filename", (req, res) => {
   const filename = req.params.filename;
