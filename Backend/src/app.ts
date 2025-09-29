@@ -19,6 +19,8 @@ import { authRouter } from "./auth/auth.router";
 import { userRouter } from "./routers/user.router";
 import { notificationRouter } from "./routers/notification.router";
 import { chatbotRouter } from "./routers/chatbot.router";
+import morgan from "morgan";
+import logger from "./utils/logger";
 
 const app: Application = express();
 
@@ -33,6 +35,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Session store in MongoDB
 app.use(
   session({
     store: connectMongo.create({
@@ -50,6 +53,7 @@ app.use(
   })
 );
 
+// Helmet for security headers
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -68,12 +72,29 @@ app.use(
   })
 );
 
+// Morgan -> Winston Stream - handle http logging
+const stream: morgan.StreamOptions = {
+  // Use the http level from our logger
+  write: (message) => logger.http(message.trim()),
+};
+
+// Use morgan middleware with our stream
+// Use 'combined' format for production for more details, 'dev' for development
+const morganMiddleware = morgan(
+  process.env.NODE_ENV === "production" ? "combined" : "dev",
+  { stream }
+);
+app.use(morganMiddleware);
+
+// Serve static files from the "public" directory
 app.use(express.static("public"));
 
+// Initialize Passport and restore authentication state, if any, from the session.
 const passport = initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Routes
 app.use("/auth", authRouter());
 app.use("/user", protectJWT, userRouter());
 app.use("/notification", protectJWT, notificationRouter());
@@ -92,6 +113,7 @@ app.get("/images/:filename", (req, res) => {
   }
 });
 
+// Global Error Handler
 app.use(
   (
     err: any,
@@ -99,8 +121,8 @@ app.use(
     res: express.Response,
     next: express.NextFunction
   ) => {
-    console.error(err.stack);
-    res.status(500).json({ error: "Something went wrong!" });
+    logger.error(err.stack);
+    res.status(500).json({ message: "Something went wrong!" });
   }
 );
 

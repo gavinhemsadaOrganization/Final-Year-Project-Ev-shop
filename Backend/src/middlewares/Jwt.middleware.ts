@@ -1,5 +1,6 @@
-import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
+import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
+import logger from "../utils/logger";
 
 declare global {
   namespace Express {
@@ -17,41 +18,49 @@ export const protectJWT = (req: Request, res: Response, next: NextFunction) => {
     const token = req.session.jwt;
 
     if (!token) {
+      logger.warn("Access token required");
       return res.status(401).json({ error: "Access token required" });
     }
 
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-    
+
     // Add user info to request
     req.user = decoded;
     next();
-
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
+      logger.warn("Access token expired");
       // Try to refresh the token
       return refreshToken(req, res, next);
     }
-    
+
+    logger.error(`Error verifying token: ${(error as any).message}`);
     return res.status(403).json({ error: "Invalid token" });
   }
 };
 
-const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const refreshToken = req.session.refreshToken;
 
     if (!refreshToken) {
+      logger.warn("Refresh token required");
       return res.status(401).json({ error: "Please login again" });
     }
 
     // Verify refresh token
     const decoded = jwt.verify(
-      refreshToken, 
+      refreshToken,
       process.env.JWT_REFRESH_SECRET!
     ) as any;
-    
+
     if (!req.session.userId) {
+      logger.warn("User session not found");
       return res.status(401).json({ error: "User session not found" });
     }
 
@@ -73,8 +82,8 @@ const refreshToken = async (req: Request, res: Response, next: NextFunction) => 
     };
 
     next();
-
   } catch (error) {
+    logger.error(`Error refreshing token: ${(error as any).message}`);
     req.session.destroy((err) => {
       return res.status(401).json({ error: "Please login again" });
     });

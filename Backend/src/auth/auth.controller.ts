@@ -9,6 +9,7 @@ import {
 } from "./auth.dto";
 import { initializePassport } from "./passport";
 import Jwt from "jsonwebtoken";
+import logger from "../utils/logger";
 
 export interface IAuthController {
   register(req: Request, res: Response): Promise<Response>;
@@ -30,13 +31,17 @@ export function authController(authService: IAuthService): IAuthController {
       try {
         const data = <RegisterDto>req.body;
         const result = await authService.register(data);
-        if (!result.success)
+        if (!result.success) {
+          logger.warn(`Registration failed: ${result.error}`);
           return res.status(400).json({ message: result.error });
+        }
+        logger.info(`User registered successfully: ${result.user}`);
         return res.status(201).json({
           message: "User registered successfully",
           result: result.user,
         });
       } catch (err) {
+        logger.error(`Error registering user: ${err}`);
         return res.status(500).json({ error: err || "Internal server error" });
       }
     },
@@ -45,8 +50,10 @@ export function authController(authService: IAuthService): IAuthController {
       try {
         const data = <LoginDTO>req.body;
         const result = await authService.login(data);
-        if (!result.success)
+        if (!result.success) {
+          logger.warn(`Login failed: ${result.error}`);
           return res.status(400).json({ message: result.error });
+        }
         // Generate JWT token
         const token = Jwt.sign(
           { userId: result.user.id, role: result.user.role },
@@ -69,15 +76,17 @@ export function authController(authService: IAuthService): IAuthController {
         req.session.role = result.user.role;
         req.session.save((err) => {
           if (err) {
+            logger.error("Failed to save session:", err);
             console.error("Failed to save session:", err);
           }
         });
-
+        logger.info(`User logged in successfully: ${result.user.id}`);
         return res.status(200).json({
           message: "User logged in successfully",
           user: result.user.id,
         });
       } catch (error: any) {
+        logger.error(`Error logging in user: ${error}`);
         return res
           .status(500)
           .json({ error: error?.message || "Internal server error" });
@@ -95,6 +104,7 @@ export function authController(authService: IAuthService): IAuthController {
         async (err: any, user: any) => {
           try {
             if (err) {
+              logger.error(`Error Google logging in user: ${err}`);
               return res.status(400).json({
                 success: false,
                 message: "Google authentication failed",
@@ -103,6 +113,7 @@ export function authController(authService: IAuthService): IAuthController {
             }
 
             if (!user) {
+              logger.error("Google authentication failed - no user data");
               return res.status(400).json({
                 success: false,
                 message: "Google authentication failed - no user data",
@@ -131,10 +142,11 @@ export function authController(authService: IAuthService): IAuthController {
             req.session.role = user.role;
             req.session.save((err) => {
               if (err) {
+                logger.error("Failed to save session:", err);
                 console.error("Failed to save session:", err);
               }
             });
-
+            logger.info(`User logged in successfully: ${user.id}`);
             return res.status(200).json({
               success: true,
               message: "Google authentication successful",
@@ -142,6 +154,7 @@ export function authController(authService: IAuthService): IAuthController {
               checkpass: user.checkpass,
             });
           } catch (error: any) {
+            logger.error(`Error Google logging in user: ${error}`);
             return res.status(500).json({
               success: false,
               message: "Internal server error",
@@ -163,6 +176,7 @@ export function authController(authService: IAuthService): IAuthController {
         async (err: any, user: any) => {
           try {
             if (err) {
+              logger.error(`Error Facebook logging in user: ${err}`);
               return res.status(400).json({
                 success: false,
                 message: "Facebook authentication failed",
@@ -171,6 +185,7 @@ export function authController(authService: IAuthService): IAuthController {
             }
 
             if (!user) {
+              logger.error("Facebook authentication failed - no user data");
               return res.status(400).json({
                 success: false,
                 message: "Facebook authentication failed - no user data",
@@ -199,10 +214,11 @@ export function authController(authService: IAuthService): IAuthController {
             req.session.role = user.role;
             req.session.save((err) => {
               if (err) {
+                logger.error("Failed to save session:", err);
                 console.error("Failed to save session:", err);
               }
             });
-
+            logger.info(`User logged in successfully: ${user.id}`);
             return res.status(200).json({
               success: true,
               message: "Facebook authentication successful",
@@ -210,6 +226,7 @@ export function authController(authService: IAuthService): IAuthController {
               checkpass: user.checkpass,
             });
           } catch (error: any) {
+            logger.error(`Error Facebook logging in user: ${error}`);
             return res.status(500).json({
               success: false,
               message: "Internal server error",
@@ -223,12 +240,16 @@ export function authController(authService: IAuthService): IAuthController {
       try {
         const data = <ForgetPasswordDTO>req.body;
         const result = await authService.forgetPassword(data);
-        if (!result.success)
+        if (!result.success) {
+          logger.warn(`Error sending OTP: ${result.error}`);
           return res.status(400).json({ message: result.error });
+        }
+        logger.info(`OTP sent successfully to user: ${data.email}`);
         return res.status(200).json({
           message: "OTP sent to email if it exists in our system",
         });
       } catch (err) {
+        logger.error(`Error sending OTP: ${err}`);
         return res.status(500).json({ error: err || "Internal server error" });
       }
     },
@@ -236,10 +257,14 @@ export function authController(authService: IAuthService): IAuthController {
       try {
         const data = <OTPverifyDTO>req.body;
         const result = await authService.verifyOTP(data);
-        if (!result.success)
+        if (!result.success) {
+          logger.warn(`Error verifying OTP: ${result.error}`);
           return res.status(400).json({ message: result.error });
+        }
+        logger.info(`OTP verified successfully for user: ${data.email}`);
         return res.status(200).json({ message: "OTP verified successfully" });
       } catch (err) {
+        logger.error(`Error verifying OTP: ${err}`);
         return res.status(500).json({ error: err || "Internal server error" });
       }
     },
@@ -251,6 +276,7 @@ export function authController(authService: IAuthService): IAuthController {
           return res.status(400).json({ message: result.error });
         return res.status(200).json({ message: "Password reset successfully" });
       } catch (err) {
+        logger.error(`Error resetting password: ${err}`);
         return res.status(500).json({ error: err || "Internal server error" });
       }
     },
@@ -261,14 +287,16 @@ export function authController(authService: IAuthService): IAuthController {
         await authService.updateLastLogin(userid, lastlogin);
         req.session.destroy((err) => {
           if (err) {
+            logger.error(`Error destroying session during logout: ${err}`);
             console.error("Session destroy error:", err);
             return res.status(500).json({ error: "Logout failed" });
           }
-
+          logger.info(`User logged out successfully: ${userid}`);
           res.clearCookie("connect.sid"); // Clear session cookie
           return res.status(200).json({ message: "Logout successful" });
         });
       } catch (error) {
+        logger.error(`Error logging out user: ${error}`);
         return res.status(500).json({ error: "Logout failed" });
       }
     },
