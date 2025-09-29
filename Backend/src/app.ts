@@ -20,6 +20,7 @@ import { userRouter } from "./routers/user.router";
 import { notificationRouter } from "./routers/notification.router";
 import { chatbotRouter } from "./routers/chatbot.router";
 import { postRouter } from "./routers/post.router";
+import { reviewRouter } from "./routers/review.router";
 
 // logging 
 import morgan from "morgan";
@@ -103,6 +104,7 @@ app.use("/user", protectJWT, userRouter());
 app.use("/notification", protectJWT, notificationRouter());
 app.use("/chatbot", protectJWT, chatbotRouter());
 app.use("/post", protectJWT, postRouter());
+app.use("/review", protectJWT, reviewRouter());
 
 
 // Serve images from the uploads directory

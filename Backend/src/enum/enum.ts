@@ -48,3 +48,9 @@ export enum ApplicationStatus {
   REJECTED = 'rejected',
   UNDER_REVIEW = 'under_review'
 }
+
+export enum ReviewType{
+  SELLER = 'seller',
+  PRODUCT = 'product',
+  SERVICE = 'service',
+}
