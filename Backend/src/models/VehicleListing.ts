@@ -42,4 +42,4 @@ const VehicleListingSchema = new Schema<IVehicleListing>({
   number_of_ev: { type: Number, min: 0 },
 }, { timestamps: true });
 
-export default model<IVehicleListing>('VehicleListing', VehicleListingSchema);
+export const VehicleListing = model<IVehicleListing>('VehicleListing', VehicleListingSchema);

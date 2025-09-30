@@ -16,4 +16,4 @@ const EvBrandSchema = new Schema<IEvBrand>({
 // Indexes for efficient queries
 EvBrandSchema.index({ brand_name: 1 });
 
-export default model<IEvBrand>('EvBrand', EvBrandSchema);
+export const EvBrand = model<IEvBrand>('EvBrand', EvBrandSchema);

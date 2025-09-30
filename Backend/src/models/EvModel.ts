@@ -40,4 +40,4 @@ EvModelSchema.index({ model_name: 1 });
 EvModelSchema.index({ year: -1 });
 EvModelSchema.index({ price_range: 1 });
 
-export default model<IEvModel>('EvModel', EvModelSchema);
+export const EvModel = model<IEvModel>('EvModel', EvModelSchema);

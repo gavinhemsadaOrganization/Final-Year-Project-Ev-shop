@@ -14,4 +14,4 @@ const EvCategorySchema = new Schema<IEvCategory>({
 // Index for efficient queries
 EvCategorySchema.index({ category_name: 1 });
 
-export default model<IEvCategory>('EvCategory', EvCategorySchema);
+export const EvCategory = model<IEvCategory>('EvCategory', EvCategorySchema);

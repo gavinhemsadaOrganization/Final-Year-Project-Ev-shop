@@ -27,8 +27,9 @@ import { financialRouter } from "./routers/financial.router";
 import { sellerRouter } from "./routers/seller.router";
 import { maintenanceRecordRouter } from "./routers/maintenanceRecord.router";
 import { orderRouter } from "./routers/order.router";
+import { evRouter } from "./routers/ev.router";
 
-// logging
+// logging 
 import morgan from "morgan";
 import logger from "./utils/logger";
 
@@ -117,6 +118,8 @@ app.use("/financial", protectJWT, financialRouter());
 app.use("/seller", protectJWT, sellerRouter());
 app.use("/maintenance", protectJWT, maintenanceRecordRouter());
 app.use("/order", protectJWT, orderRouter());
+app.use("/ev", protectJWT, evRouter());
+
 
 // Serve images from the uploads directory
 // app.use("/images/public", express.static(path.join(process.cwd(), "uploads/public")));
