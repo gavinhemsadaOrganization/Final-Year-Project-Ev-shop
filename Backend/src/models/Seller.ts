@@ -28,4 +28,4 @@ const SellerSchema = new Schema<ISeller>(
 SellerSchema.index({ user_id: 1 });
 SellerSchema.index({ rating: 1 });
 
-export default model<ISeller>("Seller", SellerSchema);
+export const Seller = model<ISeller>("Seller", SellerSchema);
