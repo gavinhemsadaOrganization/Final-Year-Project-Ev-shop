@@ -26,4 +26,4 @@ PaymentSchema.index({ payment_method: 1 });
 PaymentSchema.index({ payment_type: 1 });
 PaymentSchema.index({ status: 1 });
 
-export default model<IPayment>('Payment', PaymentSchema);
+export const Payment = model<IPayment>('Payment', PaymentSchema);

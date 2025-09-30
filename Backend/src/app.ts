@@ -27,6 +27,7 @@ import { financialRouter } from "./routers/financial.router";
 import { sellerRouter } from "./routers/seller.router";
 import { maintenanceRecordRouter } from "./routers/maintenanceRecord.router";
 import { orderRouter } from "./routers/order.router";
+import { paymentRouter } from "./routers/payment.router";
 import { evRouter } from "./routers/ev.router";
 
 // logging 
@@ -118,6 +119,7 @@ app.use("/financial", protectJWT, financialRouter());
 app.use("/seller", protectJWT, sellerRouter());
 app.use("/maintenance", protectJWT, maintenanceRecordRouter());
 app.use("/order", protectJWT, orderRouter());
+app.use("/payment", protectJWT, paymentRouter());
 app.use("/ev", protectJWT, evRouter());
 
 
