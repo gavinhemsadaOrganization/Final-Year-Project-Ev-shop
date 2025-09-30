@@ -25,6 +25,7 @@ import { testDriveRouter } from "./routers/testDrive.router";
 import { cartRouter } from "./routers/cart.router";
 import { financialRouter } from "./routers/financial.router";
 import { sellerRouter } from "./routers/seller.router";
+import { maintenanceRecordRouter } from "./routers/maintenanceRecord.router";
 
 // logging
 import morgan from "morgan";
@@ -113,6 +114,7 @@ app.use("/test-drive", protectJWT, testDriveRouter());
 app.use("/cart", protectJWT, cartRouter());
 app.use("/financial", protectJWT, financialRouter());
 app.use("/seller", protectJWT, sellerRouter());
+app.use("/maintenance", protectJWT, maintenanceRecordRouter());
 
 // Serve images from the uploads directory
 // app.use("/images/public", express.static(path.join(process.cwd(), "uploads/public")));

@@ -24,4 +24,4 @@ MaintenanceRecordSchema.index({ seller_id: 1 });
 MaintenanceRecordSchema.index({ service_date: -1 });
 MaintenanceRecordSchema.index({ service_type: 1 });
 
-export default model<IMaintenanceRecord>('MaintenanceRecord', MaintenanceRecordSchema);
+export const MaintenanceRecord = model<IMaintenanceRecord>('MaintenanceRecord', MaintenanceRecordSchema);
