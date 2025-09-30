@@ -31,4 +31,4 @@ FinancingApplicationSchema.index({ user_id: 1 });
 FinancingApplicationSchema.index({ product_id: 1 });
 FinancingApplicationSchema.index({ status: 1 });
 
-export default model<IFinancingApplication>('FinancingApplication', FinancingApplicationSchema);
+export const FinancingApplication = model<IFinancingApplication>('FinancingApplication', FinancingApplicationSchema);

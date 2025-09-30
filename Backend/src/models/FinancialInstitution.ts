@@ -29,7 +29,7 @@ FinancialInstitutionSchema.index({ user_id: 1 });
 FinancialInstitutionSchema.index({ name: 1 });
 FinancialInstitutionSchema.index({ type: 1 });
 
-export default model<IFinancialInstitution>(
+export const FinancialInstitution = model<IFinancialInstitution>(
   "FinancialInstitution",
   FinancialInstitutionSchema
 );

@@ -36,4 +36,4 @@ FinancialProductSchema.index({ institution_id: 1 });
 FinancialProductSchema.index({ product_type: 1 });
 FinancialProductSchema.index({ is_active: 1 });
 
-export default model<IFinancialProduct>('FinancialProduct', FinancialProductSchema);
+export const FinancialProduct = model<IFinancialProduct>('FinancialProduct', FinancialProductSchema);
