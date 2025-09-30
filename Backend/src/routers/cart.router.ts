@@ -7,7 +7,7 @@ import "../di/cart.di";
 
 export const cartRouter = (): Router => {
   const router = Router();
-  const controller = container.resolve<ICartController>("CartController");
+  const controller = container.resolve<ICartController>("ICartController");
 
   router.get("/:userId", (req, res) => controller.getCart(req, res));
 

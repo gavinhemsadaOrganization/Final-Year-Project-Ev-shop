@@ -9,15 +9,16 @@ import {
   ReviewRepository,
 } from "../repositories/review.repository";
 
-export function registerReviewDependencies() {
-  container.register<IReviewRepository>("IReviewRepository", {
-    useValue: ReviewRepository,
-  });
-  container.register<IReviewService>("IReviewService", {
-    useFactory: (c) => reviewService(c.resolve<IReviewRepository>("IReviewRepository")),
-  });
-  container.register<IReviewController>("IReviewController", { useFactory: (c) => reviewController(c.resolve<IReviewService>("IReviewService")) });
-}
+container.register<IReviewRepository>("IReviewRepository", {
+  useValue: ReviewRepository,
+});
+container.register<IReviewService>("IReviewService", {
+  useFactory: (c) =>
+    reviewService(c.resolve<IReviewRepository>("IReviewRepository")),
+});
+container.register<IReviewController>("IReviewController", {
+  useFactory: (c) =>
+    reviewController(c.resolve<IReviewService>("IReviewService")),
+});
 
 export { container };
-

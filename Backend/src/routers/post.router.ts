@@ -2,11 +2,11 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { IPostController } from "../controllers/post.controller";
 import { PostDTO, PostReplyDTO } from "../dtos/post.DTO";
-import { container } from "../di/chatbot.di";
+import { container } from "../di/post.di";
 
 export const postRouter = (): Router => {
   const router = Router();
-  const postController = container.resolve<IPostController>("PostController");
+  const postController = container.resolve<IPostController>("IPostController");
 
   // Posts
   router.get("/post/:id", (req, res) => postController.findPostById(req, res));

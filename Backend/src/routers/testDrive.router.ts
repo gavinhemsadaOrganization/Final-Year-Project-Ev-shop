@@ -10,7 +10,7 @@ import { ITestDriveController } from "../controllers/testDrive.controller";
 export const testDriveRouter = (): Router => {
   const router = Router();
   const controller = container.resolve<ITestDriveController>(
-    "TestDriveController"
+    "ITestDriveController"
   );
 
   // Test Drive Slot Routes

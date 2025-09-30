@@ -13,10 +13,10 @@ container.register<IPaymentRepository>("PaymentRepository", {
   useValue: PaymentRepository,
 });
 container.register<IPaymentService>("PaymentService", {
-  useFactory: (c) => paymentService(c.resolve("PaymentRepository")),
+  useFactory: (c) => paymentService(c.resolve<IPaymentRepository>("PaymentRepository")),
 });
 container.register<IPaymentController>("PaymentController", {
-  useFactory: (c) => paymentController(c.resolve("PaymentService")),
+  useFactory: (c) => paymentController(c.resolve<IPaymentService>("PaymentService")),
 });
 
 export { container };
