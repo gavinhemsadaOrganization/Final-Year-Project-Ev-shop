@@ -36,7 +36,7 @@ TestDriveBookingSchema.index({ slot_id: 1 });
 TestDriveBookingSchema.index({ booking_date: 1 });
 TestDriveBookingSchema.index({ status: 1 });
 
-export default model<ITestDriveBooking>(
+export const TestDriveBooking = model<ITestDriveBooking>(
   "TestDriveBooking",
   TestDriveBookingSchema
 );

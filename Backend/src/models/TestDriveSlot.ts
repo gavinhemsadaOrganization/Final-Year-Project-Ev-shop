@@ -29,4 +29,4 @@ TestDriveSlotSchema.index({ available_date: 1 });
 TestDriveSlotSchema.index({ location: 1 });
 TestDriveSlotSchema.index({ is_active: 1 });
 
-export default model<ITestDriveSlot>("TestDriveSlot", TestDriveSlotSchema);
+export const TestDriveSlot = model<ITestDriveSlot>("TestDriveSlot", TestDriveSlotSchema);

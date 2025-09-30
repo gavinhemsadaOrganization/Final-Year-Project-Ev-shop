@@ -12,4 +12,4 @@ const CartSchema = new Schema<ICart>({
 // Indexes for efficient queries
 CartSchema.index({ user_id: 1 });
 
-export default model<ICart>('Cart', CartSchema);
+export const Cart = model<ICart>('Cart', CartSchema);

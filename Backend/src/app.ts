@@ -21,6 +21,8 @@ import { notificationRouter } from "./routers/notification.router";
 import { chatbotRouter } from "./routers/chatbot.router";
 import { postRouter } from "./routers/post.router";
 import { reviewRouter } from "./routers/review.router";
+import { testDriveRouter } from "./routers/testDrive.router";
+import { cartRouter } from "./routers/cart.router";
 
 // logging 
 import morgan from "morgan";
@@ -105,6 +107,8 @@ app.use("/notification", protectJWT, notificationRouter());
 app.use("/chatbot", protectJWT, chatbotRouter());
 app.use("/post", protectJWT, postRouter());
 app.use("/review", protectJWT, reviewRouter());
+app.use("/test-drive", protectJWT, testDriveRouter());
+app.use("/cart", protectJWT, cartRouter());
 
 
 // Serve images from the uploads directory

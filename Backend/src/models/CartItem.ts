@@ -20,4 +20,4 @@ CartItemSchema.index({ cart_id: 1 });
 CartItemSchema.index({ listing_id: 1 });
 CartItemSchema.index({ order_id: 1 });
 
-export default model<ICartItem>('CartItem', CartItemSchema);
+export const CartItem = model<ICartItem>('CartItem', CartItemSchema);
