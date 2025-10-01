@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 import type { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -35,7 +35,7 @@ import { evRouter } from "./routers/ev.router";
 import morgan from "morgan";
 import logger from "./utils/logger";
 
-const app: Application = express();
+const app: Express = express();
 
 app.use(
   cors({
