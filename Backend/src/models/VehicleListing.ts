@@ -1,17 +1,5 @@
 import { Schema, model, Document, Types } from 'mongoose';
-
-export enum ListingType {
-  SALE = 'sale',
-  RENT = 'rent',
-  LEASE = 'lease'
-}
-
-export enum VehicleCondition {
-  NEW = 'new',
-  USED = 'used',
-  CERTIFIED_PRE_OWNED = 'certified_pre_owned',
-  DAMAGED = 'damaged'
-}
+import { ListingType, VehicleCondition } from '../enum/enum';
 
 export interface IVehicleListing extends Document {
   _id: Types.ObjectId;

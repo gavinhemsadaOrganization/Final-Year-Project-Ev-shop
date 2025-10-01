@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { IUserService } from "../services/user.service";
 import { UserDTO } from "../dtos/user.DTO";
-import logger from "../utils/logger";
+import { handleResult, handleError } from "../utils/Respons.util";
 
 export interface IUserController {
   getUserByID(req: Request, res: Response): Promise<Response>;
@@ -16,14 +16,11 @@ export function userController(userService: IUserService): IUserController {
       try {
         const result = await userService.findById(req.params.id);
         if (!result.success) {
-          logger.error(`Error getting user by ID: ${result.error}`);
-          return res.status(400).json({ message: result.error });
+          return handleResult(res, result, 400);
         }
-        logger.info(`User found: ${result.user}`);
-        return res.status(200).json({ message: "User", result: result.user });
+        return handleResult(res, result, 200);
       } catch (err) {
-        logger.error(`Error getting user by ID: ${err}`);
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "Error getting user by ID");
       }
     },
     updateUser: async (req, res) => {
@@ -33,16 +30,15 @@ export function userController(userService: IUserService): IUserController {
         const file = req.file;
         const result = await userService.update(id, data, file);
         if (!result.success) {
-          logger.error(`Error updating user: ${result.error}`);
-          return res.status(400).json({ message: result.error });
+          return handleResult(res, result, 400);
         }
-        logger.info(`User updated: ${result.user}`);
-        return res
-          .status(200)
-          .json({ message: "User updated", user: result.user });
+        return handleResult(
+          res,
+          result,
+          200
+        );
       } catch (err) {
-        logger.error(`Error updating user: ${err}`);
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "Error updating user");
       }
     },
     deleteUser: async (req, res) => {
@@ -50,30 +46,26 @@ export function userController(userService: IUserService): IUserController {
         const id = req.params.id;
         const result = await userService.delete(id);
         if (!result.success) {
-          logger.error(`Error deleting user: ${result.error}`);
-          return res.status(400).json({ message: result.error });
+          return handleResult(res, result, 400);
         }
-        logger.info(`User deleted: ${id}`);
-        return res.status(200).json({ message: "User deleted" });
+        return handleResult(res, result, 200);
       } catch (err) {
-        logger.error(`Error deleting user: ${err}`);
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "Error deleting user");
       }
     },
     findAllUsers: async (_req, res) => {
       try {
         const result = await userService.findAll();
         if (!result.success) {
-          logger.error(`Error getting all users: ${result.error}`);
-          return res.status(400).json({ message: result.error });
+          return handleResult(res, result, 400);
         }
-        logger.info(`Successfully retrieved all users`);
-        return res
-          .status(200)
-          .json({ message: "All Users", result: result.users });
+        return handleResult(
+          res,
+          result,
+          200
+        );
       } catch (err) {
-        logger.error(`Error getting all users: ${err}`);
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "Error getting all users");
       }
     },
   };

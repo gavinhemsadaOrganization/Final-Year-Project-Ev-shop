@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { TestDriveSlot, ITestDriveSlot } from "../models/TestDriveSlot";
 import { TestDriveBooking, ITestDriveBooking } from "../models/TestDrivingBooking";
-import { TestDriveBookingDTO, TestDriveSlotDTO } from "../dtos/testDrive.DTO";
+import { TestDriveBookingDTO, TestDriveSlotDTO, FeedbackDTO } from "../dtos/testDrive.DTO";
 
 export interface ITestDriveRepository {
   // Slot methods
@@ -9,6 +9,7 @@ export interface ITestDriveRepository {
   findSlotById(id: string): Promise<ITestDriveSlot | null>;
   findAllSlots(): Promise<ITestDriveSlot[]>;
   findSlotsBySeller(sellerId: string): Promise<ITestDriveSlot[]>;
+  findActiveSlots(): Promise<ITestDriveSlot[]>;
   updateSlot(
     id: string,
     data: Partial<TestDriveSlotDTO>
@@ -25,6 +26,10 @@ export interface ITestDriveRepository {
     data: Partial<TestDriveBookingDTO>
   ): Promise<ITestDriveBooking | null>;
   deleteBooking(id: string): Promise<boolean>;
+  
+  // rating
+  createRating(data: FeedbackDTO) : Promise<ITestDriveBooking>;
+  deleteRating(id: string): Promise<boolean>;
 }
 
 export const TestDriveRepository: ITestDriveRepository = {
@@ -49,7 +54,11 @@ export const TestDriveRepository: ITestDriveRepository = {
       seller_id: new Types.ObjectId(sellerId),
     }).sort({ available_date: -1 });
   },
-
+  findActiveSlots: async () =>{
+    return await TestDriveSlot.find({ is_active: true }).sort({
+      available_date: 1,
+    });
+  },
   updateSlot: async (id, data) => {
     return await TestDriveSlot.findByIdAndUpdate(id, data, { new: true });
   },
@@ -88,6 +97,28 @@ export const TestDriveRepository: ITestDriveRepository = {
 
   deleteBooking: async (id) => {
     const result = await TestDriveBooking.findByIdAndDelete(id);
+    return result !== null;
+  },
+
+  // Ratings
+  createRating: async (data) => {
+    const booking = await TestDriveBooking.findById(data.booking_id);
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+    booking.feedback_rating = data.rating;
+    booking.feedback_comment = data.comment;
+    return await booking.save();
+  },
+
+  deleteRating: async (id) => {
+    const booking = await TestDriveBooking.findById(id);
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+    booking.feedback_rating = undefined;
+    booking.feedback_comment = undefined;
+    const  result = await booking.save();
     return result !== null;
   },
 };

@@ -1,8 +1,10 @@
 import {
   TestDriveBookingDTO,
-  TestDriveSlotDTO
+  TestDriveSlotDTO,
+  FeedbackDTO,
 } from "../dtos/testDrive.DTO";
 import { ITestDriveRepository } from "../repositories/testDrive.repository";
+
 
 export interface ITestDriveService {
   // Slot methods
@@ -16,6 +18,11 @@ export interface ITestDriveService {
   findSlotsBySeller(
     sellerId: string
   ): Promise<{ success: boolean; slots?: any[]; error?: string }>;
+  findActiveSlots(): Promise<{
+    success: boolean;
+    slots?: any[];
+    error?: string;
+  }>;
   updateSlot(
     id: string,
     data: Partial<TestDriveSlotDTO>
@@ -37,6 +44,12 @@ export interface ITestDriveService {
     data: Partial<TestDriveBookingDTO>
   ): Promise<{ success: boolean; booking?: any; error?: string }>;
   deleteBooking(id: string): Promise<{ success: boolean; error?: string }>;
+
+  // Rating
+  createRating(
+    data: FeedbackDTO
+  ): Promise<{ success: boolean; booking?: any; error?: string }>;
+  deleteRating(id: string): Promise<{ success: boolean; error?: string }>;
 }
 
 export function testDriveService(
@@ -77,6 +90,14 @@ export function testDriveService(
         return { success: false, error: "Failed to fetch slots for seller" };
       }
     },
+    findActiveSlots: async () => {
+      try {
+        const slots = await testDriveRepo.findActiveSlots();
+        return { success: true, slots };
+      } catch (err) {
+        return { success: false, error: "Failed to fetch active slots" };
+      }
+    },
     updateSlot: async (id, data) => {
       try {
         const slot = await testDriveRepo.updateSlot(id, data);
@@ -108,11 +129,22 @@ export function testDriveService(
         if (bookingsOnSlot.length >= slot.max_bookings) {
           return { success: false, error: "Slot is fully booked" };
         }
-
+        const customer = await testDriveRepo.findBookingsByCustomerId(
+          data.customer_id
+        );
+        if (customer.length > 0) {
+          customer.forEach((element) => {
+            if (data.slot_id == element.slot_id.toString()) {
+              return {
+                success: false,
+                error: "Customer already has a booking",
+              };
+            }
+          });
+        }
         const bookingData = {
           ...data,
-          booking_date: slot.available_date,
-          status: "confirmed",
+          booking_date: slot.available_date
         };
         const booking = await testDriveRepo.createBooking(bookingData as any);
         return { success: true, booking };
@@ -155,6 +187,25 @@ export function testDriveService(
         return { success: true };
       } catch (err) {
         return { success: false, error: "Failed to delete booking" };
+      }
+    },
+
+    // Ratings
+    createRating: async (data) => {
+      try {
+        const booking = await testDriveRepo.createRating(data);
+        return { success: true, booking };
+      } catch (err) {
+        return { success: false, error: "Failed to create rating" };
+      }
+    },
+    deleteRating: async (id) => {
+      try {
+        const success = await testDriveRepo.deleteRating(id);
+        if (!success) return { success: false, error: "Rating not found" };
+        return { success: true };
+      } catch (err) {
+        return { success: false, error: "Failed to delete rating" };
       }
     },
   };

@@ -3,6 +3,7 @@ import { IReviewService } from "../services/review.service";
 import logger from "../utils/logger";
 
 export interface IReviewController {
+  getAllReviews(req: Request, res: Response): Promise<Response>;
   getReviewByTargetId(req: Request, res: Response): Promise<Response>;
   getReviewsByReviewerId(req: Request, res: Response): Promise<Response>;
   getReviewById(req: Request, res: Response): Promise<Response>;
@@ -15,6 +16,22 @@ export function reviewController(
   reviewService: IReviewService
 ): IReviewController {
   return {
+    getAllReviews: async (_req, res) => {
+      try {
+        const result = await reviewService.getAllReviews();
+        if (!result.success) {
+          logger.warn(`Failed to get all reviews`);
+          return res.status(400).json({ message: result.error });
+        }
+        logger.info(`Successfully retrieved all reviews`);
+        return res
+          .status(200)
+          .json({ message: "All reviews", result: result.reviews });
+      } catch (err) {
+        logger.error(`Error getting all reviews: ${err}`);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },
     getReviewByTargetId: async (req, res) => {
       try {
         const { targetId } = req.params;

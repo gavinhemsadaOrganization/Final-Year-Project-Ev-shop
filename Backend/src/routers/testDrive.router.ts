@@ -3,6 +3,7 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 import {
   TestDriveBookingDTO,
   TestDriveSlotDTO,
+  FeedbackDTO
 } from "../dtos/testDrive.DTO";
 import { container } from "../di/testDrive.di";
 import { ITestDriveController } from "../controllers/testDrive.controller";
@@ -22,6 +23,7 @@ export const testDriveRouter = (): Router => {
     controller.getSlotsBySeller(req, res)
   );
   router.get("/slots/:id", (req, res) => controller.getSlotById(req, res));
+  router.get("/slots/active", (req, res) => controller.getActiveSlots(req, res));
   router.put("/slots/:id", validateDto(TestDriveSlotDTO), (req, res) =>
     controller.updateSlot(req, res)
   );
@@ -44,6 +46,17 @@ export const testDriveRouter = (): Router => {
   );
   router.delete("/bookings/:id", (req, res) =>
     controller.deleteBooking(req, res)
+  );
+
+  // ratings
+  router.post("/ratings", validateDto(FeedbackDTO), (req, res) =>
+    controller.createRating(req, res)
+  );
+  router.put("/ratings", validateDto(FeedbackDTO), (req, res) =>
+    controller.createRating(req, res)
+  );
+  router.delete("/ratings/:id", (req, res) =>
+    controller.deleteRating(req, res)
   );
 
   return router;

@@ -9,12 +9,14 @@ import {
   sellerController,
 } from "../controllers/seller.controller";
 
-container.register<ISellerRepository>("SellerRepository", {
+container.register<ISellerRepository>("ISellerRepository", {
   useValue: SellerRepository,
 });
-container.register<ISellerService>("SellerService", {
-  useFactory: (c) => sellerService(c.resolve<ISellerRepository>("SellerRepository")),
+container.register<ISellerService>("ISellerService", {
+  useFactory: (c) => sellerService(c.resolve<ISellerRepository>("ISellerRepository")),
 });
-container.register<ISellerController>("SellerController", {
-  useFactory: (c) => sellerController(c.resolve<ISellerService>("SellerService")),
+container.register<ISellerController>("ISellerController", {
+  useFactory: (c) => sellerController(c.resolve<ISellerService>("ISellerService")),
 });
+
+export { container };

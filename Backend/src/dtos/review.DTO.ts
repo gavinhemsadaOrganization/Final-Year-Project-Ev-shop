@@ -8,6 +8,8 @@ export class ReviewDTO {
   target_type!: string;
   @IsString()
   target_id!: string;
+  @IsString()
+  order_id!: string;
   @IsNumber()
   rating!: number;
   @IsString()

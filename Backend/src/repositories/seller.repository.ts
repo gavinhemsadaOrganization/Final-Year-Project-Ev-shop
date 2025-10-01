@@ -7,6 +7,11 @@ export interface ISellerRepository {
   findById(id: string): Promise<ISeller | null>;
   findByUserId(userId: string): Promise<ISeller | null>;
   findAll(): Promise<ISeller[]>;
+  updateRatingAndReviewCount(
+    id: string,
+    rating: number,
+    reviewCount: number
+  ): Promise<ISeller | null>;
   update(id: string, data: Partial<UpdateSellerDTO>): Promise<ISeller | null>;
   delete(id: string): Promise<boolean>;
 }
@@ -33,7 +38,17 @@ export const SellerRepository: ISellerRepository = {
   findAll: async () => {
     return await Seller.find().populate("user_id", "name email profile_image");
   },
-
+  updateRatingAndReviewCount: async (
+    id: string,
+    rating: number,
+    reviewCount: number
+  ) => {
+    return await Seller.findByIdAndUpdate(
+      id,
+      { rating, total_reviews: reviewCount },
+      { new: true }
+    );
+  },
   update: async (id: string, data: Partial<UpdateSellerDTO>) => {
     return await Seller.findByIdAndUpdate(id, data, { new: true });
   },

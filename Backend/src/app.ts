@@ -3,6 +3,7 @@ import type { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bodyParser from "body-parser";
+import rateLimit from 'express-rate-limit';
 // Oauth
 import { initializePassport } from "./auth/passport";
 import "./auth/passport";
@@ -106,22 +107,44 @@ const passport = initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
-app.use("/auth", authRouter());
-app.use("/user", protectJWT, userRouter());
-app.use("/notification", protectJWT, notificationRouter());
-app.use("/chatbot", protectJWT, chatbotRouter());
-app.use("/post", protectJWT, postRouter());
-app.use("/review", protectJWT, reviewRouter());
-app.use("/test-drive", protectJWT, testDriveRouter());
-app.use("/cart", protectJWT, cartRouter());
-app.use("/financial", protectJWT, financialRouter());
-app.use("/seller", protectJWT, sellerRouter());
-app.use("/maintenance", protectJWT, maintenanceRecordRouter());
-app.use("/order", protectJWT, orderRouter());
-app.use("/payment", protectJWT, paymentRouter());
-app.use("/ev", protectJWT, evRouter());
+// --- 2. SETUP RATE LIMITING ---
+// This protects your API endpoints from brute-force attacks and abuse.
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests from this IP, please try again after 15 minutes." },
+});
 
+// Payment-specific rate limiting
+const paymentLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // max 5 payment requests per minute
+  message: 'Too many payment requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const apiV1Router = express.Router();
+apiV1Router.use(apiLimiter);
+// Routes
+apiV1Router.use("/auth", authRouter());
+apiV1Router.use("/user", protectJWT, userRouter());
+apiV1Router.use("/notification", protectJWT, notificationRouter());
+apiV1Router.use("/chatbot", protectJWT, chatbotRouter());
+apiV1Router.use("/post", protectJWT, postRouter());
+apiV1Router.use("/review", protectJWT, reviewRouter());
+apiV1Router.use("/test-drive", protectJWT, testDriveRouter());
+apiV1Router.use("/cart", protectJWT, cartRouter());
+apiV1Router.use("/financial", protectJWT, financialRouter());
+apiV1Router.use("/seller", protectJWT, sellerRouter());
+apiV1Router.use("/maintenance", protectJWT, maintenanceRecordRouter());
+apiV1Router.use("/order", protectJWT, orderRouter());
+apiV1Router.use("/payment",paymentLimiter, protectJWT, paymentRouter());
+apiV1Router.use("/ev", protectJWT, evRouter());
+
+app.use("/api/v1", apiV1Router);
 
 // Serve images from the uploads directory
 // app.use("/images/public", express.static(path.join(process.cwd(), "uploads/public")));

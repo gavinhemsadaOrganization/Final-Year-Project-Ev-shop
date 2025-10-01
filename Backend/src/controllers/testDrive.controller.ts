@@ -8,6 +8,7 @@ export interface ITestDriveController {
   getSlotById(req: Request, res: Response): Promise<Response>;
   getAllSlots(req: Request, res: Response): Promise<Response>;
   getSlotsBySeller(req: Request, res: Response): Promise<Response>;
+  getActiveSlots(req: Request, res: Response): Promise<Response>;
   updateSlot(req: Request, res: Response): Promise<Response>;
   deleteSlot(req: Request, res: Response): Promise<Response>;
 
@@ -17,6 +18,10 @@ export interface ITestDriveController {
   getBookingsByCustomer(req: Request, res: Response): Promise<Response>;
   updateBooking(req: Request, res: Response): Promise<Response>;
   deleteBooking(req: Request, res: Response): Promise<Response>;
+
+  // Ratings
+  createRating(req: Request, res: Response): Promise<Response>;
+  deleteRating(req: Request, res: Response): Promise<Response>;
 }
 
 export function testDriveController(
@@ -75,7 +80,16 @@ export function testDriveController(
         return res.status(500).json({ message: "Internal server error" });
       }
     },
-
+    getActiveSlots: async (_req, res) => {
+      try {
+        const result = await service.findActiveSlots();
+        logger.info(`All active slots fetched`);
+        return res.status(200).json(result.slots);
+      } catch (err) {
+        logger.error(`Error fetching all active slots: ${err}`);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    },
     updateSlot: async (req, res) => {
       try {
         const result = await service.updateSlot(req.params.id, req.body);
@@ -179,5 +193,34 @@ export function testDriveController(
         return res.status(500).json({ message: "Internal server error" });
       }
     },
+    // Ratings
+    createRating: async (req, res) => {
+      try {
+        const result = await service.createRating(req.body);
+        if (!result.success) {
+          logger.warn(`Failed to create rating`);
+          return res.status(404).json({ message: result.error });
+        }
+        logger.info(`Rating created`);
+        return res.status(201).json(result.booking);
+        } catch (err) {
+        logger.error(`Error creating rating: ${err}`);
+        return res.status(500).json({ message: "Internal server error" });
+        }
+    },
+    deleteRating: async (req, res) => {
+      try {
+        const result = await service.deleteRating(req.params.id);
+        if (!result.success) {
+          logger.warn(`Failed to delete rating`);
+          return res.status(404).json({ message: result.error });
+        }
+        logger.info(`Rating deleted`);
+        return res.status(200).json({ message: "Rating deleted" });
+      } catch (err) {
+        logger.error(`Error deleting rating: ${err}`);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    }
   };
 }

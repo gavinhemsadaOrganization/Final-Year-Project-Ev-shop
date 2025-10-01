@@ -6,6 +6,7 @@ export interface IReviewRepository {
   getReviewsByReviewerId(reviewerId: string): Promise<IReview[]>;
   getReviewById(id: string): Promise<IReview | null>;
   createReview(reviewData: ReviewDTO): Promise<IReview>;
+  getAllReviews(): Promise<IReview[]>;
   updateReview(
     id: string,
     reviewData: Partial<ReviewDTO>
@@ -13,6 +14,9 @@ export interface IReviewRepository {
   deleteReview(id: string): Promise<boolean>;
 }
 export const ReviewRepository: IReviewRepository = {
+  getAllReviews: async () => {
+    return await Review.find().populate("order_id");
+  },
   getReviewByTargetId: async (targetId) => {
     return await Review.find({ target_id: targetId });
   },

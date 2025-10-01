@@ -50,7 +50,22 @@ export enum ApplicationStatus {
 }
 
 export enum ReviewType{
-  SELLER = 'seller',
   PRODUCT = 'product',
   SERVICE = 'service',
+}
+
+export enum VehicleCondition {
+  NEW = 'new',
+  USED = 'used'
+}
+
+export enum ListingType {
+  SALE = 'sale',
+  LEASE = 'lease'
+}
+
+export enum TestDriveBookingStatus {
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'cancelled',
+  completed = 'completed',
 }

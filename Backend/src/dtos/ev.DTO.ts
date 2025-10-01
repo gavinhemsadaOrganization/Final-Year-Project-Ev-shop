@@ -9,7 +9,7 @@ import {
   Min,
   Max,
 } from "class-validator";
-import { ListingType, VehicleCondition } from "../models/VehicleListing";
+import { ListingType, VehicleCondition } from "../enum/enum";
 
 // --- Brand DTOs ---
 export class EvBrandDTO {

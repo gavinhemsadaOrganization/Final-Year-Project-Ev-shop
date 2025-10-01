@@ -12,7 +12,6 @@ export const UserRepository: IUserRepository = {
   findByEmail: async (email) => {
     return await User.findOne({ email }).select("-password");
   },
-
   findById: async (_id) => {
     return await User.findOne({ _id  }).select("-password");
   },

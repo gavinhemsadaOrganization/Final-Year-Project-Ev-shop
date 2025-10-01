@@ -6,8 +6,10 @@ import {
   IsOptional,
   Min,
   Max,
+  IsEnum,
 } from "class-validator";
 import { Type } from "class-transformer";
+import { TestDriveBookingStatus } from "../enum/enum";
 
 export class TestDriveSlotDTO {
   @IsString()
@@ -37,6 +39,14 @@ export class TestDriveBookingDTO {
 
   @IsString()
   slot_id!: string;
+  
+  @IsEnum(TestDriveBookingStatus)
+  states!: TestDriveBookingStatus;
+
+  @IsDate()
+  @Type(() => Date)
+  booking_date!: Date;
+
 
   @IsString()
   booking_time!: string;
@@ -45,3 +55,16 @@ export class TestDriveBookingDTO {
   duration_minutes!: number;
 }
 
+export class FeedbackDTO {
+  @IsString()
+  booking_id!: string;
+
+  @IsNumber()
+  @Min(1)
+  @Max(5)
+  rating!: number;
+
+  @IsString()
+  @IsOptional()
+  comment?: string;
+}

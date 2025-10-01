@@ -2,6 +2,7 @@ import {IReviewRepository} from "../repositories/review.repository";
 import {ReviewDTO} from "../dtos/review.DTO";
 
 export interface IReviewService {
+    getAllReviews(): Promise<{ success: boolean; reviews?: any[]; error?: string }>;
     getReviewByTargetId(targetId: string): Promise<{ success: boolean; reviews?: any[]; error?: string }>;
     getReviewsByReviewerId(reviewerId: string): Promise<{ success: boolean; reviews?: any[]; error?: string }>;
     getReviewById(id: string): Promise<{ success: boolean; review?: any; error?: string }>;
@@ -12,6 +13,16 @@ export interface IReviewService {
 
 export function reviewService(reviewRepo: IReviewRepository): IReviewService {
     return {
+        getAllReviews: async () => {
+            try {
+                const reviews = await reviewRepo.getAllReviews();
+                return {success: true, reviews};
+            }
+            catch(err) {
+                return {success: false, error: "Failed to fetch reviews"};
+            }
+        },
+
         getReviewByTargetId: async (targetId: string) => {
             try {
                 const reviews = await reviewRepo.getReviewByTargetId(targetId);

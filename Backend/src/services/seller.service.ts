@@ -1,5 +1,9 @@
 import { SellerDTO, UpdateSellerDTO } from "../dtos/seller.DTO";
 import { ISellerRepository } from "../repositories/seller.repository";
+import { container } from "tsyringe";
+import { IUserRepository } from "../repositories/user.repository";
+import { IReviewRepository } from "../repositories/review.repository";
+import { UserRole } from "../enum/enum";
 
 export interface ISellerService {
   createSeller(
@@ -16,6 +20,9 @@ export interface ISellerService {
     sellers?: any[];
     error?: string;
   }>;
+  updateRatingAndReviewCount(
+    id: string
+  ): Promise<{ success: boolean; seller?: any; error?: string }>;
   updateSeller(
     id: string,
     data: UpdateSellerDTO
@@ -32,6 +39,16 @@ export function sellerService(repo: ISellerRepository): ISellerService {
           return { success: false, error: "User already has a seller profile" };
         }
         const seller = await repo.create(data);
+
+        const userRepo = container.resolve<IUserRepository>("UserRepository");
+        const user = await userRepo.findById(data.user_id);
+        if (!user) return { success: false, error: "User not found" };
+        user.role.push(UserRole.SELLER);
+
+        const updatedUser = await user.save();
+        if (!updatedUser)
+          return { success: false, error: "Failed to update user role" };
+
         return { success: true, seller };
       } catch (err) {
         return { success: false, error: "Failed to create seller profile" };
@@ -62,7 +79,41 @@ export function sellerService(repo: ISellerRepository): ISellerService {
         return { success: false, error: "Failed to retrieve sellers" };
       }
     },
+    updateRatingAndReviewCount: async (id) => {
+      try {
+        const reviwRepo =
+          container.resolve<IReviewRepository>("ReviewRepository");
+        const reviews = await reviwRepo.getAllReviews();
+        if (!reviews)
+          return { success: false, error: "Failed to retrieve reviews" };
+        let rating = 0;
+        let reviewCount = 0;
+        reviews.forEach((element) => {
+          const order: any = element.order_id;
+          if (order?.seller_id?.toString() === id) {
+            reviewCount++;
+            rating += element.rating;
+          }
+        });
 
+        const avgRating = reviewCount > 0 ? rating / reviewCount : 0;
+
+        const seller = await repo.updateRatingAndReviewCount(
+          id,
+          avgRating,
+          reviewCount
+        );
+        
+        if (!seller)
+          return {
+            success: false,
+            error: "Failed to retrieve reviewscount and rating",
+          };
+        return { success: true, seller };
+      } catch (err) {
+        return { success: false, error: "Failed to retrieve sellers" };
+      }
+    },
     updateSeller: async (id, data) => {
       try {
         const seller = await repo.update(id, data);

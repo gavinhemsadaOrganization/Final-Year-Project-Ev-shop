@@ -4,7 +4,7 @@ import { OrderStatus } from '../enum/enum';
 export interface IOrder extends Document {
   _id: Types.ObjectId;
   user_id: Types.ObjectId;
-  listing_id: Types.ObjectId;
+  listing_id?: Types.ObjectId;
   seller_id: Types.ObjectId;
   booking_id?: Types.ObjectId;
   order_status: OrderStatus;
