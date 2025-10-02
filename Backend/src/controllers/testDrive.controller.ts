@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ITestDriveService } from "../services/testDrive.service";
-import logger from "../utils/logger";
+import { handleResult, handleError } from "../utils/Respons.util";
 
 export interface ITestDriveController {
   // Slot methods
@@ -32,91 +32,61 @@ export function testDriveController(
     createSlot: async (req, res) => {
       try {
         const result = await service.createSlot(req.body);
-        if (!result.success) {
-          logger.warn(`Failed to create slot: ${result.error}`);
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Slot created: ${result.slot?._id}`);
-        return res.status(201).json(result.slot);
+        return handleResult(res, result, 201);
       } catch (err) {
-        logger.error(`Error creating slot: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "creating slot");
       }
     },
 
     getSlotById: async (req, res) => {
       try {
         const result = await service.findSlotById(req.params.id);
-        if (!result.success) {
-          logger.warn(`Slot not found: ${req.params.id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Slot fetched: ${req.params.id}`);
-        return res.status(200).json(result.slot);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching slot: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching slot by id");
       }
     },
 
     getAllSlots: async (_req, res) => {
       try {
         const result = await service.findAllSlots();
-        logger.info(`All slots fetched`);
-        return res.status(200).json(result.slots);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching all slots: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching all slots");
       }
     },
 
     getSlotsBySeller: async (req, res) => {
       try {
         const result = await service.findSlotsBySeller(req.params.sellerId);
-        logger.info(`Slots fetched for seller: ${req.params.sellerId}`);
-        return res.status(200).json(result.slots);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching seller slots: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching slots by seller");
       }
     },
     getActiveSlots: async (_req, res) => {
       try {
         const result = await service.findActiveSlots();
-        logger.info(`All active slots fetched`);
-        return res.status(200).json(result.slots);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching all active slots: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching active slots");
       }
     },
     updateSlot: async (req, res) => {
       try {
         const result = await service.updateSlot(req.params.id, req.body);
-        if (!result.success) {
-          logger.warn(`Slot not found for update: ${req.params.id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Slot updated: ${req.params.id}`);
-        return res.status(200).json(result.slot);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error updating slot: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "updating slot");
       }
     },
 
     deleteSlot: async (req, res) => {
       try {
         const result = await service.deleteSlot(req.params.id);
-        if (!result.success) {
-          logger.warn(`Slot not found for deletion: ${req.params.id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Slot deleted: ${req.params.id}`);
-        return res.status(200).json({ message: "Slot deleted" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error deleting slot: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "deleting slot");
       }
     },
 
@@ -124,102 +94,62 @@ export function testDriveController(
     createBooking: async (req, res) => {
       try {
         const result = await service.createBooking(req.body);
-        if (!result.success) {
-          logger.warn(`Failed to create booking: ${result.error}`);
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Booking created: ${result.booking?._id}`);
-        return res.status(201).json(result.booking);
+        return handleResult(res, result, 201);
       } catch (err) {
-        logger.error(`Error creating booking: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "creating booking");
       }
     },
 
     getBookingById: async (req, res) => {
       try {
         const result = await service.findBookingById(req.params.id);
-        if (!result.success) {
-          logger.warn(`Booking not found: ${req.params.id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Booking fetched: ${req.params.id}`);
-        return res.status(200).json(result.booking);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching booking: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching booking by id");
       }
     },
 
     getBookingsByCustomer: async (req, res) => {
       try {
-        const result = await service.findBookingsByCustomerId(
-          req.params.customerId
-        );
-        logger.info(`Bookings fetched for customer: ${req.params.customerId}`);
-        return res.status(200).json(result.bookings);
+        const result = await service.findBookingsByCustomerId(req.params.customerId);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching customer bookings: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching bookings by customer");
       }
     },
 
     updateBooking: async (req, res) => {
       try {
         const result = await service.updateBooking(req.params.id, req.body);
-        if (!result.success) {
-          logger.warn(`Booking not found for update: ${req.params.id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Booking updated: ${req.params.id}`);
-        return res.status(200).json(result.booking);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error updating booking: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "updating booking");
       }
     },
 
     deleteBooking: async (req, res) => {
       try {
         const result = await service.deleteBooking(req.params.id);
-        if (!result.success) {
-          logger.warn(`Booking not found for deletion: ${req.params.id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Booking deleted: ${req.params.id}`);
-        return res.status(200).json({ message: "Booking deleted" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error deleting booking: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "deleting booking");
       }
     },
     // Ratings
     createRating: async (req, res) => {
       try {
         const result = await service.createRating(req.body);
-        if (!result.success) {
-          logger.warn(`Failed to create rating`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Rating created`);
-        return res.status(201).json(result.booking);
-        } catch (err) {
-        logger.error(`Error creating rating: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
-        }
+        return handleResult(res, result, 201);
+      } catch (err) {
+        return handleError(res, err, "creating rating");
+      }
     },
     deleteRating: async (req, res) => {
       try {
         const result = await service.deleteRating(req.params.id);
-        if (!result.success) {
-          logger.warn(`Failed to delete rating`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Rating deleted`);
-        return res.status(200).json({ message: "Rating deleted" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error deleting rating: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "deleting rating");
       }
     }
   };

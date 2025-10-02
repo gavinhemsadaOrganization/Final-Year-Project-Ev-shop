@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IPostService } from "../services/post.service";
-import logger from "../utils/logger";
+import { handleResult, handleError } from "../utils/Respons.util";
 
 export interface IPostController {
   findPostById(req: Request, res: Response): Promise<Response>;
@@ -13,7 +13,7 @@ export interface IPostController {
   updatePostReplyCount(req: Request, res: Response): Promise<Response>;
   updatePostLastReplyBy(req: Request, res: Response): Promise<Response>;
   deletePost(req: Request, res: Response): Promise<Response>;
-    // Replies
+  // Replies
   findReplyById(req: Request, res: Response): Promise<Response>;
   findRepliesByPostId(req: Request, res: Response): Promise<Response>;
   findRepliesByUserId(req: Request, res: Response): Promise<Response>;
@@ -26,47 +26,29 @@ export interface IPostController {
 export function postController(postService: IPostService): IPostController {
   return {
     findPostById: async (req, res) => {
-      const id  = req.params.id;
+      const id = req.params.id;
       try {
         const result = await postService.findPostById(id);
-        if (!result.success) {
-          logger.error(`Post not found: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Post fetched: ${id}`);
-        return res.status(200).json({ post: result.post });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching post: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching post by id");
       }
     },
     findAllPosts: async (req, res) => {
       try {
         const result = await postService.findAllPosts();
-        if (!result.success) {
-          logger.warn("No posts found");
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info("All posts fetched");
-        return res.status(200).json({ posts: result.posts });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error("Error fetching all posts", err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching all posts");
       }
     },
     findPostsByUserId: async (req, res) => {
-      const  user_id  = req.params.user_id;
+      const user_id = req.params.user_id;
       try {
         const result = await postService.findPostsByUserId(user_id);
-        if (!result.success) {
-          logger.warn(`No posts found for user: ${user_id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Posts fetched for user: ${user_id}`);
-        return res.status(200).json({ posts: result.posts });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching posts for user: ${user_id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching posts by user id");
       }
     },
     createPost: async (req, res) => {
@@ -74,15 +56,9 @@ export function postController(postService: IPostService): IPostController {
       const postData = req.body;
       try {
         const result = await postService.createPost(user_id, postData);
-        if (!result.success) {
-          logger.error(`Failed to create post for user: ${user_id}`);
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Post created for user: ${user_id}`);
-        return res.status(201).json({ post: result.post });
+        return handleResult(res, result, 201);
       } catch (err) {
-        logger.error(`Error creating post for user: ${user_id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "creating post");
       }
     },
     updatePost: async (req, res) => {
@@ -90,15 +66,9 @@ export function postController(postService: IPostService): IPostController {
       const postData = req.body;
       try {
         const result = await postService.updatePost(id, postData);
-        if (!result.success) {
-          logger.warn(`Post not found for update: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Post updated: ${id}`);
-        return res.status(200).json({ post: result.post });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error updating post: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "updating post");
       }
     },
     updatePostViews: async (req, res) => {
@@ -106,15 +76,9 @@ export function postController(postService: IPostService): IPostController {
       const views = req.body.views;
       try {
         const result = await postService.updatePostViews(id, views);
-        if (!result.success) {
-          logger.warn(`Post not found for updating views: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Post views updated: ${id}`);
-        return res.status(200).json({ post: result.post });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error updating post views: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "updating post views");
       }
     },
     updatePostReplyCount: async (req, res) => {
@@ -122,15 +86,9 @@ export function postController(postService: IPostService): IPostController {
       const reply_count = req.body.reply_count;
       try {
         const result = await postService.updatePostReplyCount(id, reply_count);
-        if (!result.success) {
-          logger.warn(`Post not found for updating reply count: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Post reply count updated: ${id}`);
-        return res.status(200).json({ post: result.post });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error updating post reply count: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "updating post reply count");
       }
     },
     updatePostLastReplyBy: async (req, res) => {
@@ -141,46 +99,27 @@ export function postController(postService: IPostService): IPostController {
           id,
           last_reply_by
         );
-        if (!result.success) {
-          logger.warn(`Post not found for updating last reply by: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Post last reply by updated: ${id}`);
-        return res.status(200).json({ post: result.post });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error updating post last reply by: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "updating post last reply by");
       }
     },
     deletePost: async (req, res) => {
       const id = req.params.id;
       try {
         const result = await postService.deletePost(id);
-        if (!result.success) {
-          logger.warn(`Post not found for deletion: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Post deleted: ${id}`);
-        return res.status(200).json({ message: "Post deleted" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error deleting post: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "deleting post");
       }
     },
     findPostsByKeyword: async (req, res) => {
-      const  keyword  = req.query.keyword;
-      console.log(keyword);
+      const keyword = req.query.keyword;
       try {
         const result = await postService.findPostsByKeyword(keyword as string);
-        if (!result.success) {
-          logger.warn(`No posts found for keyword: ${keyword}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Posts fetched for keyword: ${keyword}`);
-        return res.status(200).json({ posts: result.posts });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error searching posts for keyword: ${keyword}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "searching posts by keyword");
       }
     },
     // Replies
@@ -188,59 +127,35 @@ export function postController(postService: IPostService): IPostController {
       const id = req.params.id;
       try {
         const result = await postService.findReplyById(id);
-        if (!result.success) {
-          logger.warn(`Reply not found: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Reply fetched: ${id}`);
-        return res.status(200).json({ reply: result.reply });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching reply: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching reply by id");
       }
     },
     findRepliesByPostId: async (req, res) => {
       const post_id = req.params.post_id;
       try {
         const result = await postService.findRepliesByPostId(post_id);
-        if (!result.success) {
-          logger.warn(`No replies found for post: ${post_id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Replies fetched for post: ${post_id}`);
-        return res.status(200).json({ replies: result.replies });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching replies for post: ${post_id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching replies by post id");
       }
     },
     findRepliesByUserId: async (req, res) => {
       const user_id = req.params.user_id;
       try {
         const result = await postService.findRepliesByUserId(user_id);
-        if (!result.success) {
-          logger.warn(`No replies found for user: ${user_id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Replies fetched for user: ${user_id}`);
-        return res.status(200).json({ replies: result.replies });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching replies for user: ${user_id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching replies by user id");
       }
     },
     findAllReplies: async (req, res) => {
       try {
         const result = await postService.findAllReplies();
-        if (!result.success) {
-          logger.warn("No replies found");
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info("All replies fetched");
-        return res.status(200).json({ replies: result.replies });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error("Error fetching all replies", err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "fetching all replies");
       }
     },
     createReply: async (req, res) => {
@@ -248,15 +163,9 @@ export function postController(postService: IPostService): IPostController {
       const replyData = req.body;
       try {
         const result = await postService.createReply(user_id, replyData);
-        if (!result.success) {
-          logger.error(`Failed to create reply for user: ${user_id}`);
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Reply created for user: ${user_id}`);
-        return res.status(201).json({ reply: result.reply });
+        return handleResult(res, result, 201);
       } catch (err) {
-        logger.error(`Error creating reply for user: ${user_id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "creating reply");
       }
     },
     updateReply: async (req, res) => {
@@ -264,30 +173,18 @@ export function postController(postService: IPostService): IPostController {
       const replyData = req.body;
       try {
         const result = await postService.updateReply(id, replyData);
-        if (!result.success) {
-          logger.warn(`Reply not found for update: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Reply updated: ${id}`);
-        return res.status(200).json({ reply: result.reply });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error updating reply: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "updating reply");
       }
     },
     deleteReply: async (req, res) => {
       const id = req.params.id;
       try {
         const result = await postService.deleteReply(id);
-        if (!result.success) {
-          logger.warn(`Reply not found for deletion: ${id}`);
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Reply deleted: ${id}`);
-        return res.status(200).json({ message: "Reply deleted" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error deleting reply: ${id}`, err);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "deleting reply");
       }
     },
   };

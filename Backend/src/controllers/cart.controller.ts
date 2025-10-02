@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ICartService } from "../services/cart.service";
-import logger from "../utils/logger";
+import { handleResult, handleError } from "../utils/Respons.util";
 
 export interface ICartController {
   getCart(req: Request, res: Response): Promise<Response>;
@@ -16,28 +16,18 @@ export function cartController(service: ICartService): ICartController {
       try {
         const { userId } = req.params;
         const result = await service.getCart(userId);
-        if (!result.success) {
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Cart fetched for user: ${userId}`);
-        return res.status(200).json(result.cart);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error fetching cart: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "getCart");
       }
     },
 
     addItem: async (req, res) => {
       try {
         const result = await service.addItemToCart(req.body);
-        if (!result.success) {
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Item added to cart: ${result.item?._id}`);
-        return res.status(201).json(result.item);
+        return handleResult(res, result, 201);
       } catch (err) {
-        logger.error(`Error adding item to cart: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "addItem");
       }
     },
 
@@ -45,14 +35,9 @@ export function cartController(service: ICartService): ICartController {
       try {
         const { itemId } = req.params;
         const result = await service.updateItemInCart(itemId, req.body);
-        if (!result.success) {
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Cart item updated: ${itemId}`);
-        return res.status(200).json(result.item);
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error updating cart item: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "updateItem");
       }
     },
 
@@ -60,14 +45,9 @@ export function cartController(service: ICartService): ICartController {
       try {
         const { itemId } = req.params;
         const result = await service.removeItemFromCart(itemId);
-        if (!result.success) {
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Cart item removed: ${itemId}`);
-        return res.status(200).json({ message: "Item removed from cart" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error removing cart item: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "removeItem");
       }
     },
 
@@ -75,14 +55,9 @@ export function cartController(service: ICartService): ICartController {
       try {
         const { userId } = req.params;
         const result = await service.clearUserCart(userId);
-        if (!result.success) {
-          return res.status(404).json({ message: result.error });
-        }
-        logger.info(`Cart cleared for user: ${userId}`);
-        return res.status(200).json({ message: "Cart cleared" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(`Error clearing cart: ${err}`);
-        return res.status(500).json({ message: "Internal server error" });
+        return handleError(res, err, "clearCart");
       }
     },
   };

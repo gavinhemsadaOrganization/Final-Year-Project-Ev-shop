@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { INotificationService } from "../services/notification.service";
-import logger from "../utils/logger";
+import { handleResult, handleError } from "../utils/Respons.util";
 
 export interface INotificationController {
   getNotificationByID(req: Request, res: Response): Promise<Response>;
@@ -19,23 +19,9 @@ export function notificationController(
     getNotificationByID: async (req, res) => {
       try {
         const result = await notificationService.findById(req.params.id);
-        if (!result.success) {
-          logger.warn(
-            `Failed to get notification by ID: ${req.params.id} - ${result.error}`
-          );
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(
-          `Successfully retrieved notification by ID: ${req.params.id}`
-        );
-        return res
-          .status(200)
-          .json({ message: "Notification", result: result.notification });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(
-          `Error getting conversations by getNotificationByID : ${err}`
-        );
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "getNotificationByID");
       }
     },
     getNotificationsByUserID: async (req, res) => {
@@ -43,82 +29,34 @@ export function notificationController(
         const result = await notificationService.findByUserId(
           req.params.user_id
         );
-        if (!result.success) {
-          logger.warn(
-            `Failed to get notifications by user ID: ${req.params.user_id} - ${result.error}`
-          );
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(
-          `Successfully retrieved notifications by user ID: ${req.params.user_id}`
-        );
-        return res.status(200).json({
-          message: "User Notifications",
-          result: result.notifications,
-        });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(
-          `Error getting conversations by getNotificationsByUserID : ${err}`
-        );
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "getNotificationsByUserID");
       }
     },
     getAllNotifications: async (_req, res) => {
       try {
         const result = await notificationService.findAll();
-        if (!result.success) {
-          logger.warn(`Failed to get all notifications - ${result.error}`);
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Successfully retrieved all notifications`);
-        return res
-          .status(200)
-          .json({ message: "All Notifications", result: result.notifications });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(
-          `Error getting conversations by getAllNotifications : ${err}`
-        );
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "getAllNotifications");
       }
     },
     markNotificationAsRead: async (req, res) => {
       try {
         const result = await notificationService.markAsRead(req.params.id);
-        if (!result.success) {
-          logger.warn(
-            `Failed to mark notification as read: ${req.params.id} - ${result.error}`
-          );
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(
-          `Successfully marked notification as read: ${req.params.id}`
-        );
-        return res.status(200).json({ message: "Notification marked as read" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(
-          `Error getting conversations by markNotificationAsRead : ${err}`
-        );
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "markNotificationAsRead");
       }
     },
     createNotification: async (req, res) => {
       try {
         const data = req.body;
         const result = await notificationService.create(data);
-        if (!result.success) {
-          logger.warn(`Failed to create notification - ${result.error}`);
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Successfully created notification`);
-        return res.status(201).json({
-          message: "Notification created",
-          result: result.notification,
-        });
+        return handleResult(res, result, 201);
       } catch (err) {
-        logger.error(
-          `Error getting conversations by createNotification : ${err}`
-        );
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "createNotification");
       }
     },
     updateNotification: async (req, res) => {
@@ -126,37 +64,18 @@ export function notificationController(
         const data = req.body;
         const id = req.params.id;
         const result = await notificationService.update(id, data);
-        if (!result.success) {
-          logger.warn(`Failed to update notification: ${id} - ${result.error}`);
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Successfully updated notification: ${id}`);
-        return res.status(200).json({
-          message: "Notification updated",
-          result: result.notification,
-        });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(
-          `Error getting conversations by updateNotification : ${err}`
-        );
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "updateNotification");
       }
     },
     deleteNotification: async (req, res) => {
       try {
         const id = req.params.id;
         const result = await notificationService.delete(id);
-        if (!result.success) {
-          logger.warn(`Failed to delete notification: ${id} - ${result.error}`);
-          return res.status(400).json({ message: result.error });
-        }
-        logger.info(`Successfully deleted notification: ${id}`);
-        return res.status(200).json({ message: "Notification deleted" });
+        return handleResult(res, result);
       } catch (err) {
-        logger.error(
-          `Error getting conversations by deleteNotification : ${err}`
-        );
-        return res.status(500).json({ error: err || "Internal server error" });
+        return handleError(res, err, "deleteNotification");
       }
     },
   };
