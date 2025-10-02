@@ -30,7 +30,7 @@ export interface ISellerService {
   deleteSeller(id: string): Promise<{ success: boolean; error?: string }>;
 }
 
-export function sellerService(repo: ISellerRepository): ISellerService {
+export function sellerService(repo: ISellerRepository, userRepo: IUserRepository, reviwRepo: IReviewRepository): ISellerService {
   return {
     createSeller: async (data) => {
       try {
@@ -39,8 +39,6 @@ export function sellerService(repo: ISellerRepository): ISellerService {
           return { success: false, error: "User already has a seller profile" };
         }
         const seller = await repo.create(data);
-
-        const userRepo = container.resolve<IUserRepository>("UserRepository");
         const user = await userRepo.findById(data.user_id);
         if (!user) return { success: false, error: "User not found" };
         user.role.push(UserRole.SELLER);
@@ -80,14 +78,15 @@ export function sellerService(repo: ISellerRepository): ISellerService {
       }
     },
     updateRatingAndReviewCount: async (id) => {
+        console.log("test0");
       try {
-        const reviwRepo =
-          container.resolve<IReviewRepository>("ReviewRepository");
         const reviews = await reviwRepo.getAllReviews();
+        console.log("test1");
         if (!reviews)
           return { success: false, error: "Failed to retrieve reviews" };
         let rating = 0;
         let reviewCount = 0;
+          console.log("test2");
         reviews.forEach((element) => {
           const order: any = element.order_id;
           if (order?.seller_id?.toString() === id) {
@@ -103,7 +102,7 @@ export function sellerService(repo: ISellerRepository): ISellerService {
           avgRating,
           reviewCount
         );
-        
+          console.log("test3");
         if (!seller)
           return {
             success: false,

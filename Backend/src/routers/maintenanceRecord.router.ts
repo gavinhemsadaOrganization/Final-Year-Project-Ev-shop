@@ -14,19 +14,23 @@ export const maintenanceRecordRouter = (): Router => {
     "MaintenanceRecordController"
   );
 
+ 
   router.post("/", validateDto(MaintenanceRecordDTO), (req, res) =>
     controller.createRecord(req, res)
   );
+
   router.get("/", (req, res) => controller.getAllRecords(req, res));
+ 
   router.get("/seller/:sellerId", (req, res) =>
     controller.getRecordsBySellerId(req, res)
   );
+
   router.get("/:id", (req, res) => controller.getRecordById(req, res));
-  router.put(
-    "/:id",
-    validateDto(UpdateMaintenanceRecordDTO),
-    (req, res) => controller.updateRecord(req, res)
+ 
+  router.put("/:id", validateDto(UpdateMaintenanceRecordDTO), (req, res) =>
+    controller.updateRecord(req, res)
   );
+ 
   router.delete("/:id", (req, res) => controller.deleteRecord(req, res));
 
   return router;

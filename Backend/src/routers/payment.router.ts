@@ -9,13 +9,14 @@ export const paymentRouter = (): Router => {
   const router = Router();
   const controller = container.resolve<IPaymentController>("PaymentController");
 
-  router.post(
-    "/",
-    validateDto(CreatePaymentDTO),
-    (req, res) => controller.createPayment(req, res)
+ 
+  router.post("/", validateDto(CreatePaymentDTO), (req, res) =>
+    controller.createPayment(req, res)
   );
 
+ 
   router.get("/:id", (req, res) => controller.getPaymentById(req, res));
+
 
   router.get("/order/:orderId", (req, res) =>
     controller.getPaymentByOrderId(req, res)
@@ -23,20 +24,13 @@ export const paymentRouter = (): Router => {
 
   router.get("/", (req, res) => controller.getAllPayments(req, res));
 
-  router.patch(
-    "/:id",
-    validateDto(UpdatePaymentDTO),
-    (req, res) => controller.updatePayment(req, res)
+ 
+  router.patch("/:id", validateDto(UpdatePaymentDTO), (req, res) =>
+    controller.updatePayment(req, res)
   );
 
+ 
   router.delete("/:id", (req, res) => controller.deletePayment(req, res));
 
   return router;
 };
-
-
-
-
-
-
-

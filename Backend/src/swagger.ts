@@ -1,11 +1,10 @@
-// src/swagger.ts
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
 
 const options: swaggerJsdoc.Options = {
   definition: {
-    openapi: "3.0.0", // OpenAPI version
+    openapi: "3.0.0",
     info: {
       title: "EV Shop API",
       version: "1.0.0",
@@ -13,11 +12,23 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: "http://localhost:3000/api/v1", // your API base url
+        url: `${process.env.CLIENT_URL ?? "http://localhost"}:${
+          process.env.PORT ?? 3000
+        }/api/v1`,
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [{ bearerAuth: [] }],
   },
-  apis: ["./src/routers/*.ts", "./src/dtos/*.ts"], // path to your API routes/doc comments
+  apis: ["./src/routers/*.ts", "./src/dtos/*.ts"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

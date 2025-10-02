@@ -24,19 +24,18 @@ export const SellerRepository: ISellerRepository = {
 
   findById: async (id: string) => {
     return await Seller.findById(id).populate(
-      "user_id",
-      "name email profile_image"
+      "user_id"
     );
   },
 
   findByUserId: async (userId: string) => {
     return await Seller.findOne({
       user_id: new Types.ObjectId(userId),
-    }).populate("user_id", "name email profile_image");
+    }).populate("user_id");
   },
 
   findAll: async () => {
-    return await Seller.find().populate("user_id", "name email profile_image");
+    return await Seller.find().populate("user_id");
   },
   updateRatingAndReviewCount: async (
     id: string,

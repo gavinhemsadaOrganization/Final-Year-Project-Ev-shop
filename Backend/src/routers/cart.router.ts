@@ -7,22 +7,19 @@ import "../di/cart.di";
 
 export const cartRouter = (): Router => {
   const router = Router();
-  const controller = container.resolve<ICartController>("ICartController");
+  const controller = container.resolve<ICartController>("CartController");
 
   router.get("/:userId", (req, res) => controller.getCart(req, res));
-
   router.post("/items", validateDto(CartItemDTO), (req, res) =>
     controller.addItem(req, res)
   );
-
-  router.put(
-    "/items/:itemId",
-    validateDto(UpdateCartItemDTO),
-    (req, res) => controller.updateItem(req, res)
+  router.put("/items/:itemId", validateDto(UpdateCartItemDTO), (req, res) =>
+    controller.updateItem(req, res)
   );
 
-  router.delete("/items/:itemId", (req, res) => controller.removeItem(req, res));
-
+  router.delete("/items/:itemId", (req, res) =>
+    controller.removeItem(req, res)
+  );
   router.delete("/:userId", (req, res) => controller.clearCart(req, res));
 
   return router;

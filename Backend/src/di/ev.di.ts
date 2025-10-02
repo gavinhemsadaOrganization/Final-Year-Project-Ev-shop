@@ -6,9 +6,9 @@ import { IEvController, evController } from "../controllers/ev.controller";
 container.register<IEvRepository>("EvRepository", { useValue: EvRepository });
 
 container.register<IEvService>("EvService", {
-  useFactory: (c) => evService(c.resolve("EvRepository")),
+  useFactory: (c) => evService(c.resolve<IEvRepository>("EvRepository")),
 });
 
 container.register<IEvController>("EvController", {
-  useFactory: (c) => evController(c.resolve("EvService")),
+  useFactory: (c) => evController(c.resolve<IEvService>("EvService")),
 });

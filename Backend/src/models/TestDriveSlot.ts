@@ -14,7 +14,7 @@ const TestDriveSlotSchema = new Schema<ITestDriveSlot>(
   {
     seller_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     location: { type: String, required: true },
-    model_id: { type: Schema.Types.ObjectId, ref: "CarModel", required: true },
+    model_id: { type: Schema.Types.ObjectId, ref: "EvModel", required: true },
     available_date: { type: Date, required: true },
     max_bookings: { type: Number, required: true },
     is_active: { type: Boolean, default: true },

@@ -15,43 +15,51 @@ export const evRouter = (): Router => {
   const router = Router();
   const controller = container.resolve<IEvController>("EvController");
 
-  // Brand Routes (Admin-only, potentially)
   router.post("/brands", validateDto(EvBrandDTO), (req, res) =>
     controller.createBrand(req, res)
   );
+ 
   router.get("/brands", (req, res) => controller.getAllBrands(req, res));
 
-  // Category Routes (Admin-only, potentially)
+  
   router.post("/categories", validateDto(EvCategoryDTO), (req, res) =>
     controller.createCategory(req, res)
   );
+
   router.get("/categories", (req, res) =>
     controller.getAllCategories(req, res)
   );
 
-  // Model Routes (Admin-only, potentially)
+
   router.post("/models", validateDto(EvModelDTO), (req, res) =>
     controller.createModel(req, res)
   );
+ 
   router.get("/models", (req, res) => controller.getAllModels(req, res));
+ 
   router.get("/models/:id", (req, res) => controller.getModelById(req, res));
 
-  // Listing Routes
+
   router.post("/listings", validateDto(VehicleListingDTO), (req, res) =>
     controller.createListing(req, res)
   );
+ 
   router.get("/listings", (req, res) => controller.getAllListings(req, res));
+
   router.get("/listings/seller/:sellerId", (req, res) =>
     controller.getListingsBySeller(req, res)
   );
+
   router.get("/listings/:id", (req, res) =>
     controller.getListingById(req, res)
   );
+
   router.put(
     "/listings/:id",
     validateDto(UpdateVehicleListingDTO),
     (req, res) => controller.updateListing(req, res)
   );
+
   router.delete("/listings/:id", (req, res) =>
     controller.deleteListing(req, res)
   );

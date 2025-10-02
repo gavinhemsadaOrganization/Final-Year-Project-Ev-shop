@@ -36,6 +36,7 @@ export const TestDriveRepository: ITestDriveRepository = {
   // Slot methods
   createSlot: async (data) => {
     const slot = new TestDriveSlot(data);
+    console.log(slot);
     return await slot.save();
   },
 

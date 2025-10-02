@@ -4,6 +4,8 @@ import {
   FeedbackDTO,
 } from "../dtos/testDrive.DTO";
 import { ITestDriveRepository } from "../repositories/testDrive.repository";
+import { ISellerRepository } from "../repositories/seller.repository";
+import { IEvRepository } from "../repositories/ev.repository";
 
 
 export interface ITestDriveService {
@@ -53,12 +55,18 @@ export interface ITestDriveService {
 }
 
 export function testDriveService(
-  testDriveRepo: ITestDriveRepository
+  testDriveRepo: ITestDriveRepository,
+  sellerRepo: ISellerRepository,
+  evmodelRepo: IEvRepository
 ): ITestDriveService {
   return {
     // Slot methods
     createSlot: async (data) => {
       try {
+        const seller = await sellerRepo.findById(data.seller_id);
+        if (!seller) return { success: false, error: "Seller not found" };
+        const model = await evmodelRepo.findModelById(data.model_id);
+        if (!model) return { success: false, error: "Model not found" };
         const slot = await testDriveRepo.createSlot(data);
         return { success: true, slot };
       } catch (err) {
@@ -100,6 +108,8 @@ export function testDriveService(
     },
     updateSlot: async (id, data) => {
       try {
+        const model = await evmodelRepo.findModelById(data.model_id!);
+        if (!model) return { success: false, error: "Model not found" };
         const slot = await testDriveRepo.updateSlot(id, data);
         if (!slot) return { success: false, error: "Slot not found" };
         return { success: true, slot };
@@ -173,7 +183,10 @@ export function testDriveService(
     },
     updateBooking: async (id, data) => {
       try {
-        const booking = await testDriveRepo.updateBooking(id, data);
+        const slot = await testDriveRepo.findSlotById(data.slot_id!);
+        if(!slot) return { success: false, error: "Slot not found" };
+        const { customer_id, ...filterData } = data;
+        const booking = await testDriveRepo.updateBooking(id, filterData);
         if (!booking) return { success: false, error: "Booking not found" };
         return { success: true, booking };
       } catch (err) {
@@ -193,8 +206,10 @@ export function testDriveService(
     // Ratings
     createRating: async (data) => {
       try {
-        const booking = await testDriveRepo.createRating(data);
-        return { success: true, booking };
+        const booking = await testDriveRepo.findBookingById(data.booking_id);
+        if(!booking) return { success: false, error: "Booking not found" };
+        const bookingrate = await testDriveRepo.createRating(data);
+        return { success: true, bookingrate };
       } catch (err) {
         return { success: false, error: "Failed to create rating" };
       }

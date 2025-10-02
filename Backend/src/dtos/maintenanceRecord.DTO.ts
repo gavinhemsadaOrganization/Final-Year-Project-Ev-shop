@@ -41,6 +41,15 @@ export class UpdateMaintenanceRecordDTO {
   @IsString()
   description?: string;
 
+  @IsDate()
+  @Type(() => Date)
+  service_date!: Date;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  parts_replaced?: string[];
+
   @IsOptional()
   @IsString()
   location?: string;

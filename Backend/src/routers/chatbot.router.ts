@@ -8,6 +8,7 @@ export const chatbotRouter = (): Router => {
   const router = Router();
   const chatbotController =
     container.resolve<IChatbotController>("ChatbotController");
+ 
   router.get("/conversations/:id", (req, res) =>
     chatbotController.getConversationByID(req, res)
   );
@@ -37,15 +38,19 @@ export const chatbotRouter = (): Router => {
   router.get("/predictions/conversation/:conversation_id", (req, res) =>
     chatbotController.getPredictionsByConversationID(req, res)
   );
+
   router.get("/predictions", (req, res) =>
     chatbotController.getAllPredictions(req, res)
   );
+ 
   router.post("/predictions", validateDto(PredictionDTO), (req, res) =>
     chatbotController.createPrediction(req, res)
   );
+
   router.put("/predictions/:id", validateDto(PredictionDTO), (req, res) =>
     chatbotController.updatePrediction(req, res)
   );
+ 
   router.delete("/predictions/:id", (req, res) =>
     chatbotController.deletePrediction(req, res)
   );

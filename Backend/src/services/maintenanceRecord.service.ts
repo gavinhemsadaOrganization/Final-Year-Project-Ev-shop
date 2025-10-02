@@ -3,6 +3,7 @@ import {
   UpdateMaintenanceRecordDTO,
 } from "../dtos/maintenanceRecord.DTO";
 import { IMaintenanceRecordRepository } from "../repositories/maintenanceRecord.repository";
+import { ISellerRepository } from "../repositories/seller.repository";
 
 export interface IMaintenanceRecordService {
   createRecord(
@@ -27,11 +28,14 @@ export interface IMaintenanceRecordService {
 }
 
 export function maintenanceRecordService(
-  repo: IMaintenanceRecordRepository
+  repo: IMaintenanceRecordRepository,
+  sellerRepo: ISellerRepository
 ): IMaintenanceRecordService {
   return {
     createRecord: async (data) => {
       try {
+        const seller = await sellerRepo.findById(data.seller_id);
+        if (!seller) return { success: false, error: "Seller not found" };
         const record = await repo.create(data);
         return { success: true, record };
       } catch (err) {

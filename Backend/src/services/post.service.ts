@@ -1,5 +1,6 @@
 import { IPostRepository } from "../repositories/post.repository";
 import { PostDTO, PostReplyDTO } from "../dtos/post.DTO";
+import { IUserRepository } from "../repositories/user.repository";
 
 export interface IPostService {
   findPostById(
@@ -59,7 +60,7 @@ export interface IPostService {
   deleteReply(id: string): Promise<{ success: boolean; error?: string }>;
 }
 
-export function postService(postRepo: IPostRepository): IPostService {
+export function postService(postRepo: IPostRepository, userRepo: IUserRepository): IPostService {
   return {
     // Posts
     findPostById: async (id) => {
@@ -92,6 +93,8 @@ export function postService(postRepo: IPostRepository): IPostService {
     },
     createPost: async (user_id, postData) => {
       try {
+        const user = await userRepo.findById(user_id);
+        if (!user) return { success: false, error: "User not found" };
         const post = await postRepo.createPost({ ...postData, user_id });
         return { success: true, post };
       } catch (err) {
