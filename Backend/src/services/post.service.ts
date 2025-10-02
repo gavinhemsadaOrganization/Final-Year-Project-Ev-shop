@@ -60,7 +60,10 @@ export interface IPostService {
   deleteReply(id: string): Promise<{ success: boolean; error?: string }>;
 }
 
-export function postService(postRepo: IPostRepository, userRepo: IUserRepository): IPostService {
+export function postService(
+  postRepo: IPostRepository,
+  userRepo: IUserRepository
+): IPostService {
   return {
     // Posts
     findPostById: async (id) => {
@@ -151,9 +154,8 @@ export function postService(postRepo: IPostRepository, userRepo: IUserRepository
       try {
         // Example: search in title
         const posts = await postRepo.findAllPosts();
-        const filtered = posts?.filter(
-          (post) =>
-            post.title?.toLowerCase().includes(keyword.toLowerCase())
+        const filtered = posts?.filter((post) =>
+          post.title?.toLowerCase().includes(keyword.toLowerCase())
         );
         if (!filtered || filtered.length === 0)
           return { success: false, error: "No posts found for keyword" };
@@ -209,6 +211,10 @@ export function postService(postRepo: IPostRepository, userRepo: IUserRepository
     },
     createReply: async (user_id, replyData) => {
       try {
+        const user = await userRepo.findById(user_id);
+        if (!user) return { success: false, error: "User not found" };
+        const post = await postRepo.findPostById(replyData.post_id);
+        if (!post) return { success: false, error: "Post not found" };
         const reply = await postRepo.createReply({ ...replyData, user_id });
         return { success: true, reply };
       } catch (err) {

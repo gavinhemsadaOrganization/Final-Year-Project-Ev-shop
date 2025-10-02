@@ -78,15 +78,12 @@ export function sellerService(repo: ISellerRepository, userRepo: IUserRepository
       }
     },
     updateRatingAndReviewCount: async (id) => {
-        console.log("test0");
       try {
         const reviews = await reviwRepo.getAllReviews();
-        console.log("test1");
         if (!reviews)
           return { success: false, error: "Failed to retrieve reviews" };
         let rating = 0;
         let reviewCount = 0;
-          console.log("test2");
         reviews.forEach((element) => {
           const order: any = element.order_id;
           if (order?.seller_id?.toString() === id) {
@@ -102,7 +99,6 @@ export function sellerService(repo: ISellerRepository, userRepo: IUserRepository
           avgRating,
           reviewCount
         );
-          console.log("test3");
         if (!seller)
           return {
             success: false,

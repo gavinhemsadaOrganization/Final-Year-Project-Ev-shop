@@ -169,6 +169,7 @@ export function postController(postService: IPostService): IPostController {
     },
     findPostsByKeyword: async (req, res) => {
       const  keyword  = req.query.keyword;
+      console.log(keyword);
       try {
         const result = await postService.findPostsByKeyword(keyword as string);
         if (!result.success) {
