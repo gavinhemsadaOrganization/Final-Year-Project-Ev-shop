@@ -1,5 +1,6 @@
 import {IReviewRepository} from "../repositories/review.repository";
 import {ReviewDTO} from "../dtos/review.DTO";
+import {IUserRepository} from "../repositories/user.repository";
 
 export interface IReviewService {
     getAllReviews(): Promise<{ success: boolean; reviews?: any[]; error?: string }>;
@@ -11,7 +12,7 @@ export interface IReviewService {
     deleteReview(id: string): Promise<{ success: boolean; error?: string }>;
 }
 
-export function reviewService(reviewRepo: IReviewRepository): IReviewService {
+export function reviewService(reviewRepo: IReviewRepository, userRepo: IUserRepository): IReviewService {
     return {
         getAllReviews: async () => {
             try {
@@ -53,6 +54,8 @@ export function reviewService(reviewRepo: IReviewRepository): IReviewService {
         },
         createReview: async (reviewData: ReviewDTO) => {
             try {
+                const reviewer = await userRepo.findById(reviewData.reviewer_id);
+                if (!reviewer) return {success: false, error: "Reviewer not found"};
                 const review = await reviewRepo.createReview(reviewData);
                 return {success: true, review};
             }

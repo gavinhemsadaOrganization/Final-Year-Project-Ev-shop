@@ -16,17 +16,26 @@ export interface IEvRepository {
   createBrand(data: EvBrandDTO): Promise<IEvBrand>;
   findAllBrands(): Promise<IEvBrand[]>;
   findBrandById(id: string): Promise<IEvBrand | null>;
+  updateBrand(id: string, data: Partial<EvBrandDTO>): Promise<IEvBrand | null>;
+  deleteBrand(id: string): Promise<boolean>;
 
   // Category
   createCategory(data: EvCategoryDTO): Promise<IEvCategory>;
   findAllCategories(): Promise<IEvCategory[]>;
   findCategoryById(id: string): Promise<IEvCategory | null>;
+  updateCategory(
+    id: string,
+    data: Partial<EvCategoryDTO>
+  ): Promise<IEvCategory | null>;
+  deleteCategory(id: string): Promise<boolean>;
 
   // Model
   createModel(data: EvModelDTO): Promise<IEvModel>;
   findAllModels(): Promise<IEvModel[]>;
   findModelById(id: string): Promise<IEvModel | null>;
   findModelsByBrand(brandId: string): Promise<IEvModel[]>;
+  updateModel(id: string, data: Partial<EvModelDTO>): Promise<IEvModel | null>;
+  deleteModel(id: string): Promise<boolean>;
 
   // Listing
   createListing(data: VehicleListingDTO): Promise<IVehicleListing>;
@@ -48,6 +57,13 @@ export const EvRepository: IEvRepository = {
   },
   findAllBrands: async () => EvBrand.find(),
   findBrandById: async (id) => EvBrand.findById(id),
+  updateBrand: async (id, data) => {
+    return await EvBrand.findByIdAndUpdate(id, data, { new: true });
+  },
+  deleteBrand: async (id) => {
+    const result = await EvBrand.findByIdAndDelete(id);
+    return result !== null;
+  },
 
   // Category
   createCategory: async (data) => {
@@ -56,6 +72,13 @@ export const EvRepository: IEvRepository = {
   },
   findAllCategories: async () => EvCategory.find(),
   findCategoryById: async (id) => EvCategory.findById(id),
+  updateCategory: async (id, data) => {
+    return await EvCategory.findByIdAndUpdate(id, data, { new: true });
+  },
+  deleteCategory: async (id) => {
+    const result = await EvCategory.findByIdAndDelete(id);
+    return result !== null;
+  },
 
   // Model
   createModel: async (data) => {
@@ -70,6 +93,13 @@ export const EvRepository: IEvRepository = {
     EvModel.find({ brand_id: new Types.ObjectId(brandId) }).populate(
       "category_id"
     ),
+  updateModel: async (id, data) => {
+    return await EvModel.findByIdAndUpdate(id, data, { new: true });
+  },
+  deleteModel: async (id) => {
+    const result = await EvModel.findByIdAndDelete(id);
+    return result !== null;
+  },
 
   // Listing
   createListing: async (data) => {

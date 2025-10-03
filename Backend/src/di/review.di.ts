@@ -8,13 +8,16 @@ import {
   IReviewRepository,
   ReviewRepository,
 } from "../repositories/review.repository";
+import { IUserRepository } from "../repositories/user.repository";
 
 container.register<IReviewRepository>("ReviewRepository", {
   useValue: ReviewRepository,
 });
 container.register<IReviewService>("ReviewService", {
   useFactory: (c) =>
-    reviewService(c.resolve<IReviewRepository>("ReviewRepository")),
+    reviewService(c.resolve<IReviewRepository>("ReviewRepository"),
+    c.resolve<IUserRepository>("UserRepository")
+),
 });
 container.register<IReviewController>("ReviewController", {
   useFactory: (c) =>

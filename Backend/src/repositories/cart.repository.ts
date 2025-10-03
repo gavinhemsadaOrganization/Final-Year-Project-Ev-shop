@@ -27,7 +27,7 @@ export const CartRepository: ICartRepository = {
 
   createCart: async (userId: string) => {
     const cart = new Cart({ user_id: new Types.ObjectId(userId) });
-    return await cart.save();
+    return await cart.save(); 
   },
 
   findCartItems: async (cartId: string) => {

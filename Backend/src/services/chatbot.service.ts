@@ -1,5 +1,6 @@
 import { IChatbotRepository } from "../repositories/chatbot.repository";
 import { ChatbotConversationDTO, PredictionDTO } from "../dtos/chatbot.DTO";
+import { IUserRepository } from "../repositories/user.repository";
 
 export interface IChatbotService {
   findConversationById(
@@ -44,7 +45,8 @@ export interface IChatbotService {
 }
 
 export function chatbotService(
-  chatbotRepo: IChatbotRepository
+  chatbotRepo: IChatbotRepository,
+  userRepo: IUserRepository
 ): IChatbotService {
   return {
     findConversationById: async (id) => {
@@ -84,6 +86,8 @@ export function chatbotService(
     },
     createConversation: async (data) => {
       try {
+        const user = await userRepo.findById(data.user_id);
+        if (!user) return { success: false, error: "User not found" };
         const conversation = await chatbotRepo.createConversation(data);
         return { success: true, conversation };
       } catch (err) {
@@ -148,6 +152,10 @@ export function chatbotService(
     },
     createPrediction: async (data) => {
       try {
+        const conversation = await chatbotRepo.findConversationById(
+          data.conversation_id
+        );
+        if(!conversation) return { success: false, error: "Conversation not found" };
         const prediction = await chatbotRepo.createPrediction(data);
         return { success: true, prediction };
       } catch (err) {
