@@ -9,13 +9,14 @@ import {
 } from "../dtos/financial.DTO";
 import { IFinancialController } from "../controllers/financial.controller";
 import "../di/financial.di";
+import { upload } from "../utils/fileHandel";
 
 export const financialRouter = (): Router => {
   const router = Router();
   const controller = container.resolve<IFinancialController>(
     "FinancialController"
   );
-
+  // FinancialInstitution
   router.post(
     "/institutions",
     validateDto(FinancialInstitutionDTO),
@@ -40,7 +41,7 @@ export const financialRouter = (): Router => {
     controller.deleteInstitution(req, res)
   );
 
-  
+  // FinancialProduct
   router.post("/products", validateDto(FinancialProductDTO), (req, res) =>
     controller.createProduct(req, res)
   );
@@ -60,9 +61,11 @@ export const financialRouter = (): Router => {
   router.delete("/products/:id", (req, res) =>
     controller.deleteProduct(req, res)
   );
-
+  
+  // FinancingApplication
   router.post(
     "/applications",
+    upload.array("files",2),
     validateDto(FinancingApplicationDTO),
     (req, res) => controller.createApplication(req, res)
   );

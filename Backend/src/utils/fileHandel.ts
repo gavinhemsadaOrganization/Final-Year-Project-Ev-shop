@@ -8,39 +8,48 @@ const storage = multer.memoryStorage();
 export const upload = multer({
   storage,
   fileFilter: (_req, file, cb: FileFilterCallback) => {
-    const allowed = ["image/jpeg", "image/png"];
+    const allowed = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/zip",
+      "text/plain"
+    ];
+
     if (allowed.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Only .png and .jpg files are allowed!"));
+      cb(new Error("Only PDFs, Word, ZIP, and text files are allowed!"));
     }
   },
 });
 
 // -------------------
-// Single file Image
+// Single file handler
 // -------------------
-export const addImage = (
+export const addFile = (
   file: Express.Multer.File,
   folderName: string
 ): string => {
   try {
     const uploadDir = path.join(process.cwd(), "uploads", folderName);
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
 
     const fileName = `${uuid()}-${file.originalname}`;
     const fullPath = path.join(uploadDir, fileName);
 
     fs.writeFileSync(fullPath, file.buffer);
 
-    // return relative path instead of full system path
     return path.join("uploads", folderName, fileName).replace(/\\/g, "/");
   } catch (err) {
-    return `img upload error: ${err}`;
+    console.error("File upload error:", err);
+    throw new Error("File upload failed");
   }
 };
 
-export const deleteImage = (relativePath: string): boolean => {
+export const deleteFile = (relativePath: string): boolean => {
   try {
     const fullPath = path.join(process.cwd(), relativePath);
     if (fs.existsSync(fullPath)) {
@@ -49,53 +58,39 @@ export const deleteImage = (relativePath: string): boolean => {
     }
     return false;
   } catch (err) {
-    console.error("Failed to delete image:", err);
+    console.error("Failed to delete file:", err);
     return false;
   }
 };
 
-export const getOriginalFileName = (imagePath: string): string => {
-  const fileName = path.basename(imagePath);
-  const index = fileName.lastIndexOf("-");
-  return index !== -1 ? fileName.substring(index + 1) : fileName;
-};
-
-
 // ---------------------
-// Multiple Images handler
+// Multiple file handler
 // ---------------------
-
-export const addImages = (
+export const addFiles = (
   files: Express.Multer.File[],
   folderName: string
 ): string[] => {
   const uploadDir = path.join(process.cwd(), "uploads", folderName);
-  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
 
   const filePaths: string[] = [];
 
   for (const file of files) {
     const uniqueFileName = `${uuid()}-${file.originalname}`;
     const fullPath = path.join(uploadDir, uniqueFileName);
+
     fs.writeFileSync(fullPath, file.buffer);
 
-    // store relative path
-    filePaths.push(path.join("uploads", folderName, uniqueFileName).replace(/\\/g, "/"));
+    filePaths.push(
+      path.join("uploads", folderName, uniqueFileName).replace(/\\/g, "/")
+    );
   }
 
   return filePaths;
 };
 
-export const deleteImages = (relativePaths: string[]): boolean[] => {
-  return relativePaths.map((relPath) => deleteImage(relPath));
-};
-
-// helpers to extract folder & file name
-
-export const getFileName = (filePath: string): string => {
-  return path.basename(filePath);
-};
-
-export const getFolderName = (filePath: string): string => {
-  return path.basename(path.dirname(filePath));
+export const deleteFiles = (relativePaths: string[]): boolean[] => {
+  return relativePaths.map((relPath) => deleteFile(relPath));
 };

@@ -144,7 +144,7 @@ export function testDriveService(
         );
         if (customer.length > 0) {
           customer.forEach((element) => {
-            if (data.slot_id == element.slot_id.toString()) {
+            if (data.slot_id == element.slot_id.toString() && data.booking_date == element.booking_date) {
               return {
                 success: false,
                 error: "Customer already has a booking",

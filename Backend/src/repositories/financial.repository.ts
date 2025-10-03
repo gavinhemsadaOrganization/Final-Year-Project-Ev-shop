@@ -24,6 +24,7 @@ export interface IFinancialRepository {
     data: FinancialInstitutionDTO
   ): Promise<IFinancialInstitution>;
   findInstitutionById(id: string): Promise<IFinancialInstitution | null>;
+  findInstitutionByUserId(id: string): Promise<IFinancialInstitution | null>;
   findAllInstitutions(): Promise<IFinancialInstitution[]>;
   updateInstitution(
     id: string,
@@ -55,7 +56,7 @@ export interface IFinancialRepository {
   ): Promise<IFinancingApplication[]>;
   updateApplication(
     id: string,
-    data: Partial<UpdateFinancingApplicationDTO>
+    data: Partial<UpdateFinancingApplicationDTO | FinancingApplicationDTO>
   ): Promise<IFinancingApplication | null>;
   deleteApplication(id: string): Promise<boolean>;
 }
@@ -68,6 +69,8 @@ export const FinancialRepository: IFinancialRepository = {
   },
   findInstitutionById: async (id) => FinancialInstitution.findById(id),
   findAllInstitutions: async () => FinancialInstitution.find(),
+  findInstitutionByUserId: async (id) =>
+    FinancialInstitution.findOne({ user_id: new Types.ObjectId(id) }),
   updateInstitution: async (id, data) =>
     FinancialInstitution.findByIdAndUpdate(id, data, { new: true }),
   deleteInstitution: async (id) => {

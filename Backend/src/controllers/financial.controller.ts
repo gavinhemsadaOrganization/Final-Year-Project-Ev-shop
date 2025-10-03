@@ -24,6 +24,7 @@ export interface IFinancialController {
   getApplicationsByUser(req: Request, res: Response): Promise<Response>;
   getApplicationsByProduct(req: Request, res: Response): Promise<Response>;
   updateApplicationStatus(req: Request, res: Response): Promise<Response>;
+  updateApplication(req: Request, res: Response): Promise<Response>;
   deleteApplication(req: Request, res: Response): Promise<Response>;
 }
 
@@ -129,7 +130,8 @@ export function financialController(
     // Application
     createApplication: async (req, res) => {
       try {
-        const result = await service.createApplication(req.body);
+        const file = req.files as Express.Multer.File[];
+        const result = await service.createApplication(req.body, file);
         return handleResult(res, result, 201);
       } catch (err) {
         return handleError(res, err, "createApplication");
@@ -172,6 +174,17 @@ export function financialController(
         return handleError(res, err, "updateApplicationStatus");
       }
     },
+    updateApplication: async (req, res) => {
+      try {
+        const files = req.files as Express.Multer.File[];
+        const { user_id, product_id, ...filterData } = req.body;
+        const result = await service.updateApplication(req.params.id, filterData,files);
+        return handleResult(res, result);
+      } catch (err) {
+        return handleError(res, err, "updateApplication");
+      }
+    }, 
+
     deleteApplication: async (req, res) => {
       try {
         const result = await service.deleteApplication(req.params.id);

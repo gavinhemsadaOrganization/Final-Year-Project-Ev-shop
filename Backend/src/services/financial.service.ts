@@ -6,6 +6,9 @@ import {
 } from "../dtos/financial.DTO";
 import { ApplicationStatus } from "../enum/enum";
 import { IFinancialRepository } from "../repositories/financial.repository";
+import { IUserRepository } from "../repositories/user.repository";
+import { UserRole } from "../enum/enum";
+import { addFiles, deleteFiles } from "../utils/fileHandel";
 
 export interface IFinancialService {
   // Institution Methods
@@ -47,7 +50,8 @@ export interface IFinancialService {
 
   // Application Methods
   createApplication(
-    data: FinancingApplicationDTO
+    data: FinancingApplicationDTO,
+    files?: Express.Multer.File[]
   ): Promise<{ success: boolean; application?: any; error?: string }>;
   getApplicationById(
     id: string
@@ -62,16 +66,35 @@ export interface IFinancialService {
     id: string,
     data: UpdateFinancingApplicationDTO
   ): Promise<{ success: boolean; application?: any; error?: string }>;
+  updateApplication(
+    id: string,
+    data: Partial<FinancingApplicationDTO>,
+    files?: Express.Multer.File[]
+  ): Promise<{ success: boolean; application?: any; error?: string }>;
   deleteApplication(id: string): Promise<{ success: boolean; error?: string }>;
 }
 
 export function financialService(
-  repo: IFinancialRepository
+  repo: IFinancialRepository,
+  userRepo: IUserRepository
 ): IFinancialService {
+  const folderName = "financial";
   return {
     // Institution Methods
     createInstitution: async (data) => {
       try {
+        const user = await userRepo.findById(data.user_id);
+        if (!user) return { success: false, error: "User not found" };
+        const existingInstitution = await repo.findInstitutionByUserId(
+          data.user_id
+        );
+        if (existingInstitution)
+          return { success: false, error: "User already has an institution" };
+        user.role.push(UserRole.FINANCE);
+        const updatedUser = await user.save();
+        if (!updatedUser)
+          return { success: false, error: "User role not updated" };
+
         const institution = await repo.createInstitution(data);
         return { success: true, institution };
       } catch (err) {
@@ -89,7 +112,8 @@ export function financialService(
       return { success: true, institutions };
     },
     updateInstitution: async (id, data) => {
-      const institution = await repo.updateInstitution(id, data);
+      const { user_id, ...filterData } = data;
+      const institution = await repo.updateInstitution(id, filterData);
       if (!institution)
         return { success: false, error: "Institution not found" };
       return { success: true, institution };
@@ -103,6 +127,10 @@ export function financialService(
     // Product Methods
     createProduct: async (data) => {
       try {
+        const institution = await repo.findInstitutionById(data.institution_id);
+        if (!institution)
+          return { success: false, error: "Institution not found" };
+
         const product = await repo.createProduct(data);
         return { success: true, product };
       } catch (err) {
@@ -134,10 +162,24 @@ export function financialService(
     },
 
     // Application Methods
-    createApplication: async (data) => {
+    createApplication: async (data, files) => {
       try {
+        const user = await userRepo.findById(data.user_id);
+        if (!user) return { success: false, error: "User not found" };
+        const product = await repo.findProductById(data.product_id);
+        if (!product) return { success: false, error: "Product not found" };
+        if (!product.is_active)
+          return { success: false, error: "Product is not active" };
+        let filePaths: string[] = [];
+        if (files && files.length > 0) {
+          filePaths = addFiles(files, folderName);
+        }
         const applicationData = {
           ...data,
+          application_data: {
+            ...data.application_data,
+            additional_documents: filePaths, // attach uploaded file paths here
+          },
           status: ApplicationStatus.PENDING,
         };
         const application = await repo.createApplication(
@@ -181,6 +223,36 @@ export function financialService(
         }
         // Here you could trigger a notification to the user about the status change.
         return { success: true, application };
+      } catch (err) {
+        return { success: false, error: "Failed to update application status" };
+      }
+    },
+    updateApplication: async (id, data, files) => {
+      try {
+        const application = await repo.findApplicationById(id);
+        if (!application)
+          return { success: false, error: "Application not found" };
+        let filePaths: string[] = [];
+        if (files && files.length > 0) {
+          if (application.application_data.additional_documents) {
+            deleteFiles(application.application_data.additional_documents);
+          }
+          filePaths = addFiles(files, folderName);
+        }
+        const applicationData = {
+          ...data,
+          application_data: {
+            ...data.application_data,
+            additional_documents: filePaths, // attach uploaded file paths here
+          },
+        };
+        const updatedApplication = await repo.updateApplication(
+          id,
+          applicationData as Partial<FinancingApplicationDTO>
+        );
+        if (!updatedApplication)
+          return { success: false, error: "Application not found" };
+        return { success: true, application: updatedApplication };
       } catch (err) {
         return { success: false, error: "Failed to update application" };
       }

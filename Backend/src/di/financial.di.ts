@@ -11,13 +11,17 @@ import {
   IFinancialController,
   financialController,
 } from "../controllers/financial.controller";
+import { IUserRepository } from "../repositories/user.repository";
 
 container.register<IFinancialRepository>("FinancialRepository", {
   useValue: FinancialRepository,
 });
 
 container.register<IFinancialService>("FinancialService", {
-  useFactory: (c) => financialService(c.resolve<IFinancialRepository>("FinancialRepository")),
+  useFactory: (c) => financialService(
+    c.resolve<IFinancialRepository>("FinancialRepository"),
+    c.resolve<IUserRepository>("UserRepository")
+  ),
 });
 
 container.register<IFinancialController>("FinancialController", {

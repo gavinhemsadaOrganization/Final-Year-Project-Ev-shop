@@ -1,5 +1,6 @@
 import {INotificationRepository} from "../repositories/notification.repository";
 import { NotificationDTO } from "../dtos/notification.DTO";
+import { IUserRepository } from "../repositories/user.repository";
 
 export interface INotificationService{
     findById(id: string): Promise<{success: boolean; notification?: any; error?: string}>;
@@ -10,7 +11,7 @@ export interface INotificationService{
     update(id: string, data: Partial<NotificationDTO>): Promise<{success: boolean; notification?: any; error?: string}>;
     delete(id: string): Promise<{success: boolean; error?: string}>;
 }
-export function notificationService(notificationRepo: INotificationRepository): INotificationService{
+export function notificationService(notificationRepo: INotificationRepository, userRepo: IUserRepository): INotificationService{
     return {
         findById: async (id) => {
             try{
@@ -44,6 +45,8 @@ export function notificationService(notificationRepo: INotificationRepository): 
         },
         create: async (data) => {
             try{
+                const user = await userRepo.findById(data.user_id);
+                if(!user) return {success: false, error: "User not found"};
                 const notification = await notificationRepo.create(data);
                 return {success: true, notification};
             }

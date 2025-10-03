@@ -9,7 +9,11 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsInt,
+  Min,
+  ValidateNested,
 } from "class-validator";
+import { Type } from "class-transformer";
 import { ApplicationStatus } from "../enum/enum";
 
 export class FinancialInstitutionDTO {
@@ -86,6 +90,31 @@ export class FinancialProductDTO {
   @IsBoolean()
   is_active?: boolean;
 }
+class ApplicationDataDTO {
+  @IsString()
+  full_name!: string;
+
+  @IsInt()
+  @Min(18)
+  age!: number;
+
+  @IsString()
+  employment_status!: string;
+
+  @IsNumber()
+  monthly_income!: number;
+
+  @IsNumber()
+  requested_amount!: number;
+
+  @IsInt()
+  repayment_period_months!: number;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  additional_documents?: string[];
+}
 
 export class FinancingApplicationDTO {
   @IsString()
@@ -98,8 +127,9 @@ export class FinancingApplicationDTO {
   @IsString()
   message_text?: string;
 
-  @IsObject()
-  application_data!: Record<string, any>;
+  @ValidateNested()
+  @Type(() => ApplicationDataDTO)
+  application_data!: ApplicationDataDTO;
 }
 
 export class UpdateFinancingApplicationDTO {
