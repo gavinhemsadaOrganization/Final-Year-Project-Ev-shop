@@ -6,15 +6,23 @@ export interface IEvController {
   // Brand
   createBrand(req: Request, res: Response): Promise<Response>;
   getAllBrands(req: Request, res: Response): Promise<Response>;
+  getById(req: Request, res: Response): Promise<Response>;
+  updateBrand(req: Request, res: Response): Promise<Response>;
+  deleteBrand(req: Request, res: Response): Promise<Response>;
 
   // Category
   createCategory(req: Request, res: Response): Promise<Response>;
   getAllCategories(req: Request, res: Response): Promise<Response>;
+  getCategoryByid(req: Request, res: Response): Promise<Response>;
+  updateCategory(req: Request, res: Response): Promise<Response>;
+  deleteCategory(req: Request, res: Response): Promise<Response>;
 
   // Model
   createModel(req: Request, res: Response): Promise<Response>;
   getAllModels(req: Request, res: Response): Promise<Response>;
   getModelById(req: Request, res: Response): Promise<Response>;
+  updateModel(req: Request, res: Response): Promise<Response>;
+  deleteModel(req: Request, res: Response): Promise<Response>;
 
   // Listing
   createListing(req: Request, res: Response): Promise<Response>;
@@ -30,7 +38,8 @@ export function evController(service: IEvService): IEvController {
     // Brand
     createBrand: async (req, res) => {
       try {
-        const r = await service.createBrand(req.body);
+        const file = req.file;
+        const r = await service.createBrand(req.body,file!);
         return handleResult(res, r, 201);
       } catch (e) {
         return handleError(res, e, "createBrand");
@@ -44,6 +53,32 @@ export function evController(service: IEvService): IEvController {
         return handleError(res, e, "getAllBrands");
       }
     },
+    getById: async (req, res) => {
+      try {
+        const r = await service.getById(req.params.id);
+        return handleResult(res, r);
+      } catch (e) {
+        return handleError(res, e, "getById");
+      }
+    },
+    updateBrand: async (req, res) => {
+      try {
+        const file = req.file;
+        const r = await service.updateBrand(req.params.id, req.body,file!);
+        return handleResult(res, r);
+      } catch (e) {
+        return handleError(res, e, "updateBrand");
+      }
+    },
+    deleteBrand: async (req, res) => {
+      try {
+        const r = await service.deleteBrand(req.params.id);
+        return handleResult(res, r);
+        } catch (e) {
+        return handleError(res, e, "deleteBrand");
+      }
+    },
+    
 
     // Category
     createCategory: async (req, res) => {
@@ -62,11 +97,36 @@ export function evController(service: IEvService): IEvController {
         return handleError(res, e, "getAllCategories");
       }
     },
+    getCategoryByid: async (req, res) => {
+      try {
+        const r = await service.getCategoryByid(req.params.id);
+        return handleResult(res, r);
+      } catch (e) {
+        return handleError(res, e, "getCategoryByid");
+      }
+    },
+    updateCategory: async (req, res) => {
+      try {
+        const r = await service.updateCategory(req.params.id, req.body);
+        return handleResult(res, r);
+      } catch (e) {
+        return handleError(res, e, "updateCategory");
+      }
+    },
+    deleteCategory: async (req, res) => {
+      try {
+        const r = await service.deleteCategory(req.params.id);
+        return handleResult(res, r);
+      } catch (e) {
+        return handleError(res, e, "deleteCategory");
+      }
+    },
 
     // Model
     createModel: async (req, res) => {
       try {
-        const r = await service.createModel(req.body);
+        const file = req.files as Express.Multer.File[];
+        const r = await service.createModel(req.body, file);
         return handleResult(res, r, 201);
       } catch (e) {
         return handleError(res, e, "createModel");
@@ -88,11 +148,29 @@ export function evController(service: IEvService): IEvController {
         return handleError(res, e, "getModelById");
       }
     },
+    updateModel: async (req, res) => {
+      try {
+        const file = req.files as Express.Multer.File[];
+        const r = await service.updateModel(req.params.id, req.body, file);
+        return handleResult(res, r);
+      } catch (e) {
+        return handleError(res, e, "updateModel");
+      }
+    },
+    deleteModel: async (req, res) => {
+      try {
+        const r = await service.deleteModel(req.params.id);
+        return handleResult(res, r);
+      } catch (e) {
+        return handleError(res, e, "deleteModel");
+      }
+    },
 
     // Listing
     createListing: async (req, res) => {
       try {
-        const result = await service.createListing(req.body);
+        const file = req.files as Express.Multer.File[];
+        const result = await service.createListing(req.body, file);
         return handleResult(res, result, 201);
       } catch (err) {
         return handleError(res, err, "createListing");
@@ -125,7 +203,8 @@ export function evController(service: IEvService): IEvController {
     },
     updateListing: async (req, res) => {
       try {
-        const result = await service.updateListing(req.params.id, req.body);
+        const file = req.files as Express.Multer.File[];
+        const result = await service.updateListing(req.params.id, req.body, file);
         return handleResult(res, result);
       } catch (err) {
         return handleError(res, err, "updateListing");

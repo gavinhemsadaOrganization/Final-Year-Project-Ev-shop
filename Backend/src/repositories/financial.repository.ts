@@ -17,6 +17,7 @@ import {
   FinancingApplicationDTO,
   UpdateFinancingApplicationDTO,
 } from "../dtos/financial.DTO";
+import { ApplicationStatus } from "../enum/enum";
 
 export interface IFinancialRepository {
   // Institution Methods
@@ -59,6 +60,7 @@ export interface IFinancialRepository {
     data: Partial<UpdateFinancingApplicationDTO | FinancingApplicationDTO>
   ): Promise<IFinancingApplication | null>;
   deleteApplication(id: string): Promise<boolean>;
+  checkApplictionStatesbyUserID(id: string): Promise<boolean>;
 }
 
 export const FinancialRepository: IFinancialRepository = {
@@ -127,5 +129,23 @@ export const FinancialRepository: IFinancialRepository = {
   deleteApplication: async (id) => {
     const result = await FinancingApplication.findByIdAndDelete(id);
     return result !== null;
+  },
+  checkApplictionStatesbyUserID: async (id) => {
+    const result = await FinancingApplication.find({
+      user_id: new Types.ObjectId(id),
+    });
+
+    if (result.length === 0) {
+      return true; 
+    }
+
+    const hasBlockedStatus = result.some(
+      (element) =>
+        element.status === ApplicationStatus.PENDING ||
+        element.status === ApplicationStatus.APPROVED ||
+        element.status === ApplicationStatus.UNDER_REVIEW
+    );
+
+    return !hasBlockedStatus;
   },
 };

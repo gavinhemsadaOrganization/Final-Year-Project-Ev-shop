@@ -1,3 +1,4 @@
+import { Multer } from "multer";
 import {
   EvBrandDTO,
   EvCategoryDTO,
@@ -6,28 +7,34 @@ import {
   UpdateVehicleListingDTO,
 } from "../dtos/ev.DTO";
 import { IEvRepository } from "../repositories/ev.repository";
+import { addImage, addImages, deleteImage, deleteImages } from "../utils/imageHandel";
+import { ISellerRepository } from "../repositories/seller.repository";
 
 export interface IEvService {
   // Brand
   createBrand(
-    data: EvBrandDTO
+    data: EvBrandDTO,
+    file: Express.Multer.File
   ): Promise<{ success: boolean; brand?: any; error?: string }>;
   getAllBrands(): Promise<{ success: boolean; brands?: any[]; error?: string }>;
+  getById(id: string) : Promise<{ success: boolean; brand?: any; error?: string }>;
   updateBrand(
     id: string,
-    data: Partial<EvBrandDTO>
+    data: Partial<EvBrandDTO>,
+    file : Express.Multer.File
   ): Promise<{ success: boolean; brand?: any; error?: string }>;
   deleteBrand(id: string): Promise<{ success: boolean; error?: string }>;
 
   // Category
   createCategory(
-    data: EvCategoryDTO
+    data: EvCategoryDTO,
   ): Promise<{ success: boolean; category?: any; error?: string }>;
   getAllCategories(): Promise<{
     success: boolean;
     categories?: any[];
     error?: string;
   }>;
+  getCategoryByid(id: string) : Promise<{ success: boolean; category?: any; error?: string }>;
   updateCategory(
     id: string,
     data: Partial<EvCategoryDTO>
@@ -36,7 +43,8 @@ export interface IEvService {
 
   // Model
   createModel(
-    data: EvModelDTO
+    data: EvModelDTO,
+    file: Express.Multer.File[]
   ): Promise<{ success: boolean; model?: any; error?: string }>;
   getAllModels(): Promise<{ success: boolean; models?: any[]; error?: string }>;
   getModelById(
@@ -44,13 +52,15 @@ export interface IEvService {
   ): Promise<{ success: boolean; model?: any; error?: string }>;
   updateModel(
     id: string,
-    data: Partial<EvModelDTO>
+    data: Partial<EvModelDTO>,
+    file?: Express.Multer.File[]
   ): Promise<{ success: boolean; model?: any; error?: string }>;
   deleteModel(id: string): Promise<{ success: boolean; error?: string }>;
 
   // Listing
   createListing(
-    data: VehicleListingDTO
+    data: VehicleListingDTO,
+    file?: Express.Multer.File[]
   ): Promise<{ success: boolean; listing?: any; error?: string }>;
   getAllListings(
     filters: any
@@ -63,17 +73,27 @@ export interface IEvService {
   ): Promise<{ success: boolean; listings?: any[]; error?: string }>;
   updateListing(
     id: string,
-    data: UpdateVehicleListingDTO
+    data: UpdateVehicleListingDTO,
+    file?: Express.Multer.File[]
   ): Promise<{ success: boolean; listing?: any; error?: string }>;
   deleteListing(id: string): Promise<{ success: boolean; error?: string }>;
 }
 
-export function evService(repo: IEvRepository): IEvService {
+export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): IEvService {
+  const bandFolder = "EvBrand";
+  const modelFolder = "EvCategory";
+  const listingFolder = "EvListing";
   return {
     // Brand
-    createBrand: async (data) => {
+    createBrand: async (data, file) => {
       try {
-        const brand = await repo.createBrand(data);
+        let url = "";
+        if (file) url = addImage(file, bandFolder);
+        const barndata = {
+          ...data,
+          brand_logo: url,
+        };
+        const brand = await repo.createBrand(barndata);
         return { success: true, brand };
       } catch (err) {
         return { success: false, error: "Failed to create brand" };
@@ -87,11 +107,29 @@ export function evService(repo: IEvRepository): IEvService {
         return { success: false, error: "Failed to fetch brands" };
       }
     },
-    updateBrand: async (id, data) => {
+    getById: async (id) => {
+      try {
+        const brand = await repo.findBrandById(id);
+        if (!brand) return { success: false, error: "Brand not found" };
+        return { success: true, brand };
+      } catch (err) {
+        return { success: false, error: "Failed to fetch brand" };
+      }
+    },
+    updateBrand: async (id, data, file) => {
       try {
         const existing = await repo.findBrandById(id);
         if (!existing) return { success: false, error: "Brand not found" };
-        const brand = await repo.updateBrand(id, data);
+        let url = "";
+        if(file){
+          if(existing.brand_logo) deleteImage(existing.brand_logo);
+          url = addImage(file, bandFolder)
+        }
+        const updateDate = {
+          ...data,
+          brand_logo: url,
+        }
+        const brand = await repo.updateBrand(id, updateDate);
         if (!brand) return { success: false, error: "Failed to update brand" };
         return { success: true, brand };
       } catch (err) {
@@ -102,6 +140,7 @@ export function evService(repo: IEvRepository): IEvService {
       try {
         const existing = await repo.findBrandById(id);
         if (!existing) return { success: false, error: "Brand not found" };
+        if (existing.brand_logo) deleteImage(existing.brand_logo);
         const success = await repo.deleteBrand(id);
         if (!success)
           return { success: false, error: "Failed to delete brand" };
@@ -126,6 +165,16 @@ export function evService(repo: IEvRepository): IEvService {
         return { success: true, categories };
       } catch (err) {
         return { success: false, error: "Failed to fetch categories" };
+      }
+    },
+    getCategoryByid: async (id) => {
+      try {
+        const category = await repo.findCategoryById(id); 
+        if(!category) return { success: false, error: "Category not found" };
+        return { success: true, category };
+      }
+      catch(err){
+        return { success: false, error: "Failed to fetch category" };
       }
     },
     updateCategory: async (id, data) => {
@@ -154,15 +203,20 @@ export function evService(repo: IEvRepository): IEvService {
     },
 
     // Model
-    createModel: async (data) => {
+    createModel: async (data, file) => {
       try {
         const existingBrand = await repo.findBrandById(data.brand_id);
-        if (!existingBrand)
-          return { success: false, error: "Brand not found" };
+        if (!existingBrand) return { success: false, error: "Brand not found" };
         const existingCategory = await repo.findCategoryById(data.category_id);
         if (!existingCategory)
           return { success: false, error: "Category not found" };
-        const model = await repo.createModel(data);
+        let url: string[] = [];
+        if (file) url = addImages(file, modelFolder);
+        const modelData = {
+          ...data,
+          images: url,
+        };
+        const model = await repo.createModel(modelData);
         return { success: true, model };
       } catch (err) {
         return { success: false, error: "Failed to create model" };
@@ -185,11 +239,20 @@ export function evService(repo: IEvRepository): IEvService {
         return { success: false, error: "Failed to fetch model" };
       }
     },
-    updateModel: async (id, data) => {
+    updateModel: async (id, data, file) => {
       try {
         const existing = await repo.findModelById?.(id);
         if (!existing) return { success: false, error: "Model not found" };
-        const model = await repo.updateModel(id, data);
+        let url: string[] = [];
+        if(file){
+          if(existing.images) deleteImages(existing.images);
+          url = addImages(file, modelFolder);
+        }
+        const updateData = {
+          ...data,
+          images: url,
+        }
+        const model = await repo.updateModel(id, updateData);
         if (!model) return { success: false, error: "Failed to update model" };
         return { success: true, model };
       } catch (err) {
@@ -200,6 +263,7 @@ export function evService(repo: IEvRepository): IEvService {
       try {
         const existing = await repo.findModelById?.(id);
         if (!existing) return { success: false, error: "Model not found" };
+        if(existing.images) deleteImages(existing.images);
         const success = await repo.deleteModel(id);
         if (!success)
           return { success: false, error: "Failed to delete model" };
@@ -210,9 +274,18 @@ export function evService(repo: IEvRepository): IEvService {
     },
 
     // Listing
-    createListing: async (data) => {
+    createListing: async (data, file) => {
       try {
-        const listing = await repo.createListing(data);
+        const existingSeller = await sellerRepo.findById(data.seller_id);
+        if (!existingSeller)
+          return { success: false, error: "Seller not found" };
+        let url: string[] = [];
+        if (file) url = addImages(file, listingFolder);
+        const listingData = {
+          ...data,
+          images: url,
+        };
+        const listing = await repo.createListing(listingData);
         return { success: true, listing };
       } catch (err) {
         return { success: false, error: "Failed to create listing" };
@@ -243,11 +316,20 @@ export function evService(repo: IEvRepository): IEvService {
         return { success: false, error: "Failed to fetch seller listings" };
       }
     },
-    updateListing: async (id, data) => {
+    updateListing: async (id, data, file) => {
       try {
         const existing = await repo.findListingById?.(id);
         if (!existing) return { success: false, error: "Listing not found" };
-        const listing = await repo.updateListing(id, data);
+        let url: string[] = [];
+        if(file){
+          if(existing.images) deleteImages(existing.images);
+          url = addImages(file, listingFolder)
+        }
+        const updateData = {
+          ...data,
+          images: url,
+        }
+        const listing = await repo.updateListing(id, updateData);
         if (!listing)
           return { success: false, error: "Failed to update listing" };
         return { success: true, listing };
@@ -259,6 +341,7 @@ export function evService(repo: IEvRepository): IEvService {
       try {
         const existing = await repo.findListingById?.(id);
         if (!existing) return { success: false, error: "Listing not found" };
+        if(existing.images) deleteImages(existing.images);
         const success = await repo.deleteListing(id);
         if (!success)
           return { success: false, error: "Failed to delete listing" };

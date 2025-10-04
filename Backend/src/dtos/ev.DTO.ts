@@ -19,10 +19,6 @@ export class EvBrandDTO {
   @IsOptional()
   @IsString()
   description?: string;
-
-  @IsOptional()
-  @IsUrl()
-  logo_url?: string;
 }
 
 // --- Category DTOs ---
@@ -62,10 +58,6 @@ export class EvModelDTO {
   @IsOptional()
   @IsString()
   motor_type?: string;
-
-  @IsOptional()
-  @IsUrl()
-  image_url?: string;
 }
 
 // --- Vehicle Listing DTOs ---

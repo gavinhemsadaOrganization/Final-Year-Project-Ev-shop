@@ -46,7 +46,8 @@ export enum ApplicationStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
   REJECTED = 'rejected',
-  UNDER_REVIEW = 'under_review'
+  UNDER_REVIEW = 'under_review',
+  Complete = 'complete'
 }
 
 export enum ReviewType{

@@ -170,6 +170,12 @@ export function financialService(
         if (!product) return { success: false, error: "Product not found" };
         if (!product.is_active)
           return { success: false, error: "Product is not active" };
+        const hasApplication = await repo.checkApplictionStatesbyUserID(
+          data.user_id
+        );
+        console.log(hasApplication);
+        if (!hasApplication)
+          return { success: false, error: "User already has an application" };
         let filePaths: string[] = [];
         if (files && files.length > 0) {
           filePaths = addFiles(files, folderName);
@@ -234,22 +240,29 @@ export function financialService(
           return { success: false, error: "Application not found" };
         let filePaths: string[] = [];
         if (files && files.length > 0) {
-          if (application.application_data.additional_documents) {
-            deleteFiles(application.application_data.additional_documents);
+          const existingDocs = application.application_data.get(
+            "additional_documents"
+          );
+
+          if (existingDocs && existingDocs.length > 0) {
+            deleteFiles(existingDocs);
           }
+
           filePaths = addFiles(files, folderName);
         }
-        const applicationData = {
+
+        const updateDate = {
           ...data,
           application_data: {
             ...data.application_data,
-            additional_documents: filePaths, // attach uploaded file paths here
+            additional_documents: filePaths,
           },
         };
         const updatedApplication = await repo.updateApplication(
           id,
-          applicationData as Partial<FinancingApplicationDTO>
+          updateDate as any
         );
+        console.log(updatedApplication);
         if (!updatedApplication)
           return { success: false, error: "Application not found" };
         return { success: true, application: updatedApplication };
@@ -258,6 +271,11 @@ export function financialService(
       }
     },
     deleteApplication: async (id) => {
+      const application = await repo.findApplicationById(id);
+      if (application?.application_data.additional_documents)
+        deleteFiles(application?.application_data.additional_documents);
+      if (!application)
+        return { success: false, error: "Application not found" };
       const success = await repo.deleteApplication(id);
       if (!success) return { success: false, error: "Application not found" };
       return { success: true };

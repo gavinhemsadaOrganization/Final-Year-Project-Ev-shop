@@ -13,7 +13,7 @@ export const upload = multer({
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "application/zip",
-      "text/plain"
+      "text/plain",
     ];
 
     if (allowed.includes(file.mimetype)) {
@@ -42,26 +42,37 @@ export const addFile = (
 
     fs.writeFileSync(fullPath, file.buffer);
 
-    return path.join("uploads", folderName, fileName).replace(/\\/g, "/");
+    // Always return project-root-relative path
+    return `uploads/${folderName}/${fileName}`.replace(/\\/g, "/");
   } catch (err) {
     console.error("File upload error:", err);
     throw new Error("File upload failed");
   }
 };
 
+// -------------------
+// Delete single file
+// -------------------
 export const deleteFile = (relativePath: string): boolean => {
   try {
-    const fullPath = path.join(process.cwd(), relativePath);
+    const safePath = relativePath.replace(/^(\.\.[/\\])+/, "").replace(/^\/+/, "");
+    const fullPath = path.join(process.cwd(), safePath);
+
+    console.log("Trying to delete:", { relativePath, safePath, fullPath });
+
     if (fs.existsSync(fullPath)) {
       fs.unlinkSync(fullPath);
       return true;
+    } else {
+      console.warn("File not found for deletion:", fullPath);
     }
     return false;
-  } catch (err) {
-    console.error("Failed to delete file:", err);
+  } catch (err: any) {
+    console.error("Failed to delete file:", err.code, err.message);
     return false;
   }
 };
+
 
 // ---------------------
 // Multiple file handler
@@ -83,9 +94,7 @@ export const addFiles = (
 
     fs.writeFileSync(fullPath, file.buffer);
 
-    filePaths.push(
-      path.join("uploads", folderName, uniqueFileName).replace(/\\/g, "/")
-    );
+    filePaths.push(`uploads/${folderName}/${uniqueFileName}`.replace(/\\/g, "/"));
   }
 
   return filePaths;

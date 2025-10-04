@@ -13,7 +13,7 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import { Type } from "class-transformer";
+import { Type, Transform } from "class-transformer";
 import { ApplicationStatus } from "../enum/enum";
 
 export class FinancialInstitutionDTO {
@@ -110,10 +110,6 @@ class ApplicationDataDTO {
   @IsInt()
   repayment_period_months!: number;
 
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  additional_documents?: string[];
 }
 
 export class FinancingApplicationDTO {
@@ -127,6 +123,16 @@ export class FinancingApplicationDTO {
   @IsString()
   message_text?: string;
 
+  @Transform(({ value }) => {
+    if (typeof value === "string") {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value; // return raw string if not valid JSON
+      }
+    }
+    return value;
+  })
   @ValidateNested()
   @Type(() => ApplicationDataDTO)
   application_data!: ApplicationDataDTO;
