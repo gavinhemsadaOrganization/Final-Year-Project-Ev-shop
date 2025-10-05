@@ -103,6 +103,7 @@ export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): I
     getAllBrands: async () => {
       try {
         const brands = await repo.findAllBrands();
+        if (!brands) return { success: false, error: "No brands found" };
         return { success: true, brands };
       } catch (err) {
         return { success: false, error: "Failed to fetch brands" };
@@ -163,6 +164,7 @@ export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): I
     getAllCategories: async () => {
       try {
         const categories = await repo.findAllCategories();
+        if (!categories) return { success: false, error: "No categories found" };
         return { success: true, categories };
       } catch (err) {
         return { success: false, error: "Failed to fetch categories" };
@@ -227,6 +229,7 @@ export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): I
     getAllModels: async () => {
       try {
         const models = await repo.findAllModels();
+        if (!models) return { success: false, error: "No models found" };
         return { success: true, models };
       } catch (err) {
         return { success: false, error: "Failed to fetch models" };
@@ -296,6 +299,7 @@ export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): I
     getAllListings: async (filters) => {
       try {
         const listings = await repo.findAllListings(filters);
+        if (!listings) return { success: false, error: "No listings found" };
         return { success: true, listings };
       } catch (err) {
         return { success: false, error: "Failed to fetch listings" };
@@ -313,6 +317,7 @@ export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): I
     getListingsBySeller: async (sellerId) => {
       try {
         const listings = await repo.findListingsBySeller(sellerId);
+        if(!listings) return { success: false, error: "No listings found" };
         return { success: true, listings };
       } catch (err) {
         return { success: false, error: "Failed to fetch seller listings" };

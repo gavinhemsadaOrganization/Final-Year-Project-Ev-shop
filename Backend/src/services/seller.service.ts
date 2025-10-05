@@ -72,6 +72,7 @@ export function sellerService(repo: ISellerRepository, userRepo: IUserRepository
     getAllSellers: async () => {
       try {
         const sellers = await repo.findAll();
+        if (!sellers) return { success: false, error: "No sellers found" };
         return { success: true, sellers };
       } catch (err) {
         return { success: false, error: "Failed to retrieve sellers" };

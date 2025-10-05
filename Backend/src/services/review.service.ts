@@ -17,6 +17,7 @@ export function reviewService(reviewRepo: IReviewRepository, userRepo: IUserRepo
         getAllReviews: async () => {
             try {
                 const reviews = await reviewRepo.getAllReviews();
+                if (!reviews) return {success: false, error: "No reviews found"};
                 return {success: true, reviews};
             }
             catch(err) {
@@ -27,6 +28,7 @@ export function reviewService(reviewRepo: IReviewRepository, userRepo: IUserRepo
         getReviewByTargetId: async (targetId: string) => {
             try {
                 const reviews = await reviewRepo.getReviewByTargetId(targetId);
+                if(!reviews) return {success: false, error: "No reviews found for the target"};
                 return {success: true, reviews};
             }
             catch (err) {
@@ -36,6 +38,7 @@ export function reviewService(reviewRepo: IReviewRepository, userRepo: IUserRepo
         getReviewsByReviewerId: async (reviewerId: string) => {
             try {
                 const reviews = await reviewRepo.getReviewsByReviewerId(reviewerId);
+                if(!reviews) return {success: false, error: "No reviews found by the reviewer"};
                 return {success: true, reviews};
             }
             catch (err) {

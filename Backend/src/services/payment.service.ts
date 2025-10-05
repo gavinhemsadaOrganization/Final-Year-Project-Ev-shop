@@ -126,6 +126,7 @@ export function paymentService(
     getAllPayments: async (query) => {
       try {
         const payments = await repo.findAll(query);
+        if (!payments) return { success: false, error: "No payments found" };
         return { success: true, payments };
       } catch (err) {
         return { success: false, error: "Failed to retrieve payments" };

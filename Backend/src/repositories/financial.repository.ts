@@ -18,125 +18,142 @@ import {
   UpdateFinancingApplicationDTO,
 } from "../dtos/financial.DTO";
 import { ApplicationStatus } from "../enum/enum";
+import { withErrorHandling } from "../utils/CustomException";
 
 export interface IFinancialRepository {
   // Institution Methods
   createInstitution(
     data: FinancialInstitutionDTO
-  ): Promise<IFinancialInstitution>;
+  ): Promise<IFinancialInstitution | null>;
   findInstitutionById(id: string): Promise<IFinancialInstitution | null>;
   findInstitutionByUserId(id: string): Promise<IFinancialInstitution | null>;
-  findAllInstitutions(): Promise<IFinancialInstitution[]>;
+  findAllInstitutions(): Promise<IFinancialInstitution[] | null>;
   updateInstitution(
     id: string,
     data: Partial<FinancialInstitutionDTO>
   ): Promise<IFinancialInstitution | null>;
-  deleteInstitution(id: string): Promise<boolean>;
+  deleteInstitution(id: string): Promise<boolean | null>;
 
   // Product Methods
-  createProduct(data: FinancialProductDTO): Promise<IFinancialProduct>;
+  createProduct(data: FinancialProductDTO): Promise<IFinancialProduct | null>;
   findProductById(id: string): Promise<IFinancialProduct | null>;
-  findAllProducts(activeOnly?: boolean): Promise<IFinancialProduct[]>;
+  findAllProducts(activeOnly?: boolean): Promise<IFinancialProduct[] | null>;
   findProductsByInstitution(
     institutionId: string
-  ): Promise<IFinancialProduct[]>;
+  ): Promise<IFinancialProduct[] | null>;
   updateProduct(
     id: string,
     data: Partial<FinancialProductDTO>
   ): Promise<IFinancialProduct | null>;
-  deleteProduct(id: string): Promise<boolean>;
+  deleteProduct(id: string): Promise<boolean | null>;
 
   // Application Methods
   createApplication(
     data: FinancingApplicationDTO
-  ): Promise<IFinancingApplication>;
+  ): Promise<IFinancingApplication | null>;
   findApplicationById(id: string): Promise<IFinancingApplication | null>;
-  findApplicationsByUserId(userId: string): Promise<IFinancingApplication[]>;
+  findApplicationsByUserId(
+    userId: string
+  ): Promise<IFinancingApplication[] | null>;
   findApplicationsByProductId(
     productId: string
-  ): Promise<IFinancingApplication[]>;
+  ): Promise<IFinancingApplication[] | null>;
   updateApplication(
     id: string,
     data: Partial<UpdateFinancingApplicationDTO | FinancingApplicationDTO>
   ): Promise<IFinancingApplication | null>;
-  deleteApplication(id: string): Promise<boolean>;
-  checkApplictionStatesbyUserID(id: string): Promise<boolean>;
+  deleteApplication(id: string): Promise<boolean | null>;
+  checkApplictionStatesbyUserID(id: string): Promise<boolean | null>;
 }
 
 export const FinancialRepository: IFinancialRepository = {
   // Institution Methods
-  createInstitution: async (data) => {
+  createInstitution: withErrorHandling(async (data) => {
     const institution = new FinancialInstitution(data);
     return await institution.save();
-  },
-  findInstitutionById: async (id) => FinancialInstitution.findById(id),
-  findAllInstitutions: async () => FinancialInstitution.find(),
-  findInstitutionByUserId: async (id) =>
-    FinancialInstitution.findOne({ user_id: new Types.ObjectId(id) }),
-  updateInstitution: async (id, data) =>
-    FinancialInstitution.findByIdAndUpdate(id, data, { new: true }),
-  deleteInstitution: async (id) => {
+  }),
+  findInstitutionById: withErrorHandling(async (id) =>
+    FinancialInstitution.findById(id)
+  ),
+  findAllInstitutions: withErrorHandling(async () =>
+    FinancialInstitution.find()
+  ),
+  findInstitutionByUserId: withErrorHandling(async (id) =>
+    FinancialInstitution.findOne({ user_id: new Types.ObjectId(id) })
+  ),
+  updateInstitution: withErrorHandling(async (id, data) =>
+    FinancialInstitution.findByIdAndUpdate(id, data, { new: true })
+  ),
+  deleteInstitution: withErrorHandling(async (id) => {
     const result = await FinancialInstitution.findByIdAndDelete(id);
     return result !== null;
-  },
+  }),
 
   // Product Methods
-  createProduct: async (data) => {
+  createProduct: withErrorHandling(async (data) => {
     const product = new FinancialProduct(data);
     return await product.save();
-  },
-  findProductById: async (id) => FinancialProduct.findById(id),
-  findAllProducts: async (activeOnly = true) => {
+  }),
+  findProductById: withErrorHandling(async (id) =>
+    FinancialProduct.findById(id)
+  ),
+  findAllProducts: withErrorHandling(async (activeOnly = true) => {
     const filter = activeOnly ? { is_active: true } : {};
     return FinancialProduct.find(filter).populate("institution_id");
-  },
-  findProductsByInstitution: async (institutionId) =>
+  }),
+  findProductsByInstitution: withErrorHandling(async (institutionId) =>
     FinancialProduct.find({
       institution_id: new Types.ObjectId(institutionId),
-    }),
-  updateProduct: async (id, data) =>
-    FinancialProduct.findByIdAndUpdate(id, data, { new: true }),
-  deleteProduct: async (id) => {
+    })
+  ),
+  updateProduct: withErrorHandling(async (id, data) =>
+    FinancialProduct.findByIdAndUpdate(id, data, { new: true })
+  ),
+  deleteProduct: withErrorHandling(async (id) => {
     const result = await FinancialProduct.findByIdAndDelete(id);
     return result !== null;
-  },
+  }),
 
   // Application Methods
-  createApplication: async (data) => {
+  createApplication: withErrorHandling(async (data) => {
     const application = new FinancingApplication(data);
     return await application.save();
-  },
-  findApplicationById: async (id) =>
+  }),
+  findApplicationById: withErrorHandling(async (id) =>
     FinancingApplication.findById(id)
       .populate("user_id", "name email")
       .populate({
         path: "product_id",
         populate: { path: "institution_id", select: "name" },
-      }),
-  findApplicationsByUserId: async (userId) =>
+      })
+  ),
+  findApplicationsByUserId: withErrorHandling(async (userId) =>
     FinancingApplication.find({ user_id: new Types.ObjectId(userId) })
       .populate({
         path: "product_id",
         populate: { path: "institution_id", select: "name" },
       })
-      .sort({ createdAt: -1 }),
-  findApplicationsByProductId: async (productId) =>
+      .sort({ createdAt: -1 })
+  ),
+  findApplicationsByProductId: withErrorHandling(async (productId) =>
     FinancingApplication.find({ product_id: new Types.ObjectId(productId) })
       .populate("user_id", "name email")
-      .sort({ createdAt: -1 }),
-  updateApplication: async (id, data) =>
-    FinancingApplication.findByIdAndUpdate(id, data, { new: true }),
-  deleteApplication: async (id) => {
+      .sort({ createdAt: -1 })
+  ),
+  updateApplication: withErrorHandling(async (id, data) =>
+    FinancingApplication.findByIdAndUpdate(id, data, { new: true })
+  ),
+  deleteApplication: withErrorHandling(async (id) => {
     const result = await FinancingApplication.findByIdAndDelete(id);
     return result !== null;
-  },
-  checkApplictionStatesbyUserID: async (id) => {
+  }),
+  checkApplictionStatesbyUserID: withErrorHandling(async (id) => {
     const result = await FinancingApplication.find({
       user_id: new Types.ObjectId(id),
     });
 
     if (result.length === 0) {
-      return true; 
+      return true;
     }
 
     const hasBlockedStatus = result.some(
@@ -147,5 +164,5 @@ export const FinancialRepository: IFinancialRepository = {
     );
 
     return !hasBlockedStatus;
-  },
+  }),
 };

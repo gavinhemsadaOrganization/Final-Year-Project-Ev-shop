@@ -86,6 +86,7 @@ export function testDriveService(
     findAllSlots: async () => {
       try {
         const slots = await testDriveRepo.findAllSlots();
+        if (!slots) return { success: false, error: "No slots found" };
         return { success: true, slots };
       } catch (err) {
         return { success: false, error: "Failed to fetch slots" };
@@ -94,6 +95,7 @@ export function testDriveService(
     findSlotsBySeller: async (sellerId) => {
       try {
         const slots = await testDriveRepo.findSlotsBySeller(sellerId);
+        if(!slots) return { success: false, error: "No slots found" };
         return { success: true, slots };
       } catch (err) {
         return { success: false, error: "Failed to fetch slots for seller" };
@@ -102,6 +104,7 @@ export function testDriveService(
     findActiveSlots: async () => {
       try {
         const slots = await testDriveRepo.findActiveSlots();
+        if (!slots) return { success: false, error: "No active slots found" };
         return { success: true, slots };
       } catch (err) {
         return { success: false, error: "Failed to fetch active slots" };
@@ -137,12 +140,14 @@ export function testDriveService(
         const bookingsOnSlot = await testDriveRepo.findBookingsBySlotId(
           data.slot_id
         );
+        if(!bookingsOnSlot) return { success: false, error: "No bookings found" };
         if (bookingsOnSlot.length >= slot.max_bookings) {
           return { success: false, error: "Slot is fully booked" };
         }
         const customer = await testDriveRepo.findBookingsByCustomerId(
           data.customer_id
         );
+        if(!customer) return { success: false, error: "No bookings found" };
         if (customer.length > 0) {
           customer.forEach((element) => {
             if (data.slot_id == element.slot_id.toString() && data.booking_date == element.booking_date) {
@@ -179,6 +184,7 @@ export function testDriveService(
         const bookings = await testDriveRepo.findBookingsByCustomerId(
           customerId
         );
+        if (!bookings) return { success: false, error: "No bookings found" };
         return { success: true, bookings };
       } catch (err) {
         return { success: false, error: "Failed to fetch bookings" };

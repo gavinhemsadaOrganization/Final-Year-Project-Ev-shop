@@ -26,8 +26,8 @@ export function cartService(cartRepo: ICartRepository): ICartService {
         if (!cart) {
           cart = await cartRepo.createCart(userId);
         }
-        const items = await cartRepo.findCartItems(cart._id.toString());
-        return { success: true, cart: { ...cart.toObject(), items } };
+        const items = await cartRepo.findCartItems(cart!._id.toString());
+        return { success: true, cart: { ...cart!.toObject(), items } };
       } catch (err) {
         return { success: false, error: "Failed to retrieve cart" };
       }
@@ -39,8 +39,7 @@ export function cartService(cartRepo: ICartRepository): ICartService {
         if (!cart) {
           cart = await cartRepo.createCart(data.user_id);
         }
-
-        const cartId = cart._id.toString();
+        const cartId = cart!._id.toString();
         const existingItem = await cartRepo.findCartItemByListing(
           cartId,
           data.listing_id

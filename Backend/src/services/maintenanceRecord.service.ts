@@ -49,10 +49,12 @@ export function maintenanceRecordService(
     },
     getRecordsBySellerId: async (sellerId) => {
       const records = await repo.findBySellerId(sellerId);
+      if (!records) return { success: false, error: "Records not found" };
       return { success: true, records };
     },
     getAllRecords: async () => {
       const records = await repo.findAll();
+      if(!records) return { success: false, error: "Records not found" };
       return { success: true, records };
     },
     updateRecord: async (id, data) => {

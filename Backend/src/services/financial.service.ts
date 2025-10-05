@@ -109,6 +109,8 @@ export function financialService(
     },
     getAllInstitutions: async () => {
       const institutions = await repo.findAllInstitutions();
+      if (!institutions)
+        return { success: false, error: "No institutions found" };
       return { success: true, institutions };
     },
     updateInstitution: async (id, data) => {
@@ -144,10 +146,12 @@ export function financialService(
     },
     getAllProducts: async (activeOnly = true) => {
       const products = await repo.findAllProducts(activeOnly);
+      if (!products) return { success: false, error: "No products found" };
       return { success: true, products };
     },
     getProductsByInstitution: async (institutionId) => {
       const products = await repo.findProductsByInstitution(institutionId);
+      if(!products) return { success: false, error: "No products found" };
       return { success: true, products };
     },
     updateProduct: async (id, data) => {
@@ -204,10 +208,13 @@ export function financialService(
     },
     getApplicationsByUser: async (userId) => {
       const applications = await repo.findApplicationsByUserId(userId);
+      if (!applications)
+        return { success: false, error: "No applications found" };
       return { success: true, applications };
     },
     getApplicationsByProduct: async (productId) => {
       const applications = await repo.findApplicationsByProductId(productId);
+      if(!applications) return { success: false, error: "No applications found" };
       return { success: true, applications };
     },
     updateApplicationStatus: async (id, data) => {

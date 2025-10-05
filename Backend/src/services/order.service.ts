@@ -48,11 +48,13 @@ export function orderService(repo: IOrderRepository): IOrderService {
 
     getOrdersByUserId: async (userId) => {
       const orders = await repo.findByUserId(userId);
+      if (!orders) return { success: false, error: "No orders found" };
       return { success: true, orders };
     },
 
     getOrdersBySellerId: async (sellerId) => {
       const orders = await repo.findBySellerId(sellerId);
+      if(!orders) return { success: false, error: "No orders found" };
       return { success: true, orders };
     },
 
