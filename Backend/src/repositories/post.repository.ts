@@ -37,7 +37,7 @@ export const PostRepository: IPostRepository = {
       { $match: { _id: new Types.ObjectId(id) } },
       {
         $lookup: {
-          from: "PostReply",
+          from: PostReply.collection.name,
           localField: "_id",
           foreignField: "post_id",
           as: "replies",
@@ -51,7 +51,7 @@ export const PostRepository: IPostRepository = {
       { $sort: { createdAt: -1 } },
       {
         $lookup: {
-          from: "PostReply",
+          from: PostReply.collection.name,
           localField: "_id",
           foreignField: "post_id",
           as: "replies",
@@ -65,7 +65,7 @@ export const PostRepository: IPostRepository = {
       { $sort: { createdAt: -1 } },
       {
         $lookup: {
-          from: "PostReply",
+          from: PostReply.collection.name,
           localField: "_id",
           foreignField: "post_id",
           as: "replies",
