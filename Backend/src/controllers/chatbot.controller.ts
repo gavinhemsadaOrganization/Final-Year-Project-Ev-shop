@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { IChatbotService } from "../services/chatbot.service";
 import { handleResult, handleError } from "../utils/Respons.util";
+import { get } from "http";
 
 export interface IChatbotController {
   getConversationByID(req: Request, res: Response): Promise<Response>;
   getConversationsByUserID(req: Request, res: Response): Promise<Response>;
   getAllConversations(req: Request, res: Response): Promise<Response>;
+  getRespons(req: Request, res: Response): Promise<Response>;
   createConversation(req: Request, res: Response): Promise<Response>;
   updateConversation(req: Request, res: Response): Promise<Response>;
   deleteConversation(req: Request, res: Response): Promise<Response>;
@@ -50,6 +52,14 @@ export function chatbotController(
         return handleResult(res, result);
       } catch (err) {
         return handleError(res, err, "getAllConversations");
+      }
+    },
+    getRespons: async (req, res) => {
+      try {
+        const result = await chatbotService.getRespons(req.body.question);
+        return handleResult(res, result);
+      } catch (err) {
+        return handleError(res, err, "getRespons");
       }
     },
     createConversation: async (req, res) => {

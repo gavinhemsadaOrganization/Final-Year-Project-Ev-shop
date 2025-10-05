@@ -1,6 +1,8 @@
 import { IChatbotRepository } from "../repositories/chatbot.repository";
 import { ChatbotConversationDTO, PredictionDTO } from "../dtos/chatbot.DTO";
 import { IUserRepository } from "../repositories/user.repository";
+import { getChatbotResponse }  from "../utils/chatbot";
+
 
 export interface IChatbotService {
   findConversationById(
@@ -14,6 +16,7 @@ export interface IChatbotService {
   findConversationsByUserId(
     user_id: string
   ): Promise<{ success: boolean; conversations?: any[]; error?: string }>;
+  getRespons(question: string) : Promise<{ success: boolean; response?: any; error?: string }>;
   createConversation(
     data: ChatbotConversationDTO
   ): Promise<{ success: boolean; conversation?: any; error?: string }>;
@@ -84,6 +87,15 @@ export function chatbotService(
         return { success: false, error: "Failed to fetch conversations" };
       }
     },
+    getRespons: async (question) => {
+      try {
+        const response = getChatbotResponse(question);
+        if (!response) return { success: false, error: "Failed to get response" };
+        return { success: true, response };
+      } catch (err) {
+        return { success: false, error: "Failed to get response" };
+      }
+    },
     createConversation: async (data) => {
       try {
         const user = await userRepo.findById(data.user_id);
@@ -114,7 +126,8 @@ export function chatbotService(
         return { success: false, error: "Failed to delete conversation" };
       }
     },
-
+ 
+    // Prediction
     findAllPredictions: async () => {
       try {
         const predictions = await chatbotRepo.findAllPredictions();

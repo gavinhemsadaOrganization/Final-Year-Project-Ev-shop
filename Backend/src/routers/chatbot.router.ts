@@ -18,6 +18,9 @@ export const chatbotRouter = (): Router => {
   router.get("/conversations", (req, res) =>
     chatbotController.getAllConversations(req, res)
   );
+  router.post("/ask", (req, res) =>
+    chatbotController.getRespons(req, res)
+  );
   router.post(
     "/conversations",
     validateDto(ChatbotConversationDTO),
