@@ -11,9 +11,15 @@ import { OrderStatus, PaymentStatus } from "../enum/enum";
 export class CreateOrderDTO {
   @IsMongoId()
   user_id!: string;
-
+  
+  @IsOptional()
   @IsMongoId()
-  listing_id!: string;
+  listing_id?: string;
+  
+  @IsOptional()
+  @IsMongoId()
+  booking_id?: string;
+
 
   @IsMongoId()
   seller_id!: string;

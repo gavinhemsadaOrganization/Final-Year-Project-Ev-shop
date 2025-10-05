@@ -1,19 +1,18 @@
 import { Payment, IPayment } from "../models/Payment";
-import { CreatePaymentDTO, UpdatePaymentDTO } from "../dtos/payment.DTO";
-import { PaymentStatus } from "../enum/enum";
+import { CreatePaymentDTO } from "../dtos/payment.DTO";
 
 export interface IPaymentRepository {
-  create(data: CreatePaymentDTO): Promise<IPayment>;
+  create(data: object): Promise<IPayment>;
   findById(id: string): Promise<IPayment | null>;
   findByOrderId(orderId: string): Promise<IPayment | null>;
   findAll(query: any): Promise<IPayment[]>;
-  update(id: string, data: UpdatePaymentDTO): Promise<IPayment | null>;
+  update(id: string, data: CreatePaymentDTO): Promise<IPayment | null>;
   delete(id: string): Promise<boolean>;
 }
 
 export const PaymentRepository: IPaymentRepository = {
   create: async (data) => {
-    const payment = new Payment({ ...data, status: PaymentStatus.CONFIRMED });
+    const payment = new Payment(data);
     return await payment.save();
   },
 

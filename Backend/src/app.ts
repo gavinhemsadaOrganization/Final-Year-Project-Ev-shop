@@ -1,5 +1,4 @@
 import express, { Express } from "express";
-import type { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import bodyParser from "body-parser";

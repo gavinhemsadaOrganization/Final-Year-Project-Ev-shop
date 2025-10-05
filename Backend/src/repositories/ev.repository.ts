@@ -13,7 +13,7 @@ import { Types } from "mongoose";
 
 export interface IEvRepository {
   // Brand
-  createBrand(data: EvBrandDTO): Promise<IEvBrand>;
+  createBrand(data: EvBrandDTO): Promise<IEvBrand | null>;
   findAllBrands(): Promise<IEvBrand[]>;
   findBrandById(id: string): Promise<IEvBrand | null>;
   updateBrand(id: string, data: Partial<EvBrandDTO>): Promise<IEvBrand | null>;
@@ -52,11 +52,22 @@ export interface IEvRepository {
 export const EvRepository: IEvRepository = {
   // Brand
   createBrand: async (data) => {
-    const brand = new EvBrand(data);
-    return await brand.save();
+    try{
+       const brand = new EvBrand(data);
+    console.log(brand);
+    const result = await brand.save();
+    console.log(result);
+    return result;
+    }
+    catch(err){
+      console.log(err);
+      return null;
+    }
+   
+    // return await brand.save();
   },
   findAllBrands: async () => EvBrand.find(),
-  findBrandById: async (id) => EvBrand.findById(id),
+  findBrandById: async (_id  ) => EvBrand.findById({_id }),
   updateBrand: async (id, data) => {
     return await EvBrand.findByIdAndUpdate(id, data, { new: true });
   },

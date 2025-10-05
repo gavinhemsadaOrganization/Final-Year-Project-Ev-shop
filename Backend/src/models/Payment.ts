@@ -9,15 +9,17 @@ export interface IPayment extends Document {
   amount: number;
   tax_amount?: number;
   status: PaymentStatus;
+  payment_id : string;
 }
 
 const PaymentSchema = new Schema<IPayment>({
   order_id: { type: Schema.Types.ObjectId, ref: 'Order', required: true },
-  payment_method: { type: String, enum: Object.values(PaymentMethod), required: true },
+  payment_method: { type: String, enum: Object.values(PaymentMethod) },
   payment_type: { type: String, enum: Object.values(PaymentType), required: true },
   amount: { type: Number, required: true },
   tax_amount: { type: Number },
   status: { type: String, enum: Object.values(PaymentStatus), required: true },
+  payment_id: { type: String}
 }, { timestamps: true });
 
 // Indexes for efficient queries

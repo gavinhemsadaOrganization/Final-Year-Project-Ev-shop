@@ -1,4 +1,3 @@
-import { Multer } from "multer";
 import {
   EvBrandDTO,
   EvCategoryDTO,
@@ -81,7 +80,7 @@ export interface IEvService {
 
 export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): IEvService {
   const bandFolder = "EvBrand";
-  const modelFolder = "EvCategory";
+  const modelFolder = "EvModel";
   const listingFolder = "EvListing";
   return {
     // Brand
@@ -94,6 +93,8 @@ export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): I
           brand_logo: url,
         };
         const brand = await repo.createBrand(barndata);
+        console.log(brand);
+        if (!brand) return { success: false, error: "Failed to create new brand" };
         return { success: true, brand };
       } catch (err) {
         return { success: false, error: "Failed to create brand" };
@@ -219,6 +220,7 @@ export function evService(repo: IEvRepository, sellerRepo: ISellerRepository): I
         const model = await repo.createModel(modelData);
         return { success: true, model };
       } catch (err) {
+        console.log(err);
         return { success: false, error: "Failed to create model" };
       }
     },

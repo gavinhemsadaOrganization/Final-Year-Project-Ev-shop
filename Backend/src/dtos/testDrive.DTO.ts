@@ -39,9 +39,7 @@ export class TestDriveBookingDTO {
 
   @IsString()
   slot_id!: string;
-  
-  @IsEnum(TestDriveBookingStatus)
-  states!: TestDriveBookingStatus;
+
 
   @IsDate()
   @Type(() => Date)

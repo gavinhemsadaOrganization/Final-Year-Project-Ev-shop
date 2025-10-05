@@ -6,6 +6,7 @@ import {
 import { ITestDriveRepository } from "../repositories/testDrive.repository";
 import { ISellerRepository } from "../repositories/seller.repository";
 import { IEvRepository } from "../repositories/ev.repository";
+import { TestDriveBookingStatus } from "../enum/enum";
 
 
 export interface ITestDriveService {
@@ -154,11 +155,13 @@ export function testDriveService(
         }
         const bookingData = {
           ...data,
-          booking_date: slot.available_date
+          booking_date: slot.available_date,
+          status: TestDriveBookingStatus.CONFIRMED,
         };
         const booking = await testDriveRepo.createBooking(bookingData as any);
         return { success: true, booking };
       } catch (err) {
+        console.log(err);
         return { success: false, error: "Failed to create booking" };
       }
     },

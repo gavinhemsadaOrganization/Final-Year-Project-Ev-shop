@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { container } from "tsyringe";
 import { validateDto } from "../middlewares/DtoValidator.middleware";
-import { CreatePaymentDTO, UpdatePaymentDTO } from "../dtos/payment.DTO";
+import { CreatePaymentDTO } from "../dtos/payment.DTO";
 import { IPaymentController } from "../controllers/payment.controller";
 import "../di/payment.di";
 
@@ -14,7 +14,14 @@ export const paymentRouter = (): Router => {
     controller.createPayment(req, res)
   );
 
- 
+  router.post("/payment-notify", (req, res) =>
+    controller.validatePayment(req, res)
+  );
+
+  router.get("/payment-status/:id", (req, res) =>
+    controller.checkPaymentStatus(req, res)
+  );
+
   router.get("/:id", (req, res) => controller.getPaymentById(req, res));
 
 
@@ -25,7 +32,7 @@ export const paymentRouter = (): Router => {
   router.get("/", (req, res) => controller.getAllPayments(req, res));
 
  
-  router.patch("/:id", validateDto(UpdatePaymentDTO), (req, res) =>
+  router.patch("/:id", validateDto(CreatePaymentDTO), (req, res) =>
     controller.updatePayment(req, res)
   );
 

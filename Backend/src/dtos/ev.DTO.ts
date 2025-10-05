@@ -2,7 +2,6 @@ import {
   IsString,
   IsOptional,
   IsUrl,
-  IsMongoId,
   IsNumber,
   IsEnum,
   IsArray,
@@ -14,7 +13,7 @@ import { ListingType, VehicleCondition } from "../enum/enum";
 // --- Brand DTOs ---
 export class EvBrandDTO {
   @IsString()
-  name!: string;
+  brand_name!: string;
 
   @IsOptional()
   @IsString()
@@ -24,7 +23,7 @@ export class EvBrandDTO {
 // --- Category DTOs ---
 export class EvCategoryDTO {
   @IsString()
-  name!: string;
+  category_name!: string;
 
   @IsOptional()
   @IsString()
@@ -33,14 +32,14 @@ export class EvCategoryDTO {
 
 // --- Model DTOs ---
 export class EvModelDTO {
-  @IsMongoId()
+  @IsString()
   brand_id!: string;
 
-  @IsMongoId()
+ @IsString()
   category_id!: string;
 
   @IsString()
-  name!: string;
+  model_name!: string;
 
   @IsNumber()
   year!: number;
@@ -62,10 +61,10 @@ export class EvModelDTO {
 
 // --- Vehicle Listing DTOs ---
 export class VehicleListingDTO {
-  @IsMongoId()
+  @IsString()
   seller_id!: string;
 
-  @IsMongoId()
+  @IsString()
   model_id!: string;
 
   @IsEnum(ListingType)

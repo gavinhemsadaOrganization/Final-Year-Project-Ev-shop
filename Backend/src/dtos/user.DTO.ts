@@ -8,7 +8,7 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 
-class AddressDTO {
+export class AddressDTO {
   @IsString()
   street!: string;
 

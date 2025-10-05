@@ -10,7 +10,7 @@ import {
 } from "../dtos/ev.DTO";
 import { IEvController } from "../controllers/ev.controller";
 import "../di/ev.di";
-import { upload } from "../utils/fileHandel";
+import { upload } from "../utils/imageHandel";
 
 export const evRouter = (): Router => {
   const router = Router();

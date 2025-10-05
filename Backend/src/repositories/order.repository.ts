@@ -2,9 +2,27 @@ import Order, { IOrder } from "../models/Order";
 import { UpdateOrderDTO, CreateOrderDTO } from "../dtos/order.DTO";
 import { Types } from "mongoose";
 
+interface IOderPopulate extends Omit<IOrder, "user_id" | "seller_id"> {
+  user_id: {
+    name: string;
+    email: string;
+    phone: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  } |  Types.ObjectId;
+  seller_id: {
+    business_name: string;
+  } |  Types.ObjectId;
+}
+
 export interface IOrderRepository {
   create(data: Partial<CreateOrderDTO>): Promise<IOrder>;
-  findById(id: string): Promise<IOrder | null>;
+  findById(id: string): Promise<IOderPopulate | null>;
   findByUserId(userId: string): Promise<IOrder[]>;
   findBySellerId(sellerId: string): Promise<IOrder[]>;
   findAll(): Promise<IOrder[]>;
@@ -20,8 +38,7 @@ export const OrderRepository: IOrderRepository = {
 
   findById: async (id) => {
     return await Order.findById(id)
-      .populate("user_id", "name email")
-      .populate("listing_id")
+      .populate("user_id", "name email phone address")
       .populate("seller_id", "business_name");
   },
 

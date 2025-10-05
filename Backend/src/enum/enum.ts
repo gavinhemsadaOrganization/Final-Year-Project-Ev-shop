@@ -17,21 +17,20 @@ export enum NotificationType {
 }
 
 export enum PaymentMethod {
-  CREDIT_CARD = 'credit_card',
-  DEBIT_CARD = 'debit_card',
-  PAYPAL = 'paypal',
-  BANK_TRANSFER = 'bank_transfer',
-  CASH = 'cash'
+  VISA = 'visa',
+  MASTERCARD = 'mastercard',
+  AmericanExpress = 'amex',
 }
 
 export enum PaymentType {
-  PURCHASE = 'purchase',
-  REFUND = 'refund',
-  PARTIAL_REFUND = 'partial_refund'
+  EV_PURCHASE = 'purchase',
+  EV_LEASE = 'lease',
+  EV_TEST_DRIVE = 'test_drive',
 }
 
 export enum PaymentStatus {
   CONFIRMED = 'confirmed',
+  FAILED = 'failed',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
 }

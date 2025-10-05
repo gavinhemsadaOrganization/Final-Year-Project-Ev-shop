@@ -8,12 +8,16 @@ import {
   IPaymentController,
   paymentController,
 } from "../controllers/payment.controller";
+import { IOrderRepository } from "../repositories/order.repository";
 
 container.register<IPaymentRepository>("PaymentRepository", {
   useValue: PaymentRepository,
 });
 container.register<IPaymentService>("PaymentService", {
-  useFactory: (c) => paymentService(c.resolve<IPaymentRepository>("PaymentRepository")),
+  useFactory: (c) => paymentService(
+    c.resolve<IPaymentRepository>("PaymentRepository"),
+    c.resolve<IOrderRepository>("OrderRepository")
+  ),
 });
 container.register<IPaymentController>("PaymentController", {
   useFactory: (c) => paymentController(c.resolve<IPaymentService>("PaymentService")),

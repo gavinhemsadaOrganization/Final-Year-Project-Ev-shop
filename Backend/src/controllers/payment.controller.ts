@@ -6,6 +6,8 @@ export interface IPaymentController {
   createPayment(req: Request, res: Response): Promise<Response>;
   getPaymentById(req: Request, res: Response): Promise<Response>;
   getPaymentByOrderId(req: Request, res: Response): Promise<Response>;
+  validatePayment(req: Request, res: Response): Promise<Response>;
+  checkPaymentStatus(req: Request, res: Response): Promise<Response>;
   getAllPayments(req: Request, res: Response): Promise<Response>;
   updatePayment(req: Request, res: Response): Promise<Response>;
   deletePayment(req: Request, res: Response): Promise<Response>;
@@ -37,6 +39,22 @@ export function paymentController(
         return handleResult(res, result);
       } catch (err) {
         return handleError(res, err, "getPaymentByOrderId");
+      }
+    },
+    validatePayment: async (req, res) => {
+      try {
+        const result = await service.validatePayment(req.params);
+        return handleResult(res, result);
+      } catch (err) {
+        return handleError(res, err, "validatePayment");
+      }
+    },
+    checkPaymentStatus: async (req, res) => {
+      try {
+        const result = await service.checkPaymentStatus(req.params.id);
+        return handleResult(res, result);
+      } catch (err) {
+        return handleError(res, err, "checkPaymentStatus");
       }
     },
     getAllPayments: async (req, res) => {
