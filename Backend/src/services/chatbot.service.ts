@@ -89,7 +89,7 @@ export function chatbotService(
     },
     getRespons: async (question) => {
       try {
-        const response = getChatbotResponse(question);
+        const response = await getChatbotResponse(question);
         if (!response) return { success: false, error: "Failed to get response" };
         return { success: true, response };
       } catch (err) {

@@ -1,36 +1,56 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import Order from '../models/Order';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import Order from "../models/Order";
 
-// Initialize the Gemini client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-export async function getChatbotResponse(userQuestion: string): Promise<string> {
-    // 1. Fetch all order data from the database
-    const orders = await Order.find({});
+export async function getChatbotResponse(
+  userQuestion: string
+): Promise<string> {
+  try {
+    const orders = await Order.find({}).limit(50);
+
     if (orders.length === 0) {
-        return "There is no order data in the database to analyze.";
+      return "There is no order data in the database to analyze.";
     }
 
-    // 2. Create a detailed, dynamic prompt for the Gemini model
-    const prompt = `
-        You are a helpful sales data analyst for a small business.
-        Your task is to answer questions based on the provided sales data.
-        The data is an array of JSON objects, where each object is an order.
+    const orderSummary = orders.map((order) => ({
+      total: order.total_amount,
+      date: order.order_date,
+      status: order.order_status,
+    }));
 
-        **Sales Data:**
-        ${JSON.stringify(orders, null, 2)}
+    const prompt = `You are a sales analyst. Answer based on this data:
 
-        ---
+Orders: ${JSON.stringify(orderSummary)}
 
-        **User's Question:** "${userQuestion}"
+Question: ${userQuestion}
 
-        Please provide a clear and concise answer based *only* on the data provided.
-    `;
+Answer concisely.`;
 
-    // 3. Call the Gemini API with the prompt
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Use the first one (most likely to work)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash", // Note: added 'models/' prefix
+    });
+
     const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const response = result.response;
+    const text = response.text();
+    console.log("Chatbot Response:", response);
 
-    return response.text();
+    return text;
+  } catch (error) {
+    console.error("Chatbot Error:", error);
+
+    if (error instanceof Error) {
+      if (error.message.includes("429") || error.message.includes("quota")) {
+        return "Rate limit exceeded. Please wait and try again.";
+      }
+      if (error.message.includes("404")) {
+        return "Model configuration error. Please check the model name.";
+      }
+      return `Error: ${error.message}`;
+    }
+
+    return "An unexpected error occurred.";
+  }
 }

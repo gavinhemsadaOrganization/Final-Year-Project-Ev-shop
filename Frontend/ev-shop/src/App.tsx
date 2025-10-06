@@ -8,6 +8,11 @@ function App() {
 
   return (
     <>
+    <div className="flex justify-center items-center h-screen bg-slate-500">
+      <h1 className="text-3xl font-bold underline text-white">
+        Hello, Tailwind CSS! 🚀
+      </h1>
+    </div>
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
