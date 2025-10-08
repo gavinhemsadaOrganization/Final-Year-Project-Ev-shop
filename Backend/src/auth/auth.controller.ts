@@ -84,6 +84,7 @@ export function authController(authService: IAuthService): IAuthController {
         return res.status(200).json({
           message: "User logged in successfully",
           user: result.user.id,
+          role: result.user.role,
         });
       } catch (error: any) {
         logger.error(`Error logging in user: ${error}`);
@@ -147,19 +148,10 @@ export function authController(authService: IAuthService): IAuthController {
               }
             });
             logger.info(`User logged in successfully: ${user.id}`);
-            return res.status(200).json({
-              success: true,
-              message: "Google authentication successful",
-              userid: user.id,
-              checkpass: user.checkpass,
-            });
+            res.redirect(`http://localhost:5173/auth/login?userid=${user.id}&role=${user.role}`);
           } catch (error: any) {
             logger.error(`Error Google logging in user: ${error}`);
-            return res.status(500).json({
-              success: false,
-              message: "Internal server error",
-              error: error.message,
-            });
+            res.redirect(`http://localhost:5173/auth/login?userid=null`);
           }
         }
       )(req, res, next);
@@ -219,19 +211,10 @@ export function authController(authService: IAuthService): IAuthController {
               }
             });
             logger.info(`User logged in successfully: ${user.id}`);
-            return res.status(200).json({
-              success: true,
-              message: "Facebook authentication successful",
-              userid: user.id,
-              checkpass: user.checkpass,
-            });
+            res.redirect(`http://localhost:5173/auth/login?userid=${user.id}&role=${user.role}`);
           } catch (error: any) {
             logger.error(`Error Facebook logging in user: ${error}`);
-            return res.status(500).json({
-              success: false,
-              message: "Internal server error",
-              error: error.message,
-            });
+            res.redirect(`http://localhost:5173/auth/login?userid=null`);
           }
         }
       )(req, res, next);

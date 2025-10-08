@@ -1,13 +1,17 @@
 import GoogleIcon from "@/assets/icons/google-icon.svg";
 import FacebookIcon from "@/assets/icons/facebook-icon.svg";
 import SignIn from "@/assets/auth_images/sign_up_img.png";
+import Logo from "@/assets/logo_no-bg.png";
+
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 import Label from "../components/Label";
 import Input from "../components/inputFiled";
 import Loader from "@/components/Loader";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import { login, googleLogin, facebookLogin } from "../authService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -17,6 +21,31 @@ const LoginPage = () => {
   );
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState<{ text: string; type: string } | null>(
+    null
+  );
+
+  useEffect(() => {
+    handleOAuthCallback();
+  }, []);
+
+  // Show temporary message
+  const showMessage = (text: string, type = "error") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 5000);
+  };
+
+  // Handle OAuth callback
+  const handleOAuthCallback = () => {
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("userid");
+
+    if (userId) {
+      sessionStorage.setItem("user", JSON.stringify({ id: userId, userId }));
+      window.history.replaceState({}, document.title, window.location.pathname);
+      showMessage("OAuth authentication successful!", "success");
+    }
+  };
 
   // Validation function
   const validate = (email: string, password: string) => {
@@ -39,6 +68,22 @@ const LoginPage = () => {
     return newErrors;
   };
 
+  const handleOAuth = async (provider: string) => {
+    setLoading(true);
+    try {
+      if (provider === "google") {
+        await googleLogin();
+      } else if (provider === "facebook") {
+        await facebookLogin();
+      }
+    } catch (error) {
+      console.log(error);
+      showMessage("OAuth login failed", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validate(email, password);
@@ -48,32 +93,25 @@ const LoginPage = () => {
       setErrors(validationErrors);
       return;
     }
-
-    setLoading(true);
-    // simulate async operation
-    await new Promise((r) => setTimeout(r, 2000));
-    setLoading(false);
-
-    // Clear errors if valid
     setErrors({});
-    console.log("Email:", email);
-    console.log("Password:", password);
-
-    // TODO: Call your backend login API here
+    setLoading(true);
+    try {
+      const respons = await login(email, password);
+      console.log(respons);
+      showMessage(respons.message, "success");
+    } catch (err:any) {
+      if (err.response) {
+        showMessage(err.response.data.message || "Login failed", "error");
+      } else if (err.request) {
+        showMessage("No response from server", "error");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="relative flex flex-col md:flex-row h-screen w-full bg-gray-100 md:bg-black font-sans overflow-hidden">
-      {/* Full Screen Loading Overlay */}
-      {/* {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center gap-3">
-            <Loader size={20} />
-            <p className="text-gray-700 font-medium">Signing in...</p>
-          </div>
-        </div>
-      )} */}
-
       {/* Left Panel: Image */}
       <div
         className="hidden md:block md:w-1/2 bg-cover bg-center"
@@ -83,6 +121,18 @@ const LoginPage = () => {
       {/* Right Panel: Login Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center bg-white md:bg-black p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <div className="w-full max-w-md p-6 sm:p-8 space-y-6 bg-white rounded-xl shadow-lg">
+          <img src={Logo} alt="Logo" className="w-20 h-20 mx-auto" />
+          {message && (
+            <div
+              className={`p-3 mb-4 rounded-md font-medium ${
+                message.type === "success"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Welcome Back!
@@ -96,6 +146,7 @@ const LoginPage = () => {
           <div className="space-y-3 sm:space-y-4">
             <button
               disabled={loading}
+              onClick={() => handleOAuth("google")}
               className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               <img src={GoogleIcon} alt="Google Icon" className="w-5 h-5" />
@@ -104,6 +155,7 @@ const LoginPage = () => {
             </button>
             <button
               disabled={loading}
+              onClick={() => handleOAuth("facebook")}
               className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               <img src={FacebookIcon} alt="Facebook Icon" className="w-5 h-5" />
@@ -137,6 +189,8 @@ const LoginPage = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 disabled={loading}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               />
               {errors.email && (
@@ -169,6 +223,8 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   disabled={loading}
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? "password-error" : undefined}
                   className="mt-1 block w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 />
                 <button
@@ -194,11 +250,11 @@ const LoginPage = () => {
                 type="submit"
                 disabled={loading}
                 className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium transition-all
-    ${
-      loading
-        ? "bg-transparent cursor-default"
-        : "bg-indigo-600 hover:bg-indigo-700 text-white"
-    }`}
+                ${
+                  loading
+                    ? "bg-transparent cursor-default"
+                    : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                }`}
               >
                 {loading ? <Loader size={10} color="#4f46e5" /> : "Sign In"}
               </button>

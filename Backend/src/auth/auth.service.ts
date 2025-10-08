@@ -54,6 +54,7 @@ export function authService(authRepo: IAuthRepository): IAuthService {
       try {
         const { email, password } = data;
         const user = await authRepo.findUser(email, password);
+        console.log(user);
         if (!user) {
           return { success: false, error: "Invalid credentials" };
         }
@@ -65,7 +66,11 @@ export function authService(authRepo: IAuthRepository): IAuthService {
     oauthLogin: async (email: string, name: string) => {
       try {
         const user = authRepo.findOrCreate(email, name);
+        if (!user) {
+          return { success: false, error: "OAuth login failed" };
+        }
         const checkpass = await authRepo.checkPassword(email);
+        if(!checkpass) return { success: false, error: "Password not set" };
         return { success: true, user, checkpass };
       } catch (err) {
         return { success: false, error: "OAuth login failed" };

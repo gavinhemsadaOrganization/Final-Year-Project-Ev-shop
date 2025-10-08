@@ -43,6 +43,8 @@ export const authRouter = (): Router => {
   router.post("/resetpassword", validateDto(ResetPasswordDTO), (req, res) =>
     authController.resetPassword(req, res)
   );
+
+  router.post("/logout", (req, res) => authController.logout(req, res));
   
   return router;
 }
