@@ -26,9 +26,13 @@ export class RegisterDto {
   email!: string;
 
   @MinLength(6, { message: "Password must be at least 6 characters long" })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/, { 
-    message: "Password must contain uppercase, lowercase, number, and special character" 
-  })
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+    {
+      message:
+        "Password must contain uppercase, lowercase, number, and special character",
+    }
+  )
   @IsString()
   password!: string;
 
@@ -41,7 +45,7 @@ export class LoginDTO {
   @IsEmail({}, { message: "Please provide a valid email address" })
   email!: string;
 
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @MinLength(6, { message: "Password must be at least 6 characters long" })
   @IsString()
   password!: string;
 }
@@ -61,10 +65,14 @@ export class OTPverifyDTO {
 export class ResetPasswordDTO {
   @IsEmail({}, { message: "Please provide a valid email address" })
   email!: string;
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/, { 
-    message: "Password must contain uppercase, lowercase, number, and special character" 
-  })
+  @MinLength(6, { message: "Password must be at least 6 characters long" })
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+    {
+      message:
+        "Password must contain uppercase, lowercase, number, and special character",
+    }
+  )
   @IsString()
-  password!: string;  
+  password!: string;
 }

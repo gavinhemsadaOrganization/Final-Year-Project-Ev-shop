@@ -1,8 +1,10 @@
 import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+// import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from "passport-facebook";
 import { IAuthService } from "./auth.service";
 import { container } from "./auth.di";
+import { Request } from "express";
 
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID!;
@@ -25,27 +27,35 @@ export const initializePassport = () => {
 
   // Google strategy
   passport.use(
-    new GoogleStrategy(
-      {
-        clientID: googleClientId,
-        clientSecret: googleClientSecret,
-        callbackURL: googleCallbackUrl,
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          const email = profile.emails?.[0].value!;
-          const name = profile.displayName;
-          const result = await service.oauthLogin(email, name);
-          if (result.success) {
-            return done(null, result.user);
-          }
-          return done(new Error(result.error));
-        } catch (err) {
-          return done(err);
+  new GoogleStrategy(
+    {
+      clientID: googleClientId,
+      clientSecret: googleClientSecret,
+      callbackURL: googleCallbackUrl,
+      passReqToCallback: true
+    },
+    async (
+      req: Request,
+      accessToken: string,
+      refreshToken: string,
+      profile: Profile,
+      done: VerifyCallback
+    ) => {
+      try {
+        const email = profile.emails?.[0].value!;
+        const name = profile.displayName;
+        const result = await service.oauthLogin(email, name);
+        if (result.success) {
+          return done(null, result.user);
         }
+        return done(new Error(result.error));
+      } catch (err) {
+        return done(err as any);
       }
-    )
-  );
+    }
+  )
+);
+
 
   // Facebook strategy
   passport.use(

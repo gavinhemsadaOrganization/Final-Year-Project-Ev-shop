@@ -1,5 +1,11 @@
 import { IAuthRepository } from "./auth.repository";
-import { RegisterDto, LoginDTO, ForgetPasswordDTO, OTPverifyDTO, ResetPasswordDTO } from "./auth.dto";
+import {
+  RegisterDto,
+  LoginDTO,
+  ForgetPasswordDTO,
+  OTPverifyDTO,
+  ResetPasswordDTO,
+} from "./auth.dto";
 import { sendOtpEmail } from "../utils/Email.util";
 import crypto from "crypto";
 
@@ -19,10 +25,11 @@ export interface IAuthService {
     error?: string;
     checkpass?: boolean;
   }>;
-  forgetPassword(data: ForgetPasswordDTO): Promise<{ success: boolean; error?: string }>;
-  verifyOTP(
-    data: OTPverifyDTO
+  checkPassword(email: string): Promise<{ success: boolean; error?: string }>;
+  forgetPassword(
+    data: ForgetPasswordDTO
   ): Promise<{ success: boolean; error?: string }>;
+  verifyOTP(data: OTPverifyDTO): Promise<{ success: boolean; error?: string }>;
   resetPassword(
     data: ResetPasswordDTO
   ): Promise<{ success: boolean; error?: string }>;
@@ -69,11 +76,18 @@ export function authService(authRepo: IAuthRepository): IAuthService {
         if (!user) {
           return { success: false, error: "OAuth login failed" };
         }
-        const checkpass = await authRepo.checkPassword(email);
-        if(!checkpass) return { success: false, error: "Password not set" };
-        return { success: true, user, checkpass };
+        return { success: true, user };
       } catch (err) {
         return { success: false, error: "OAuth login failed" };
+      }
+    },
+    checkPassword: async (email: string) => {
+      try {
+        const checkpass = await authRepo.checkPassword(email);
+        if (!checkpass) return { success: false, error: "Password not set" };
+        return { success: true };
+      } catch (err) {
+        return { success: false, error: "Password check failed" };
       }
     },
     forgetPassword: async (data: ForgetPasswordDTO) => {
@@ -105,11 +119,11 @@ export function authService(authRepo: IAuthRepository): IAuthService {
 
         const mailResponse = await sendOtpEmail(
           email,
-          Number(otp),
           subject,
           text,
           html
         );
+        console.log(mailResponse);
         if (!mailResponse) {
           return { success: false, error: "Failed to send OTP email" };
         }
@@ -154,10 +168,10 @@ export function authService(authRepo: IAuthRepository): IAuthService {
       try {
         const { email, password } = data;
         const user = await authRepo.findByEmail(email);
-        if (!user || !user.resetOtp) {
+        if (!user) {
           return { success: false, error: "Invalid request" };
         }
-        user.password = password; 
+        user.password = password;
         user.resetOtp = undefined;
         await user.save();
         return { success: true };

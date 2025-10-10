@@ -1,6 +1,6 @@
 import GoogleIcon from "@/assets/icons/google-icon.svg";
 import FacebookIcon from "@/assets/icons/facebook-icon.svg";
-import SignIn from "@/assets/auth_images/sign_up_img.png";
+import SignIn from "@/assets/auth_images/sign_in_img.png";
 import Logo from "@/assets/logo_no-bg.png";
 
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
@@ -21,17 +21,25 @@ const LoginPage = () => {
   );
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState<{ text: string; type: string } | null>(
-    null
-  );
+  const [message, setMessage] = useState<{
+    id: number;
+    text: string;
+    type: string;
+  } | null>(null);
 
   useEffect(() => {
     handleOAuthCallback();
   }, []);
 
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 5000);
+      return () => clearTimeout(timer); // cleanup if component unmounts
+    }
+  }, [message]);
   // Show temporary message
   const showMessage = (text: string, type = "error") => {
-    setMessage({ text, type });
+    setMessage({ id: Date.now(), text, type });
     setTimeout(() => setMessage(null), 5000);
   };
 
@@ -39,10 +47,17 @@ const LoginPage = () => {
   const handleOAuthCallback = () => {
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userid");
+    const error = params.get("error");
+    // Clear query parameters immediately
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    if (error) {
+      showMessage(error, "error");
+      return;
+    }
 
     if (userId) {
       sessionStorage.setItem("user", JSON.stringify({ id: userId, userId }));
-      window.history.replaceState({}, document.title, window.location.pathname);
       showMessage("OAuth authentication successful!", "success");
     }
   };
@@ -99,7 +114,7 @@ const LoginPage = () => {
       const respons = await login(email, password);
       console.log(respons);
       showMessage(respons.message, "success");
-    } catch (err:any) {
+    } catch (err: any) {
       if (err.response) {
         showMessage(err.response.data.message || "Login failed", "error");
       } else if (err.request) {
@@ -120,14 +135,15 @@ const LoginPage = () => {
 
       {/* Right Panel: Login Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center bg-white md:bg-black p-4 sm:p-6 lg:p-8 overflow-y-auto">
-        <div className="w-full max-w-md p-6 sm:p-8 space-y-6 bg-white rounded-xl shadow-lg">
+        <div className="relative w-full max-w-md p-6 sm:p-8 space-y-6 bg-white rounded-xl shadow-lg">
           <img src={Logo} alt="Logo" className="w-20 h-20 mx-auto" />
           {message && (
             <div
-              className={`p-3 mb-4 rounded-md font-medium ${
+              key={message.id}
+              className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 w-[70%] text-center p-3 rounded-md font-medium shadow-lg z-10 ${
                 message.type === "success"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-green-100 text-green-700 border border-green-400"
+                  : "bg-red-100 text-red-700 border border-red-400"
               }`}
             >
               {message.text}
@@ -207,7 +223,7 @@ const LoginPage = () => {
                   Password
                 </Label>
                 <a
-                  href="#"
+                  href="/auth/forgot-password"
                   className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-500"
                 >
                   Forgot password?
@@ -224,7 +240,9 @@ const LoginPage = () => {
                   placeholder="••••••••"
                   disabled={loading}
                   aria-invalid={!!errors.password}
-                  aria-describedby={errors.password ? "password-error" : undefined}
+                  aria-describedby={
+                    errors.password ? "password-error" : undefined
+                  }
                   className="mt-1 block w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 />
                 <button
@@ -264,7 +282,7 @@ const LoginPage = () => {
           <p className="text-xs sm:text-sm text-center text-gray-500">
             Don't have an account?{" "}
             <a
-              href="#"
+              href="/auth/register"
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Sign up

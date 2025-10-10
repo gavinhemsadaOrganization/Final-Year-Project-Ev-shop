@@ -31,7 +31,9 @@ export const authRouter = (): Router => {
   router.get("/facebook/callback", (req, res, next) =>
     authController.facebookCallback(req, res, next)
   );
-
+  router.post("/checkpassword", (req, res) =>
+    authController.checkPassword(req, res)
+  );
   router.post("/forgetpassword", validateDto(ForgetPasswordDTO), (req, res) =>
     authController.forgetpassword(req, res)
   );

@@ -19,10 +19,13 @@ export interface IAuthController {
   facebookAuth(req: Request, res: Response, next: NextFunction): void;
   facebookCallback(req: Request, res: Response, next: NextFunction): void;
   forgetpassword(req: Request, res: Response): Promise<Response>;
+  checkPassword(req: Request, res: Response): Promise<Response>;
   verifyOTP(req: Request, res: Response): Promise<Response>;
   resetPassword(req: Request, res: Response): Promise<Response>;
   logout(req: Request, res: Response): void;
 }
+
+const redirect_url = process.env.REDIRECT_URL;
 
 export function authController(authService: IAuthService): IAuthController {
   const passport = initializePassport();
@@ -96,6 +99,7 @@ export function authController(authService: IAuthService): IAuthController {
     googleAuth: (req: Request, res: Response, next: NextFunction) => {
       passport.authenticate("google", {
         scope: ["profile", "email"],
+        prompt: 'select_account'
       })(req, res, next);
     },
     googleCallback: (req: Request, res: Response, next: NextFunction) => {
@@ -104,21 +108,11 @@ export function authController(authService: IAuthService): IAuthController {
         { session: false },
         async (err: any, user: any) => {
           try {
-            if (err) {
-              logger.error(`Error Google logging in user: ${err}`);
-              return res.status(400).json({
-                success: false,
-                message: "Google authentication failed",
-                error: err.message,
-              });
-            }
-
-            if (!user) {
-              logger.error("Google authentication failed - no user data");
-              return res.status(400).json({
-                success: false,
-                message: "Google authentication failed - no user data",
-              });
+            if (err || !user) {
+              logger.error("Google authentication failed", err);
+              return res.redirect(
+                `${redirect_url}?error=Google authentication failed`
+              );
             }
 
             // Generate JWT token
@@ -148,10 +142,10 @@ export function authController(authService: IAuthService): IAuthController {
               }
             });
             logger.info(`User logged in successfully: ${user.id}`);
-            res.redirect(`http://localhost:5173/auth/login?userid=${user.id}&role=${user.role}`);
+            res.redirect(`${redirect_url}?userid=${user.id}&role=${user.role}`);
           } catch (error: any) {
             logger.error(`Error Google logging in user: ${error}`);
-            res.redirect(`http://localhost:5173/auth/login?userid=null`);
+            res.redirect(`${redirect_url}?userid=null`);
           }
         }
       )(req, res, next);
@@ -167,23 +161,12 @@ export function authController(authService: IAuthService): IAuthController {
         { session: false },
         async (err: any, user: any) => {
           try {
-            if (err) {
+            if (err || !user) {
               logger.error(`Error Facebook logging in user: ${err}`);
-              return res.status(400).json({
-                success: false,
-                message: "Facebook authentication failed",
-                error: err.message,
-              });
+              return res.redirect(
+                `${redirect_url}?error=Facebook authentication failed`
+              );
             }
-
-            if (!user) {
-              logger.error("Facebook authentication failed - no user data");
-              return res.status(400).json({
-                success: false,
-                message: "Facebook authentication failed - no user data",
-              });
-            }
-
             // Generate JWT token
             const token = Jwt.sign(
               { userId: user.id, role: user.role },
@@ -211,13 +194,29 @@ export function authController(authService: IAuthService): IAuthController {
               }
             });
             logger.info(`User logged in successfully: ${user.id}`);
-            res.redirect(`http://localhost:5173/auth/login?userid=${user.id}&role=${user.role}`);
+            res.redirect(
+              `http://localhost:5173/auth/login?userid=${user.id}&role=${user.role}`
+            );
           } catch (error: any) {
             logger.error(`Error Facebook logging in user: ${error}`);
-            res.redirect(`http://localhost:5173/auth/login?userid=null`);
+            res.redirect(`${redirect_url}?userid=null`);
           }
         }
       )(req, res, next);
+    },
+    checkPassword: async (req: Request, res: Response) => {
+      try {
+        const email = req.body.email;
+        const result = await authService.checkPassword(email);
+        if (!result.success) {
+          logger.warn(`Error checking password for user ${email}: ${result.error}`);
+        }
+        logger.info(`Password check successful for user: ${email}`);
+        return res.status(200).json({ message: "Password check successful" });
+      } catch (err) {
+        logger.error(`Error checking password for user: ${err}`);
+        return res.status(500).json({ error: err || "Internal server error" });
+      }
     },
     forgetpassword: async (req: Request, res: Response) => {
       try {
