@@ -9,12 +9,12 @@ export const login = async (email: string, password: string) => {
   return response.data;
 };
 
-export const googleLogin = async () => {
-  window.location.href = `${baseURL}auth/google`;
+export const googleLogin = async (state: string) => {
+  window.location.href = `${baseURL}auth/google?state=${state}`;
 };
 
-export const facebookLogin = async () => {
-   window.location.href = `${baseURL}auth/facebook`;
+export const facebookLogin = async (state: string) => {
+   window.location.href = `${baseURL}auth/facebook?state=${state}`;
 };
 
 export const logout = async () => {

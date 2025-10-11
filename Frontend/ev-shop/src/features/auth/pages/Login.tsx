@@ -8,6 +8,8 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Label from "../components/Label";
 import Input from "../components/inputFiled";
 import Loader from "@/components/Loader";
+import { useAuth } from "@/context/AuthContext";
+import type { UserRole } from "@/context/AuthContext";
 
 import { useState, useEffect } from "react";
 
@@ -26,6 +28,7 @@ const LoginPage = () => {
     text: string;
     type: string;
   } | null>(null);
+  const { setUserData, getUserID, getActiveRoleId } = useAuth();
 
   useEffect(() => {
     handleOAuthCallback();
@@ -47,6 +50,7 @@ const LoginPage = () => {
   const handleOAuthCallback = () => {
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userid");
+    const role = params.get("role") as UserRole;
     const error = params.get("error");
     // Clear query parameters immediately
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -57,7 +61,7 @@ const LoginPage = () => {
     }
 
     if (userId) {
-      sessionStorage.setItem("user", JSON.stringify({ id: userId, userId }));
+      setUserData(userId, [role], {userid: userId});
       showMessage("OAuth authentication successful!", "success");
     }
   };
@@ -87,9 +91,9 @@ const LoginPage = () => {
     setLoading(true);
     try {
       if (provider === "google") {
-        await googleLogin();
+        await googleLogin("login");
       } else if (provider === "facebook") {
-        await facebookLogin();
+        await facebookLogin("login");
       }
     } catch (error) {
       console.log(error);
@@ -98,7 +102,10 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
-
+  const clickFun = () => {
+    alert(getUserID());
+    console.log(getActiveRoleId())
+  }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validate(email, password);
@@ -113,6 +120,7 @@ const LoginPage = () => {
     try {
       const respons = await login(email, password);
       console.log(respons);
+      setUserData(respons.user, [respons.role], {userid: respons.user});
       showMessage(respons.message, "success");
     } catch (err: any) {
       if (err.response) {
@@ -127,6 +135,7 @@ const LoginPage = () => {
 
   return (
     <div className="relative flex flex-col md:flex-row h-screen w-full bg-gray-100 md:bg-black font-sans overflow-hidden">
+      <button onClick={clickFun}>click</button>
       {/* Left Panel: Image */}
       <div
         className="hidden md:block md:w-1/2 bg-cover bg-center"

@@ -23,7 +23,6 @@ export interface IAuthService {
     success: boolean;
     user?: any;
     error?: string;
-    checkpass?: boolean;
   }>;
   checkPassword(email: string): Promise<{ success: boolean; error?: string }>;
   forgetPassword(
@@ -61,7 +60,6 @@ export function authService(authRepo: IAuthRepository): IAuthService {
       try {
         const { email, password } = data;
         const user = await authRepo.findUser(email, password);
-        console.log(user);
         if (!user) {
           return { success: false, error: "Invalid credentials" };
         }
@@ -72,7 +70,7 @@ export function authService(authRepo: IAuthRepository): IAuthService {
     },
     oauthLogin: async (email: string, name: string) => {
       try {
-        const user = authRepo.findOrCreate(email, name);
+        const user = await authRepo.findOrCreate(email, name);
         if (!user) {
           return { success: false, error: "OAuth login failed" };
         }
@@ -123,7 +121,6 @@ export function authService(authRepo: IAuthRepository): IAuthService {
           text,
           html
         );
-        console.log(mailResponse);
         if (!mailResponse) {
           return { success: false, error: "Failed to send OTP email" };
         }

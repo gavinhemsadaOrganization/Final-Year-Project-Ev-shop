@@ -70,7 +70,6 @@ export const initializePassport = () => {
         try {
           const email = profile.emails?.[0].value!;
           const name = profile.name?.familyName + " " + profile.name?.givenName;
-          console.log("Facebook profile:", profile);
           const result = await service.oauthLogin(email, name);
           if (result.success) {
             return done(null, result.user);

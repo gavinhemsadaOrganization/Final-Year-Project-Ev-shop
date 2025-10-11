@@ -25,7 +25,8 @@ export interface IAuthController {
   logout(req: Request, res: Response): void;
 }
 
-const redirect_url = process.env.REDIRECT_URL;
+const redirect_login_url = process.env.REDIRECT_LOGIN_URL;
+const redirect_register_url = process.env.REDIRECT_REGISTER_URL;
 
 export function authController(authService: IAuthService): IAuthController {
   const passport = initializePassport();
@@ -97,9 +98,12 @@ export function authController(authService: IAuthService): IAuthController {
       }
     },
     googleAuth: (req: Request, res: Response, next: NextFunction) => {
+      const state =
+        typeof req.query.state === "string" ? req.query.state : "login";
       passport.authenticate("google", {
         scope: ["profile", "email"],
-        prompt: 'select_account'
+        state: state,
+        prompt: "select_account",
       })(req, res, next);
     },
     googleCallback: (req: Request, res: Response, next: NextFunction) => {
@@ -107,6 +111,10 @@ export function authController(authService: IAuthService): IAuthController {
         "google",
         { session: false },
         async (err: any, user: any) => {
+          const state =
+              typeof req.query.state === "string" ? req.query.state : "login";
+            const redirect_url =
+              state === "register" ? redirect_register_url : redirect_login_url;
           try {
             if (err || !user) {
               logger.error("Google authentication failed", err);
@@ -114,10 +122,9 @@ export function authController(authService: IAuthService): IAuthController {
                 `${redirect_url}?error=Google authentication failed`
               );
             }
-
             // Generate JWT token
             const token = Jwt.sign(
-              { userId: user.id, role: user.role },
+              { userId: user._id, role: user.role },
               process.env.JWT_SECRET!,
               {
                 expiresIn: "24h",
@@ -125,14 +132,14 @@ export function authController(authService: IAuthService): IAuthController {
             );
             // Generate Refresh Token
             const refreshToken = Jwt.sign(
-              { userId: user.id, role: user.role },
+              { userId: user._id, role: user.role },
               process.env.JWT_REFRESH_SECRET!,
               { expiresIn: "7d" }
             );
 
             // Store tokens and user info in session
             req.session.jwt = token;
-            req.session.userId = user.id;
+            req.session.userId = user._id;
             req.session.refreshToken = refreshToken;
             req.session.role = user.role;
             req.session.save((err) => {
@@ -141,8 +148,8 @@ export function authController(authService: IAuthService): IAuthController {
                 console.error("Failed to save session:", err);
               }
             });
-            logger.info(`User logged in successfully: ${user.id}`);
-            res.redirect(`${redirect_url}?userid=${user.id}&role=${user.role}`);
+            logger.info(`User logged in successfully: ${user._id}`);
+            res.redirect(`${redirect_url}?userid=${user._id}&role=${user.role}`);
           } catch (error: any) {
             logger.error(`Error Google logging in user: ${error}`);
             res.redirect(`${redirect_url}?userid=null`);
@@ -151,8 +158,11 @@ export function authController(authService: IAuthService): IAuthController {
       )(req, res, next);
     },
     facebookAuth: (req: Request, res: Response, next: NextFunction) => {
+      const state =
+        typeof req.query.state === "string" ? req.query.state : "login";
       passport.authenticate("facebook", {
         scope: ["public_profile", "email", "user_gender", "user_location"],
+        state: state,
       })(req, res, next);
     },
     facebookCallback: (req: Request, res: Response, next: NextFunction) => {
@@ -160,6 +170,10 @@ export function authController(authService: IAuthService): IAuthController {
         "facebook",
         { session: false },
         async (err: any, user: any) => {
+          const state =
+              typeof req.query.state === "string" ? req.query.state : "login";
+            const redirect_url =
+              state === "register" ? redirect_register_url : redirect_login_url;
           try {
             if (err || !user) {
               logger.error(`Error Facebook logging in user: ${err}`);
@@ -209,7 +223,9 @@ export function authController(authService: IAuthService): IAuthController {
         const email = req.body.email;
         const result = await authService.checkPassword(email);
         if (!result.success) {
-          logger.warn(`Error checking password for user ${email}: ${result.error}`);
+          logger.warn(
+            `Error checking password for user ${email}: ${result.error}`
+          );
         }
         logger.info(`Password check successful for user: ${email}`);
         return res.status(200).json({ message: "Password check successful" });

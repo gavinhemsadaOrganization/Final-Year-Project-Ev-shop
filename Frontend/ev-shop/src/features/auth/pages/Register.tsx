@@ -11,6 +11,9 @@ import Label from "../components/Label";
 import Input from "../components/inputFiled";
 import Loader from "@/components/Loader";
 
+import { useAuth } from "@/context/AuthContext";
+import type { UserRole } from "@/context/AuthContext";
+
 import { register, googleLogin, facebookLogin } from "../authService";
 
 const RegisterPage = () => {
@@ -31,6 +34,8 @@ const RegisterPage = () => {
     type: string;
   } | null>(null);
 
+  const { setUserData } = useAuth();
+
   useEffect(() => {
     handleOAuthCallback();
   }, []);
@@ -50,6 +55,7 @@ const RegisterPage = () => {
   const handleOAuthCallback = () => {
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userid");
+    const role = params.get("role") as UserRole;
     const error = params.get("error");
 
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -60,7 +66,7 @@ const RegisterPage = () => {
     }
 
     if (userId) {
-      sessionStorage.setItem("user", JSON.stringify({ id: userId, userId }));
+      setUserData(userId, [role], {userid: userId});
       showMessage("OAuth authentication successful!", "success");
     }
   };
@@ -101,13 +107,13 @@ const RegisterPage = () => {
     setLoading(true);
     try {
       if (provider === "google") {
-        await googleLogin();
+        await googleLogin("register");
       } else if (provider === "facebook") {
-        await facebookLogin();
+        await facebookLogin("register");
       }
     } catch (error) {
       console.log(error);
-      showMessage("OAuth login failed", "error");
+      showMessage("OAuth register failed", "error");
     } finally {
       setLoading(false);
     }
