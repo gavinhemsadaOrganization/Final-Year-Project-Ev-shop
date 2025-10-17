@@ -1,71 +1,143 @@
+/**
+ * Defines the roles a user can have within the system.
+ */
 export enum UserRole {
+  /** The user has full administrative privileges. */
   ADMIN = "admin",
+  /** A standard user with customer-level permissions. */
   USER = "user",
+  /** A user who can list and sell vehicles. */
   SELLER = "seller",
+  /** A user associated with a financial institution, managing loan products and applications. */
   FINANCE = "finance",
 }
 
+/**
+ * Defines the types of notifications that can be sent to users.
+ */
 export enum NotificationType {
-  ORDER_CONFIRMED = 'ORDER_CONFIRMED',
-  ORDER_CANCELLED = 'ORDER_CANCELLED',
-  BOOKING_CONFIRMED = 'BOOKING_CONFIRMED',
-  BOOKING_CANCELLED = 'BOOKING_CANCELLED',
-  APPLICATION_APPROVED = 'APPLICATION_APPROVED',
-  APPLICATION_REJECTED = 'APPLICATION_REJECTED',
-  SELLER_APPLICATION_APPROVED = 'SELLER_APPLICATION_APPROVED',
-  SELLER_APPLICATION_REJECTED = 'SELLER_APPLICATION_REJECTED',
+  /** Notification for a successfully placed order. */
+  ORDER_CONFIRMED = "ORDER_CONFIRMED",
+  /** Notification for a cancelled order. */
+  ORDER_CANCELLED = "ORDER_CANCELLED",
+  /** Notification for a confirmed test drive booking. */
+  BOOKING_CONFIRMED = "BOOKING_CONFIRMED",
+  /** Notification for a cancelled test drive booking. */
+  BOOKING_CANCELLED = "BOOKING_CANCELLED",
+  /** Notification for an approved finance application. */
+  APPLICATION_APPROVED = "APPLICATION_APPROVED",
+  /** Notification for a rejected finance application. */
+  APPLICATION_REJECTED = "APPLICATION_REJECTED",
+  /** Notification for an approved seller application. */
+  SELLER_APPLICATION_APPROVED = "SELLER_APPLICATION_APPROVED",
+  /** Notification for a rejected seller application. */
+  SELLER_APPLICATION_REJECTED = "SELLER_APPLICATION_REJECTED",
 }
 
+/**
+ * Defines the supported payment card methods.
+ */
 export enum PaymentMethod {
-  VISA = 'visa',
-  MASTERCARD = 'mastercard',
-  AmericanExpress = 'amex',
+  /** Visa card. */
+  VISA = "visa",
+  /** Mastercard. */
+  MASTERCARD = "mastercard",
+  /** American Express card. */
+  AMERICAN_EXPRESS = "american_express",
 }
 
+/**
+ * Defines the purpose of a payment transaction.
+ */
 export enum PaymentType {
-  EV_PURCHASE = 'purchase',
-  EV_LEASE = 'lease',
-  EV_TEST_DRIVE = 'test_drive',
+  /** Payment for purchasing a vehicle. */
+  EV_PURCHASE = "purchase",
+  /** Payment for leasing a vehicle. */
+  EV_LEASE = "lease",
+  /** Payment or hold for a test drive booking. */
+  EV_TEST_DRIVE = "test_drive",
 }
 
+/**
+ * Defines the status of a payment transaction.
+ */
 export enum PaymentStatus {
-  CONFIRMED = 'confirmed',
-  FAILED = 'failed',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
+  /** The payment has been successfully authorized and confirmed. */
+  CONFIRMED = "confirmed",
+  /** The payment transaction failed. */
+  FAILED = "failed",
+  /** The payment process is complete (e.g., funds captured). */
+  COMPLETED = "completed",
+  /** The payment was cancelled by the user or system. */
+  CANCELLED = "cancelled",
 }
 
+/**
+ * Defines the status of a customer's order.
+ */
 export enum OrderStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  CANCELLED = 'cancelled',
+  /** The order has been placed but not yet confirmed. */
+  PENDING = "pending",
+  /** The order has been confirmed by the seller. */
+  CONFIRMED = "confirmed",
+  /** The order has been cancelled. */
+  CANCELLED = "cancelled",
 }
 
+/**
+ * Defines the status of a financing application.
+ */
 export enum ApplicationStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-  UNDER_REVIEW = 'under_review',
-  Complete = 'complete'
+  /** The application has been submitted and is awaiting review. */
+  PENDING = "pending",
+  /** The application has been approved. */
+  APPROVED = "approved",
+  /** The application has been rejected. */
+  REJECTED = "rejected",
+  /** The application is currently being reviewed by a loan officer. */
+  UNDER_REVIEW = "under_review",
+  /** The application process is complete (e.g., funds disbursed). */
+  COMPLETED = "completed",
 }
 
-export enum ReviewType{
-  PRODUCT = 'product',
-  SERVICE = 'service',
+/**
+ * Defines the type of entity that a review is for.
+ */
+export enum ReviewType {
+  /** A review for a specific vehicle model or listing. */
+  PRODUCT = "product",
+  /** A review for a service, such as a seller or a test drive experience. */
+  SERVICE = "service",
 }
 
+/**
+ * Defines the condition of a listed vehicle.
+ */
 export enum VehicleCondition {
-  NEW = 'new',
-  USED = 'used'
+  /** The vehicle is brand new. */
+  NEW = "new",
+  /** The vehicle is pre-owned/used. */
+  USED = "used",
 }
 
+/**
+ * Defines the type of vehicle listing.
+ */
 export enum ListingType {
-  SALE = 'sale',
-  LEASE = 'lease'
+  /** The vehicle is available for purchase. */
+  SALE = "sale",
+  /** The vehicle is available for lease. */
+  LEASE = "lease",
 }
 
+/**
+ * Defines the status of a test drive booking.
+ */
 export enum TestDriveBookingStatus {
-  CONFIRMED = 'confirmed',
-  CANCELLED = 'cancelled',
-  completed = 'completed',
+  /** The booking has been confirmed by the seller. */
+  CONFIRMED = "confirmed",
+  /** The booking has been cancelled by the user or seller. */
+  CANCELLED = "cancelled",
+  /** The test drive has been completed. */
+  COMPLETED = "completed",
 }
