@@ -141,3 +141,15 @@ export enum TestDriveBookingStatus {
   /** The test drive has been completed. */
   COMPLETED = "completed",
 }
+
+/**
+ * Defines the status of a vehicle listing.
+ */
+export enum ListingStatus {
+  /** The listing is currently active and visible to customers. */
+  ACTIVE = "active",
+  /** The listing is inactive and hidden from customers. */
+  INACTIVE = "inactive",
+  /** The vehicle in the listing has been sold. */
+  SOLD = "sold",
+}
