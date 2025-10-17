@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { UserRole } from "@/context/AuthContext";
 
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { login, googleLogin, facebookLogin } from "../authService";
 
 const LoginPage = () => {
@@ -28,7 +28,8 @@ const LoginPage = () => {
     text: string;
     type: string;
   } | null>(null);
-  const { setUserData, getUserID, getActiveRoleId } = useAuth();
+  const { setUserData } = useAuth();
+  const nav = useNavigate();
 
   useEffect(() => {
     handleOAuthCallback();
@@ -61,8 +62,11 @@ const LoginPage = () => {
     }
 
     if (userId) {
-      setUserData(userId, [role], {userid: userId});
+      setUserData(userId, [role], { userid: userId });
       showMessage("OAuth authentication successful!", "success");
+      setTimeout(() => {
+        nav("/user/dashboard", { replace: true });
+      }, 2000);
     }
   };
 
@@ -102,10 +106,6 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
-  const clickFun = () => {
-    alert(getUserID());
-    console.log(getActiveRoleId())
-  }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validate(email, password);
@@ -120,8 +120,11 @@ const LoginPage = () => {
     try {
       const respons = await login(email, password);
       console.log(respons);
-      setUserData(respons.user, [respons.role], {userid: respons.user});
+      setUserData(respons.user, respons.role, { userid: respons.user });
       showMessage(respons.message, "success");
+      setTimeout(() => {
+        nav("/user/dashboard", { replace: true });
+      }, 2000); // Wait 2 seconds before navigating
     } catch (err: any) {
       if (err.response) {
         showMessage(err.response.data.message || "Login failed", "error");
@@ -135,7 +138,6 @@ const LoginPage = () => {
 
   return (
     <div className="relative flex flex-col md:flex-row h-screen w-full bg-gray-100 md:bg-black font-sans overflow-hidden">
-      <button onClick={clickFun}>click</button>
       {/* Left Panel: Image */}
       <div
         className="hidden md:block md:w-1/2 bg-cover bg-center"

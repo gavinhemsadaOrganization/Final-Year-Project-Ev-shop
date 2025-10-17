@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
 
 export type UserRole = "user" | "seller" | "finance" | "admin";
@@ -20,7 +20,12 @@ interface AuthContextType {
   setUserData: (
     userid: string,
     roles: UserRole[],
-    ids: { userid?: string; sellerid?: string; financeid?: string; adminid?: string }
+    ids: {
+      userid?: string;
+      sellerid?: string;
+      financeid?: string;
+      adminid?: string;
+    }
   ) => void;
   getUserID: () => string | null;
   setActiveRole: (role: UserRole) => void;
@@ -31,21 +36,40 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error("Failed to parse user from localStorage on initial load");
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("user", JSON.stringify(user));
+  }, [user]);
 
   // called after successful login
   const setUserData = (
     userid: string,
     roles: UserRole[],
-    ids: { userid?: string; sellerid?: string; financeid?: string; adminid?: string }
+    ids: {
+      userid?: string;
+      sellerid?: string;
+      financeid?: string;
+      adminid?: string;
+    }
   ) => {
-    const newUser: User = {
-      userid,
-      roles,
-      activeRole: roles[0],
-      ids,
+    // The user object from localStorage might be structured differently.
+    // We create a new object that matches the `User` interface.
+    const userData: User = {
+      userid: userid, // The main user ID
+      roles: roles,
+      activeRole: roles[0], // Default to the first role
+      ids: ids,
     };
-    setUser(newUser);
+    setUser(userData);
   };
 
   // switch between user types
@@ -74,11 +98,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return user.ids.userid ?? null;
     }
   };
-  const logout = () => setUser(null);
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
 
   return (
     <AuthContext.Provider
-      value={{ user, setUserData, setActiveRole,getUserID, getActiveRoleId, logout }}
+      value={{
+        user,
+        setUserData,
+        setActiveRole,
+        getUserID,
+        getActiveRoleId,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,10 +1,12 @@
 import { Route, Routes } from "react-router-dom";
 import AuthRoutes from "../features/auth/authRouter";
-import NotFound from "../pages/NotFound";
 import ProtectedRoute from "../routes/ProtectedRouter";
+import BuyerRouter from "@/features/buyer/buyerRouter";
+import SellerRouter from "@/features/seller/sellerRouter";
+
+import NotFound from "../pages/NotFound";
 import UnauthorizedPage from "@/pages/Unauthorized";
 import PageRouter from "./WelcomePageRouter";
-
 
 const AppRoutes = () => {
   return (
@@ -12,8 +14,25 @@ const AppRoutes = () => {
       <Route path="/*" element={<PageRouter />} />
       <Route path="/auth/*" element={<AuthRoutes />} />
       <Route path="*" element={<NotFound />} />
-      <Route path="/unauthorized" element={<UnauthorizedPage/>} />
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route
+        path="/user/*"
+        element={
+          <ProtectedRoute allowedRoles={["user"]}>
+            <BuyerRouter />
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/seller/*"
+        element={
+          <ProtectedRoute allowedRoles={["seller"]}>
+            <SellerRouter />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
+    
   );
 };
 

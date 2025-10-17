@@ -66,7 +66,7 @@ const RegisterPage = () => {
     }
 
     if (userId) {
-      setUserData(userId, [role], {userid: userId});
+      setUserData(userId, [role], { userid: userId });
       showMessage("OAuth authentication successful!", "success");
     }
   };

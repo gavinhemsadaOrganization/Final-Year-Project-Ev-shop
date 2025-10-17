@@ -8,20 +8,23 @@ interface ProtectedRouteProps {
   allowedRoles: UserRole[];
 }
 
-export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+export default function ProtectedRoute({
+  children,
+  allowedRoles,
+}: ProtectedRouteProps) {
   const { user } = useAuth();
 
   // Not logged in → redirect to login
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth/login" replace />;
   }
 
   // Check if user has at least one allowed role
   const hasAccess = user.roles.some((r) => allowedRoles.includes(r));
 
   if (!hasAccess) {
-    return <Navigate to="/unauthorized" replace />; 
+    return <Navigate to="/unauthorized" replace />;
   }
 
-  return {children};
+  return children;
 }
