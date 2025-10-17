@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { OrderStatus, PaymentStatus } from "../enum/enum";
+import { OrderStatus } from "../enum/enum";
 
 /**
  * Represents a customer's order in the database.
@@ -19,7 +19,7 @@ export interface IOrder extends Document {
   /** The current status of the order (e.g., "Pending", "Confirmed", "Cancelled"). */
   order_status: OrderStatus;
   /** The current payment status of the order (e.g., "Confirmed", "Failed"). */
-  payment_status: PaymentStatus;
+  payment_status: string;
   /** The total monetary amount for the order. */
   total_amount: number;
   /** The date the order was placed. */
@@ -34,23 +34,19 @@ const OrderSchema = new Schema<IOrder>(
     /** A reference to the `User` who placed the order. */
     user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     /** An optional reference to the `VehicleListing` being purchased. */
-    listing_id: { type: Schema.Types.ObjectId, ref: "VehicleListing" },
+    listing_id: { type: Schema.Types.ObjectId, ref: "Listing" },
     /** A reference to the `Seller` who will fulfill the order. */
     seller_id: { type: Schema.Types.ObjectId, ref: "Seller", required: true },
     /** An optional reference to a `TestDriveBooking` associated with the order. */
-    booking_id: { type: Schema.Types.ObjectId, ref: "TestDriveBooking" },
+    booking_id: { type: Schema.Types.ObjectId, ref: "Booking" },
     /** The current status of the order, controlled by the `OrderStatus` enum. */
     order_status: {
       type: String,
       enum: Object.values(OrderStatus),
       required: true,
     },
-    /** The current payment status, controlled by the `PaymentStatus` enum. */
-    payment_status: {
-      type: String,
-      enum: Object.values(PaymentStatus),
-      required: true,
-    },
+    /** The current payment status. */
+    payment_status: { type: String, required: true },
     /** The total amount of the order, which is required. */
     total_amount: { type: Number, required: true },
     /** The date the order was placed, which is required. */
@@ -80,4 +76,4 @@ OrderSchema.index({ order_date: -1 });
 /**
  * The Mongoose model for the Order collection.
  */
-export const Order = model<IOrder>("Order", OrderSchema);
+export default model<IOrder>("Order", OrderSchema);
