@@ -2,29 +2,130 @@ import { Request, Response } from "express";
 import { IPostService } from "../services/post.service";
 import { handleResult, handleError } from "../utils/Respons.util";
 
+/**
+ * Defines the contract for the post controller, specifying methods for handling HTTP requests
+ * related to community forum posts and their replies.
+ */
 export interface IPostController {
+  // Post methods
+  /**
+   * Handles the HTTP request to get a post by its unique ID.
+   * @param req - The Express request object, containing the post ID in `req.params`.
+   * @param res - The Express response object.
+   */
   findPostById(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to retrieve all posts.
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   findAllPosts(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to get all posts created by a specific user.
+   * @param req - The Express request object, containing the user ID in `req.params`.
+   * @param res - The Express response object.
+   */
   findPostsByUserId(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to search for posts containing a specific keyword.
+   * @param req - The Express request object, containing the keyword in `req.query`.
+   * @param res - The Express response object.
+   */
   findPostsByKeyword(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to create a new post.
+   * @param req - The Express request object, containing post data in the body.
+   * @param res - The Express response object.
+   */
   createPost(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to update an existing post.
+   * @param req - The Express request object, containing the post ID and update data.
+   * @param res - The Express response object.
+   */
   updatePost(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to update the view count of a post.
+   * @param req - The Express request object, containing the post ID and new view count.
+   * @param res - The Express response object.
+   */
   updatePostViews(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to update the reply count of a post.
+   * @param req - The Express request object, containing the post ID and new reply count.
+   * @param res - The Express response object.
+   */
   updatePostReplyCount(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to update the 'last replied by' information on a post.
+   * @param req - The Express request object, containing the post ID and user info.
+   * @param res - The Express response object.
+   */
   updatePostLastReplyBy(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to delete a post.
+   * @param req - The Express request object, containing the post ID in `req.params`.
+   * @param res - The Express response object.
+   */
   deletePost(req: Request, res: Response): Promise<Response>;
-  // Replies
+
+  // Reply methods
+  /**
+   * Handles the HTTP request to get a reply by its unique ID.
+   * @param req - The Express request object, containing the reply ID in `req.params`.
+   * @param res - The Express response object.
+   */
   findReplyById(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to get all replies for a specific post.
+   * @param req - The Express request object, containing the post ID in `req.params`.
+   * @param res - The Express response object.
+   */
   findRepliesByPostId(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to get all replies created by a specific user.
+   * @param req - The Express request object, containing the user ID in `req.params`.
+   * @param res - The Express response object.
+   */
   findRepliesByUserId(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to retrieve all replies across all posts.
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   findAllReplies(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to create a new reply to a post.
+   * @param req - The Express request object, containing reply data in the body.
+   * @param res - The Express response object.
+   */
   createReply(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to update an existing reply.
+   * @param req - The Express request object, containing the reply ID and update data.
+   * @param res - The Express response object.
+   */
   updateReply(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to delete a reply.
+   * @param req - The Express request object, containing the reply ID in `req.params`.
+   * @param res - The Express response object.
+   */
   deleteReply(req: Request, res: Response): Promise<Response>;
 }
 
+/**
+ * Factory function to create an instance of the post controller.
+ * It encapsulates the logic for handling API requests related to forum posts and replies.
+ *
+ * @param postService - The post service dependency that contains the business logic.
+ * @returns An implementation of the IPostController interface.
+ */
 export function postController(postService: IPostService): IPostController {
   return {
+    /**
+     * Retrieves a single post by its ID.
+     */
     findPostById: async (req, res) => {
       const id = req.params.id;
       try {
@@ -34,6 +135,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "fetching post by id");
       }
     },
+    /**
+     * Retrieves a list of all posts.
+     */
     findAllPosts: async (req, res) => {
       try {
         const result = await postService.findAllPosts();
@@ -42,6 +146,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "fetching all posts");
       }
     },
+    /**
+     * Retrieves all posts created by a specific user.
+     */
     findPostsByUserId: async (req, res) => {
       const user_id = req.params.user_id;
       try {
@@ -51,6 +158,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "fetching posts by user id");
       }
     },
+    /**
+     * Creates a new post.
+     */
     createPost: async (req, res) => {
       const user_id = req.body.user_id;
       const postData = req.body;
@@ -61,6 +171,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "creating post");
       }
     },
+    /**
+     * Updates an existing post.
+     */
     updatePost: async (req, res) => {
       const id = req.params.id;
       const postData = req.body;
@@ -71,6 +184,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "updating post");
       }
     },
+    /**
+     * Updates the view count for a specific post.
+     */
     updatePostViews: async (req, res) => {
       const id = req.params.id;
       const views = req.body.views;
@@ -81,6 +197,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "updating post views");
       }
     },
+    /**
+     * Updates the reply count for a specific post.
+     */
     updatePostReplyCount: async (req, res) => {
       const id = req.params.id;
       const reply_count = req.body.reply_count;
@@ -91,6 +210,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "updating post reply count");
       }
     },
+    /**
+     * Updates the user information for the last reply on a post.
+     */
     updatePostLastReplyBy: async (req, res) => {
       const id = req.params.id;
       const last_reply_by = req.body.last_reply_by;
@@ -104,6 +226,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "updating post last reply by");
       }
     },
+    /**
+     * Deletes a post by its ID.
+     */
     deletePost: async (req, res) => {
       const id = req.params.id;
       try {
@@ -113,6 +238,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "deleting post");
       }
     },
+    /**
+     * Finds posts by searching for a keyword in their title or content.
+     */
     findPostsByKeyword: async (req, res) => {
       const keyword = req.query.keyword;
       try {
@@ -122,7 +250,11 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "searching posts by keyword");
       }
     },
-    // Replies
+
+    // Reply methods
+    /**
+     * Retrieves a single reply by its ID.
+     */
     findReplyById: async (req, res) => {
       const id = req.params.id;
       try {
@@ -132,6 +264,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "fetching reply by id");
       }
     },
+    /**
+     * Retrieves all replies associated with a specific post.
+     */
     findRepliesByPostId: async (req, res) => {
       const post_id = req.params.post_id;
       try {
@@ -141,6 +276,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "fetching replies by post id");
       }
     },
+    /**
+     * Retrieves all replies created by a specific user.
+     */
     findRepliesByUserId: async (req, res) => {
       const user_id = req.params.user_id;
       try {
@@ -150,6 +288,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "fetching replies by user id");
       }
     },
+    /**
+     * Retrieves a list of all replies from all posts.
+     */
     findAllReplies: async (req, res) => {
       try {
         const result = await postService.findAllReplies();
@@ -158,6 +299,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "fetching all replies");
       }
     },
+    /**
+     * Creates a new reply for a post.
+     */
     createReply: async (req, res) => {
       const user_id = req.body.user_id;
       const replyData = req.body;
@@ -168,6 +312,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "creating reply");
       }
     },
+    /**
+     * Updates an existing reply.
+     */
     updateReply: async (req, res) => {
       const id = req.params.id;
       const replyData = req.body;
@@ -178,6 +325,9 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "updating reply");
       }
     },
+    /**
+     * Deletes a reply by its ID.
+     */
     deleteReply: async (req, res) => {
       const id = req.params.id;
       try {
