@@ -1,39 +1,166 @@
 import { SellerDTO, UpdateSellerDTO } from "../dtos/seller.DTO";
 import { ISellerRepository } from "../repositories/seller.repository";
-import { container } from "tsyringe";
 import { IUserRepository } from "../repositories/user.repository";
 import { IReviewRepository } from "../repositories/review.repository";
+import CacheService from "./CacheService";
 import { UserRole } from "../enum/enum";
 
+/**
+ * Defines the interface for the seller service, outlining the methods for managing seller profiles.
+ */
 export interface ISellerService {
+  /**
+   * Creates a new seller profile.
+   * @param data - The data for the new seller profile.
+   * @returns A promise that resolves to an object containing the created seller or an error.
+   */
   createSeller(
     data: SellerDTO
   ): Promise<{ success: boolean; seller?: any; error?: string }>;
+  /**
+   * Finds a seller by their unique ID.
+   * @param id - The ID of the seller to find.
+   * @returns A promise that resolves to an object containing the seller data or an error.
+   */
   getSellerById(
     id: string
   ): Promise<{ success: boolean; seller?: any; error?: string }>;
+  /**
+   * Finds a seller profile by the associated user's ID.
+   * @param userId - The ID of the user.
+   * @returns A promise that resolves to an object containing the seller data or an error.
+   */
   getSellerByUserId(
     userId: string
   ): Promise<{ success: boolean; seller?: any; error?: string }>;
+  /**
+   * Retrieves all seller profiles.
+   * @returns A promise that resolves to an object containing an array of all sellers or an error.
+   */
   getAllSellers(): Promise<{
     success: boolean;
     sellers?: any[];
     error?: string;
   }>;
+  /**
+   * Updates a seller's average rating and total review count based on all reviews.
+   * @param id - The ID of the seller to update.
+   * @returns A promise that resolves to an object containing the updated seller data or an error.
+   */
   updateRatingAndReviewCount(
     id: string
   ): Promise<{ success: boolean; seller?: any; error?: string }>;
+  /**
+   * Updates an existing seller's profile information.
+   * @param id - The ID of the seller to update.
+   * @param data - The partial data to update the seller with.
+   * @returns A promise that resolves to an object containing the updated seller data or an error.
+   */
   updateSeller(
     id: string,
     data: UpdateSellerDTO
   ): Promise<{ success: boolean; seller?: any; error?: string }>;
+  /**
+   * Deletes a seller profile by its unique ID.
+   * @param id - The ID of the seller to delete.
+   * @returns A promise that resolves to an object indicating success or failure.
+   */
   deleteSeller(id: string): Promise<{ success: boolean; error?: string }>;
 }
 
-export function sellerService(repo: ISellerRepository, userRepo: IUserRepository, reviwRepo: IReviewRepository): ISellerService {
+/**
+ * Factory function to create an instance of the seller service.
+ * It encapsulates the business logic for managing seller profiles, including caching strategies
+ * to improve performance.
+ *
+ * @param repo - The repository for seller data access.
+ * @param userRepo - The repository for user data access.
+ * @param reviwRepo - The repository for review data access.
+ * @returns An implementation of the ISellerService interface.
+ */
+export function sellerService(
+  repo: ISellerRepository,
+  userRepo: IUserRepository,
+  reviwRepo: IReviewRepository
+): ISellerService {
   return {
+    /**
+     * Finds a single seller by their ID, using a cache-aside pattern.
+     * Caches the individual seller data for one hour.
+     */
+    getSellerById: async (id) => {
+      try {
+        const cacheKey = `seller_${id}`;
+        // Attempt to get from cache, otherwise fetch from repository and set cache.
+        const cachedSeller = await CacheService.getOrSet(
+          cacheKey,
+          async () => {
+            const seller = await repo.findById(id);
+            return seller ?? null;
+          },
+          3600 // Cache TTL: 1 hour
+        );
+        if (!cachedSeller) return { success: false, error: "Seller not found" };
+        return { success: true, seller: cachedSeller };
+      } catch (err) {
+        return { success: false, error: "Failed to retrieve seller" };
+      }
+    },
+    /**
+     * Finds a seller profile by the associated user's ID, using a cache-aside pattern.
+     * Caches the seller data for one hour.
+     */
+    getSellerByUserId: async (userId) => {
+      try {
+        const cacheKey = `seller_user_${userId}`;
+        // Attempt to get from cache, otherwise fetch from repository and set cache.
+        const cachedSeller = await CacheService.getOrSet(
+          cacheKey,
+          async () => {
+            const seller = await repo.findByUserId(userId);
+            return seller ?? null;
+          },
+          3600 // Cache TTL: 1 hour
+        );
+        if (!cachedSeller)
+          return {
+            success: false,
+            error: "Seller profile not found for this user",
+          };
+        return { success: true, seller: cachedSeller };
+      } catch (err) {
+        return { success: false, error: "Failed to retrieve seller" };
+      }
+    },
+    /**
+     * Retrieves all sellers, utilizing a cache-aside pattern.
+     * Caches the list of all sellers for one hour.
+     */
+    getAllSellers: async () => {
+      try {
+        const cacheKey = "sellers";
+        // Attempt to get from cache, otherwise fetch from repository and set cache.
+        const sellers = await CacheService.getOrSet(
+          cacheKey,
+          async () => {
+            const allSellers = await repo.findAll();
+            return allSellers ?? [];
+          },
+          3600 // Cache TTL: 1 hour
+        );
+        if (!sellers) return { success: false, error: "No sellers found" };
+        return { success: true, sellers };
+      } catch (err) {
+        return { success: false, error: "Failed to retrieve sellers" };
+      }
+    },
+    /**
+     * Creates a new seller profile, assigns the 'SELLER' role to the user,
+     * and invalidates the cache for the list of all sellers.
+     */
     createSeller: async (data) => {
       try {
+        // Ensure a user doesn't already have a seller profile.
         const existingSeller = await repo.findByUserId(data.user_id);
         if (existingSeller) {
           return { success: false, error: "User already has a seller profile" };
@@ -41,50 +168,38 @@ export function sellerService(repo: ISellerRepository, userRepo: IUserRepository
         const seller = await repo.create(data);
         const user = await userRepo.findById(data.user_id);
         if (!user) return { success: false, error: "User not found" };
+        // Add SELLER role to the user.
         user.role.push(UserRole.SELLER);
 
         const updatedUser = await user.save();
         if (!updatedUser)
           return { success: false, error: "Failed to update user role" };
 
+        // Invalidate the cache for the list of all sellers.
+        await CacheService.delete("sellers");
+
         return { success: true, seller };
       } catch (err) {
         return { success: false, error: "Failed to create seller profile" };
       }
     },
-
-    getSellerById: async (id) => {
-      const seller = await repo.findById(id);
-      if (!seller) return { success: false, error: "Seller not found" };
-      return { success: true, seller };
-    },
-
-    getSellerByUserId: async (userId) => {
-      const seller = await repo.findByUserId(userId);
-      if (!seller)
-        return {
-          success: false,
-          error: "Seller profile not found for this user",
-        };
-      return { success: true, seller };
-    },
-
-    getAllSellers: async () => {
-      try {
-        const sellers = await repo.findAll();
-        if (!sellers) return { success: false, error: "No sellers found" };
-        return { success: true, sellers };
-      } catch (err) {
-        return { success: false, error: "Failed to retrieve sellers" };
-      }
-    },
+    /**
+     * Calculates and updates a seller's average rating and review count.
+     * This method iterates through all reviews to find those related to the seller and then updates the seller's record.
+     * Invalidates all caches related to this seller upon successful update.
+     */
     updateRatingAndReviewCount: async (id) => {
       try {
+        const existingSeller = await repo.findById(id);
+        if (!existingSeller) {
+          return { success: false, error: "Seller not found" };
+        }
         const reviews = await reviwRepo.getAllReviews();
         if (!reviews)
           return { success: false, error: "Failed to retrieve reviews" };
         let rating = 0;
         let reviewCount = 0;
+        // Aggregate rating and count from reviews associated with the seller.
         reviews.forEach((element) => {
           const order: any = element.order_id;
           if (order?.seller_id?.toString() === id) {
@@ -105,23 +220,60 @@ export function sellerService(repo: ISellerRepository, userRepo: IUserRepository
             success: false,
             error: "Failed to retrieve reviewscount and rating",
           };
+
+        // Invalidate relevant caches after update.
+        await Promise.all([
+          CacheService.delete("sellers"),
+          CacheService.delete(`seller_${id}`),
+          CacheService.delete(`seller_user_${existingSeller.user_id}`),
+        ]);
+
         return { success: true, seller };
       } catch (err) {
         return { success: false, error: "Failed to retrieve sellers" };
       }
     },
+    /**
+     * Updates a seller's profile information.
+     * Invalidates all caches related to this seller to ensure data consistency.
+     */
     updateSeller: async (id, data) => {
       try {
+        const existingSeller = await repo.findById(id);
+        if (!existingSeller) {
+          return { success: false, error: "Seller not found" };
+        }
         const seller = await repo.update(id, data);
         if (!seller) return { success: false, error: "Seller not found" };
+
+        // Invalidate caches to ensure data consistency on next read.
+        await Promise.all([
+          CacheService.delete("sellers"),
+          CacheService.delete(`seller_${id}`),
+          CacheService.delete(`seller_user_${existingSeller.user_id}`),
+        ]);
+
         return { success: true, seller };
       } catch (err) {
         return { success: false, error: "Failed to update seller profile" };
       }
     },
 
+    /**
+     * Deletes a seller's profile.
+     * Invalidates all caches related to this seller before performing the deletion.
+     */
     deleteSeller: async (id) => {
       try {
+        const existingSeller = await repo.findById(id);
+        if (existingSeller) {
+          // Invalidate caches before deletion.
+          await Promise.all([
+            CacheService.delete("sellers"),
+            CacheService.delete(`seller_${id}`),
+            CacheService.delete(`seller_user_${existingSeller.user_id}`),
+          ]);
+        }
         const success = await repo.delete(id);
         if (!success) return { success: false, error: "Seller not found" };
         return { success: true };
