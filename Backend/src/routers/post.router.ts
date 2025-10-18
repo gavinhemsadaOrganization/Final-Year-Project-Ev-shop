@@ -40,16 +40,6 @@ export const postRouter = (): Router => {
   router.get("/posts/user/:user_id", (req, res) =>
     postController.findPostsByUserId(req, res)
   );
-
-  /**
-   * @route GET /api/posts/posts/search
-   * @description Searches for posts by a keyword in the title or content.
-   * @access Public
-   */
-  router.get("/posts/search", (req, res) =>
-    postController.findPostsByKeyword(req, res)
-  );
-
   /**
    * @route POST /api/posts/post
    * @description Creates a new forum post.

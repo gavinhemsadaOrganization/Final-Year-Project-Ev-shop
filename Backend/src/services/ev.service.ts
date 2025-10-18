@@ -160,13 +160,29 @@ export interface IEvService {
     file?: Express.Multer.File[]
   ): Promise<{ success: boolean; listing?: any; error?: string }>;
   /**
-   * Retrieves all vehicle listings, with optional filtering.
-   * @param filters - The query parameters for filtering listings.
-   * @returns A promise that resolves to an object containing an array of listings or an error.
+   * Retrieves all vehicle listings with pagination, filtering, and search.
+   *
+   * @param {Object} options - Query parameters.
+   * @param {number} [options.page=1] - Current page number.
+   * @param {number} [options.limit=10] - Number of listings per page.
+   * @param {string} [options.search=""] - Search term for vehicle title, make, or model.
+   * @param {string} [options.filter=""] - Optional filter (e.g., fuelType, brand, status).
+   * @returns {Promise<{ success: boolean; listings?: any[]; total?: number; page?: number; limit?: number; totalPages?: number; error?: string }>}
    */
-  getAllListings(
-    filters: any
-  ): Promise<{ success: boolean; listings?: any[]; error?: string }>;
+  getAllListings(options?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    filter?: string;
+  }): Promise<{
+    success: boolean;
+    listings?: any[];
+    total?: number;
+    page?: number;
+    limit?: number;
+    totalPages?: number;
+    error?: string;
+  }>;
   /**
    * Retrieves a vehicle listing by its unique ID.
    * @param id - The ID of the listing to find.
@@ -626,25 +642,75 @@ export function evService(
      * Retrieves all vehicle listings based on filters, using a cache-aside pattern.
      * Caches the list of listings for one hour, with a unique key for each filter combination.
      */
-    getAllListings: async (filters) => {
+    // service.js
+    getAllListings: async ({
+      page = 1,
+      limit = 10,
+      search = "",
+      filter = "",
+    } = {}) => {
       try {
-        const cacheKey = `listings_${JSON.stringify(filters || {})}`;
-        // Attempt to get from cache, otherwise fetch from repository and set cache.
-        const listings = await CacheService.getOrSet(
+        // Create unique cache key for each query combination
+        const cacheKey = `listings_${page}_${limit}_${search}_${filter}`;
+
+        const result = await CacheService.getOrSet(
           cacheKey,
           async () => {
-            const data = await repo.findAllListings(filters);
-            return data ?? [];
-          },
-          3600
-        ); // Cache for 1 hour
+            // Fetch all listings from the database
+            let allListings = await repo.findAllListings();
+            if (!allListings || allListings.length === 0)
+              return { listings: [], total: 0 };
 
-        if (!listings) return { success: false, error: "No listings found" };
-        return { success: true, listings };
+            // --- Filter ---
+            if (filter) {
+              const filterTerm = filter.toLowerCase();
+              allListings = allListings.filter(
+                (item) =>
+                  item.listing_type?.toLowerCase() === filterTerm ||
+                  item.condition?.toLowerCase() === filterTerm ||
+                  item.status?.toLowerCase() === filterTerm ||
+                  item.color?.toLowerCase() === filterTerm
+              );
+            }
+
+            // --- Search ---
+            if (search) {
+              const term = search.toLowerCase();
+              allListings = allListings.filter(
+                (item) =>
+                  item.listing_type?.toLowerCase().includes(term) ||
+                  item.condition?.toLowerCase().includes(term) ||
+                  item.status?.toLowerCase().includes(term) ||
+                  item.color?.toLowerCase().includes(term) ||
+                  item.registration_year?.toString().includes(term)
+              );
+            }
+
+            // --- Pagination ---
+            const total = allListings.length;
+            const startIndex = (page - 1) * limit;
+            const paginated = allListings.slice(startIndex, startIndex + limit);
+
+            return {
+              listings: paginated,
+              total,
+              page,
+              limit,
+              totalPages: Math.ceil(total / limit),
+            };
+          },
+          3600 // Cache for 1 hour
+        );
+
+        if (!result.listings || result.listings.length === 0)
+          return { success: false, error: "No listings found" };
+
+        return { success: true, ...result };
       } catch (err) {
         return { success: false, error: "Failed to fetch listings" };
       }
     },
+
     /**
      * Finds a single vehicle listing by its ID, using a cache-aside pattern.
      * Caches the individual listing data for one hour.

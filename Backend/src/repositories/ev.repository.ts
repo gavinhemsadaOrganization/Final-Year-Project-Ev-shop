@@ -134,7 +134,7 @@ export interface IEvRepository {
    * @param filters - An object containing key-value pairs for filtering listings.
    * @returns A promise that resolves to an array of listing documents or null.
    */
-  findAllListings(filters: any): Promise<IVehicleListing[] | null>;
+  findAllListings(): Promise<IVehicleListing[] | null>;
   /**
    * Finds a vehicle listing by its unique ID.
    * @param id - The ID of the listing to find.
@@ -251,10 +251,8 @@ export const EvRepository: IEvRepository = {
    * Retrieves all active vehicle listings, applying any additional filters provided.
    * Populates nested details for the model, brand, category, and seller.
    */
-  findAllListings: withErrorHandling(async (filters) => {
-    // The 'filters' object can contain any fields from the VehicleListing schema to query against.
-    const query = { status: "active", ...filters };
-    return await VehicleListing.find(query)
+  findAllListings: withErrorHandling(async () => {
+    return await VehicleListing.find()
       .populate({
         path: "model_id",
         populate: [

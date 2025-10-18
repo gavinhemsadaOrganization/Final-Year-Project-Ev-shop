@@ -27,12 +27,6 @@ export interface IPostController {
    */
   findPostsByUserId(req: Request, res: Response): Promise<Response>;
   /**
-   * Handles the HTTP request to search for posts containing a specific keyword.
-   * @param req - The Express request object, containing the keyword in `req.query`.
-   * @param res - The Express response object.
-   */
-  findPostsByKeyword(req: Request, res: Response): Promise<Response>;
-  /**
    * Handles the HTTP request to create a new post.
    * @param req - The Express request object, containing post data in the body.
    * @param res - The Express response object.
@@ -140,7 +134,13 @@ export function postController(postService: IPostService): IPostController {
      */
     findAllPosts: async (req, res) => {
       try {
-        const result = await postService.findAllPosts();
+        const { page, limit, search, filter } = req.query;
+        const result = await postService.findAllPosts({
+          page: page ? Number(page) : 1,
+          limit: limit ? Number(limit) : 10,
+          search: typeof search === "string" ? search : undefined,
+          filter: typeof filter === "string" ? filter : "",
+        });
         return handleResult(res, result);
       } catch (err) {
         return handleError(res, err, "fetching all posts");
@@ -238,19 +238,6 @@ export function postController(postService: IPostService): IPostController {
         return handleError(res, err, "deleting post");
       }
     },
-    /**
-     * Finds posts by searching for a keyword in their title or content.
-     */
-    findPostsByKeyword: async (req, res) => {
-      const keyword = req.query.keyword;
-      try {
-        const result = await postService.findPostsByKeyword(keyword as string);
-        return handleResult(res, result);
-      } catch (err) {
-        return handleError(res, err, "searching posts by keyword");
-      }
-    },
-
     // Reply methods
     /**
      * Retrieves a single reply by its ID.

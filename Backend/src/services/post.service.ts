@@ -24,7 +24,20 @@ export interface IPostService {
    * @param {string} [options.search=""] - Search term for post title/content.
    * @param {string} [options.filter=""] - Optional filter (e.g. category, status).
    */
-  findAllPosts(): Promise<{ success: boolean; posts?: any[]; error?: string }>;
+  findAllPosts(options?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    filter?: string;
+  }): Promise<{
+    success: boolean;
+    posts?: any[];
+    total?: number;
+    page?: number;
+    limit?: number;
+    totalPages?: number;
+    error?: string;
+  }>;
   /**
    * Finds all posts created by a specific user.
    * @param user_id - The ID of the user.
@@ -208,8 +221,12 @@ export function postService(
 
             // --- Filtering ---
             if (filter) {
+              const term = filter.toLowerCase();
               allPosts = allPosts.filter(
-                (post) => post.title?.toLowerCase() === filter.toLowerCase()
+                (post) =>
+                  post.title?.toLowerCase() === term ||
+                  post.views?.toString() === term ||
+                  post.reply_count?.toString() === term
               );
             }
 

@@ -344,8 +344,15 @@ export function evController(service: IEvService): IEvController {
      */
     getAllListings: async (req, res) => {
       try {
-        // Pass query params as filters
-        const result = await service.getAllListings(req.query);
+        const { page, limit, search, filter } = req.query;
+
+        const result = await service.getAllListings({
+          page: page ? Number(page) : 1,
+          limit: limit ? Number(limit) : 10,
+          search: typeof search === "string" ? search : "",
+          filter: typeof filter === "string" ? filter : "",
+        });
+
         return handleResult(res, result);
       } catch (err) {
         return handleError(res, err, "getAllListings");
