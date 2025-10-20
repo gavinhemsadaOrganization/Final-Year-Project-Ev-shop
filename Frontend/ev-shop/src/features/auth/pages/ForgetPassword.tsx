@@ -1,18 +1,29 @@
 import React, { useState, useRef, useEffect } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-import Label from "../components/Label";
-import Input from "../components/inputFiled";
+// Import reusable UI components.
+import Label from "../../../components/Label";
+import Input from "../../../components/inputFiled";
 import Loader from "@/components/Loader";
 
+// Import static assets like background images and logos.
 import bgImage from "@/assets/bg_img2.png";
 import Logo from "@/assets/logo_no-bg.png";
 
+// Import authentication service functions for API calls.
 import { forgetPassword, verifyOTP, resetPassword } from "../authService";
 
-// Main Component
+/**
+ * ForgotPasswordPage Component
+ * Manages the multi-step process for resetting a user's password, including:
+ * 1. Entering and submitting an email to receive an OTP.
+ * 2. Entering and verifying the OTP.
+ * 3. Entering and submitting a new password.
+ */
 const ForgotPasswordPage = () => {
+  // State to manage the current step of the password reset flow.
   const [step, setStep] = useState("enter-email"); // 'enter-email', 'enter-otp', 'reset-password'
+  // State for the user's email, initialized from localStorage if available.
   const [email, setEmail] = useState(() => {
     try {
       const savedState = localStorage.getItem("forgotPasswordState");
@@ -22,28 +33,40 @@ const ForgotPasswordPage = () => {
     }
   });
 
+  // State for the 6-digit OTP input.
   const [otp, setOtp] = useState(new Array(6).fill(""));
+  // State for the new password and its confirmation.
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  // State to hold validation errors for form fields.
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
     confirmPassword?: string;
     otp?: string;
   }>({});
+  // State to manage loading indicators during async operations.
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{
-    id: number;
-    type: string;
-    text: string;
-  }| undefined>(undefined);
+  // State for displaying feedback messages (e.g., success or error alerts).
+  const [message, setMessage] = useState<
+    | {
+        id: number;
+        type: string;
+        text: string;
+      }
+    | undefined
+  >(undefined);
+  // State to toggle password visibility.
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // State for the OTP resend cooldown timer.
   const [resendCooldown, setResendCooldown] = useState(0);
+  // Ref to hold references to the OTP input elements for focus management.
   const otpInputs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    // On component mount, restore state from localStorage
+    // On component mount, try to restore the step and email from localStorage.
+    // This allows the user to refresh the page and continue the process.
     try {
       const savedState = localStorage.getItem("forgotPasswordState");
       if (savedState) {
@@ -54,26 +77,29 @@ const ForgotPasswordPage = () => {
         }
       }
     } catch (error) {
-      // If parsing fails, start fresh
+      // If parsing fails, clear the stored state to start fresh.
       localStorage.removeItem("forgotPasswordState");
     }
 
-    // On component unmount, clean up localStorage
+    // On component unmount, clean up the stored state from localStorage.
     return () => {
       localStorage.removeItem("forgotPasswordState");
     };
-  }, []); // Run only on mount and unmount
+  }, []); // Empty dependency array ensures this runs only on mount and unmount.
 
+  // This effect manages the countdown timer for the "Resend OTP" button.
   useEffect(() => {
     if (resendCooldown > 0) {
       const timerId = setTimeout(
         () => setResendCooldown(resendCooldown - 1),
         1000
       );
+      // Cleanup the timer if the component unmounts or cooldown changes.
       return () => clearTimeout(timerId);
     }
   }, [resendCooldown]);
 
+  // This effect persists the current step and email to localStorage.
   useEffect(() => {
     // Persist state to localStorage whenever step or email changes
     if (step !== "success" && email) {
@@ -86,6 +112,7 @@ const ForgotPasswordPage = () => {
     }
   }, [step, email]);
 
+  // This effect sets a timer to automatically hide any displayed message after 5 seconds.
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(undefined), 5000);
@@ -93,11 +120,13 @@ const ForgotPasswordPage = () => {
     }
   }, [message]);
 
+  // Helper function to display a temporary message to the user.
   const showMessage = (text: string, type = "error") => {
     setMessage({ id: Date.now(), text, type });
     setTimeout(() => setMessage(undefined), 5000);
   };
 
+  // Masks the user's email for display purposes (e.g., "ex***@example.com").
   const maskEmail = (email: string) => {
     const [localPart, domain] = email.split("@");
 
@@ -109,7 +138,9 @@ const ForgotPasswordPage = () => {
 
     // Example: exam****@gmail.com
     return `${visible}${masked}@${domain}`;
-  }
+  };
+
+  // Handles the submission of the email form to request an OTP.
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -122,8 +153,8 @@ const ForgotPasswordPage = () => {
     try {
       await forgetPassword(email);
       setStep("enter-otp");
-      showMessage(`An OTP has been sent to ${maskEmail((email))}.`, "success");
-      setResendCooldown(60); // Start 60s cooldown
+      showMessage(`An OTP has been sent to ${maskEmail(email)}.`, "success");
+      setResendCooldown(60); // Start 60s cooldown for the resend button.
     } catch (err: any) {
       showMessage(
         err.response?.data?.message || "Failed to send OTP.",
@@ -134,15 +165,18 @@ const ForgotPasswordPage = () => {
     }
   };
 
+  // Handles changes in the OTP input fields, updating state and moving focus.
   const handleOtpChange = (element: any, index: number) => {
+    // Ignore non-numeric input.
     if (isNaN(element.value)) return false;
     setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
-    // Focus next input
+    // Automatically focus the next input field.
     if (element.nextSibling) {
       element.nextSibling.focus();
     }
   };
 
+  // Handles the submission of the OTP for verification.
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     const enteredOtp = otp.join("");
@@ -164,6 +198,7 @@ const ForgotPasswordPage = () => {
     }
   };
 
+  // Handles the "Resend OTP" button click.
   const handleResendOtp = async () => {
     if (resendCooldown > 0) return; // Prevent clicking if on cooldown
 
@@ -181,6 +216,7 @@ const ForgotPasswordPage = () => {
     }
   };
 
+  // Handles the final step: resetting the password with the new credentials.
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { password?: string; confirmPassword?: string } = {};
@@ -211,12 +247,15 @@ const ForgotPasswordPage = () => {
     }
   };
 
+  // Conditionally renders the content based on the current `step` in the process.
   const renderStep = () => {
     switch (step) {
+      // Step 1: Form to enter email address.
       case "enter-email":
         return (
           <form onSubmit={handleSendOtp} className="space-y-6">
             <div>
+              {/* Email Input */}
               <Label htmlFor="email">Email Address</Label>
               <Input
                 id="email"
@@ -231,6 +270,7 @@ const ForgotPasswordPage = () => {
                 <p className="text-red-600 text-xs mt-1">{errors.email}</p>
               )}
             </div>
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -245,10 +285,12 @@ const ForgotPasswordPage = () => {
             </button>
           </form>
         );
+      // Step 2: Form to enter the 6-digit OTP.
       case "enter-otp":
         return (
           <form onSubmit={handleVerifyOtp} className="space-y-6">
             <div className="flex justify-center gap-2">
+              {/* Map through the OTP array to create 6 input fields. */}
               {otp.map((data, index) => (
                 <input
                   key={index}
@@ -269,7 +311,7 @@ const ForgotPasswordPage = () => {
                 {errors.otp}
               </p>
             )}
-
+            {/* Verify OTP Button */}
             <button
               type="submit"
               disabled={loading}
@@ -282,7 +324,7 @@ const ForgotPasswordPage = () => {
             >
               {loading ? <Loader size={10} color="#4f46e5" /> : "Verify OTP"}
             </button>
-
+            {/* Resend OTP Button with Cooldown */}
             <p className="text-center text-sm text-gray-500">
               Didn't receive code?{" "}
               <button
@@ -296,10 +338,12 @@ const ForgotPasswordPage = () => {
             </p>
           </form>
         );
+      // Step 3: Form to enter and confirm the new password.
       case "reset-password":
         return (
           <form onSubmit={handlePasswordReset} className="space-y-4">
             <div>
+              {/* New Password Input */}
               <Label htmlFor="newPassword">New Password</Label>
               <div className="relative">
                 <Input
@@ -311,6 +355,7 @@ const ForgotPasswordPage = () => {
                   placeholder="••••••••"
                   className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 />
+                {/* Password Visibility Toggle */}
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
@@ -328,6 +373,7 @@ const ForgotPasswordPage = () => {
               )}
             </div>
             <div>
+              {/* Confirm New Password Input */}
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
               <div className="relative">
                 <Input
@@ -339,6 +385,7 @@ const ForgotPasswordPage = () => {
                   placeholder="••••••••"
                   className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 />
+                {/* Confirm Password Visibility Toggle */}
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
@@ -357,6 +404,7 @@ const ForgotPasswordPage = () => {
                 </p>
               )}
             </div>
+            {/* Reset Password Button */}
             <button
               type="submit"
               disabled={loading}
@@ -366,11 +414,13 @@ const ForgotPasswordPage = () => {
             </button>
           </form>
         );
+      // Final Step: Success message and link to login.
       case "success":
         return (
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Success!</h1>
             <p className="mt-2 text-sm text-gray-600">{message!.text}</p>
+            {/* Link to navigate back to the login page. */}
             <a
               href="/auth/login"
               className="mt-6 inline-block w-full py-3 px-4 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700"
@@ -383,15 +433,20 @@ const ForgotPasswordPage = () => {
   };
 
   return (
+    // Main container with a two-column layout on medium screens and up.
     <div className="relative flex flex-col md:flex-row h-screen w-full bg-gray-100 md:bg-black font-sans overflow-hidden">
+      {/* Left Panel: Background Image (hidden on small screens) */}
       <div
         className="hidden md:block md:w-1/2 bg-cover bg-center"
         style={{ backgroundImage: `url(${bgImage})` }}
       />
+      {/* Right Panel: Form Container */}
       <div className="w-full md:w-1/2 flex items-center justify-center bg-white md:bg-black p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <div className=" relative w-full max-w-md p-6 md:p-8 space-y-6 bg-white rounded-xl shadow-lg">
+          {/* Logo */}
           <img src={Logo} alt="Logo" className="w-20 h-20 mx-auto" />
-         {message && (
+          {/* Message display area for success/error alerts */}
+          {message && (
             <div
               key={message.id}
               className={`absolute top-[20%] left-1/2 transform -translate-x-1/2 w-[70%] text-center p-3 rounded-md font-medium shadow-lg z-10 ${
@@ -403,6 +458,7 @@ const ForgotPasswordPage = () => {
               {message.text}
             </div>
           )}
+          {/* Dynamic Header based on the current step */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">
               {step === "enter-email" && "Forgot Password?"}
@@ -416,6 +472,7 @@ const ForgotPasswordPage = () => {
               {step === "reset-password" && "Please enter a new password."}
             </p>
           </div>
+          {/* Render the current step's form content */}
           {renderStep()}
         </div>
       </div>

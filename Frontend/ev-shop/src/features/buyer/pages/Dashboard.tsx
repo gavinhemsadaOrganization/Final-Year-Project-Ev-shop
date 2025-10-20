@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "@/context/AuthContext";
 // This component assumes Tailwind CSS is configured in your project.
 
 // --- Type Definitions ---
@@ -470,7 +470,8 @@ const App: React.FC = () => {
         return <VehicleList vehicles={filteredVehicles} />;
     }
   };
-
+const { user } = useAuth();
+console.log(user);
   return (
     <>
       <style>{`

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import type { Variants } from 'framer-motion';
+import { containerVariants} from '@/components/animations/variants';
+import EvModelCard from '@/components/EvModelCard';
+
 // --- Mock Data for Car Models ---
 const carModels = [
   {
@@ -47,19 +48,6 @@ const carModels = [
   },
 ];
 
-// --- Animation Variants ---
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
-};
 
 const ModelsPage = () => {
   return (
@@ -83,36 +71,16 @@ const ModelsPage = () => {
             animate="visible"
           >
             {carModels.map((model) => (
-              <motion.div
+              <EvModelCard
                 key={model.name}
-                className="bg-slate-800 rounded-lg overflow-hidden shadow-lg group"
-                variants={cardVariants}
-              >
-                <div className="relative">
-                  <img src={model.image} alt={model.name} className="w-full h-64 object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <h2 className="absolute bottom-4 left-4 text-3xl font-bold">{model.name}</h2>
-                </div>
-                <div className="p-6">
-                  <p className="text-lg text-blue-400 font-semibold mb-4">{model.price}</p>
-                  <div className="flex justify-between text-gray-300 mb-6">
-                    <div className="text-center">
-                      <p className="font-bold text-xl">{model.range}</p>
-                      <p className="text-sm text-gray-500">Range</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-bold text-xl">{model.acceleration}</p>
-                      <p className="text-sm text-gray-500">0-100 km/h</p>
-                    </div>
-                  </div>
-                  <Link
-                    to={`/models/${model.name.toLowerCase().replace(' ', '-')}`}
-                    className="block w-full text-center bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-300 transform group-hover:scale-105"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              </motion.div>
+                name={model.name}
+                image={model.image}
+                price={model.price}
+                range={model.range}
+                acceleration={model.acceleration}
+                showLink={true}
+                linkTo={`${model.name.toLowerCase().replace(/ /g, '-')}`}
+              />
             ))}
           </motion.div>
         </div>

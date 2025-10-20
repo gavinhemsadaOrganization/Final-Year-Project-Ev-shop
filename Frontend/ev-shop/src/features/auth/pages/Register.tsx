@@ -7,39 +7,49 @@ import Logo from "@/assets/logo_no-bg.png";
 
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-import Label from "../components/Label";
-import Input from "../components/inputFiled";
+import Label from "@/components/Label";
+import Input from "@/components/inputFiled";
 import Loader from "@/components/Loader";
 
+// Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
 import type { UserRole } from "@/context/AuthContext";
 
+// Import authentication service functions for API calls.
 import { register, googleLogin, facebookLogin } from "../authService";
 
+// The main component for the registration page.
 const RegisterPage = () => {
+  // State for form inputs.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  // State to hold validation errors for the form fields.
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
     confirmPassword?: string;
   }>({});
+  // State to manage the loading status during async operations (e.g., API calls).
   const [loading, setLoading] = useState(false);
+  // State to toggle password visibility.
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // State for displaying feedback messages (e.g., success or error alerts).
   const [message, setMessage] = useState<{
     id: number;
     text: string;
     type: string;
   } | null>(null);
 
+  // Access the setUserData function from the authentication context.
   const { setUserData } = useAuth();
 
   useEffect(() => {
     handleOAuthCallback();
   }, []);
 
+  // This effect sets a timer to clear any displayed message after 5 seconds.
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(null), 5000);
@@ -47,17 +57,21 @@ const RegisterPage = () => {
     }
   }, [message]);
 
+  // Helper function to show a temporary message to the user.
   const showMessage = (text: string, type = "error") => {
     setMessage({ id: Date.now(), text, type });
     setTimeout(() => setMessage(null), 5000);
   };
 
+  // This function handles the OAuth callback after a user is redirected from Google/Facebook.
+  // It parses user data from the URL, sets the user state, and shows a message.
   const handleOAuthCallback = () => {
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userid");
     const role = params.get("role") as UserRole;
     const error = params.get("error");
 
+    // Clean the URL by removing the query parameters.
     window.history.replaceState({}, document.title, window.location.pathname);
 
     if (error) {
@@ -71,6 +85,7 @@ const RegisterPage = () => {
     }
   };
 
+  // Validates the email, password, and confirm password fields.
   const validate = (email: string, password: string) => {
     const newErrors: {
       email?: string;
@@ -78,12 +93,14 @@ const RegisterPage = () => {
       confirmPassword?: string;
     } = {};
 
+    // Email validation.
     if (!email.trim()) {
       newErrors.email = "Email is required.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = "Invalid email format.";
     }
 
+    // Password validation (checks for complexity).
     if (!password.trim()) {
       newErrors.password = "Password is required.";
     } else if (
@@ -94,6 +111,7 @@ const RegisterPage = () => {
       newErrors.password =
         "Password must contain uppercase, lowercase, number, and special character.";
     }
+    // Confirm password validation.
     if (!confirmPassword.trim()) {
       newErrors.confirmPassword = "Confirm Password is required.";
     } else if (password !== confirmPassword) {
@@ -103,6 +121,7 @@ const RegisterPage = () => {
     return newErrors;
   };
 
+  // Initiates the OAuth flow for the specified provider (Google or Facebook).
   const handleOAuth = async (provider: string) => {
     setLoading(true);
     try {
@@ -119,10 +138,12 @@ const RegisterPage = () => {
     }
   };
 
+  // Handles the form submission for standard email/password registration.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validate(email, password);
     if (Object.keys(validationErrors).length > 0) {
+      // If there are validation errors, display them and stop submission.
       setErrors(validationErrors);
       return;
     }
@@ -132,6 +153,7 @@ const RegisterPage = () => {
     try {
       const response = await register(email, password, confirmPassword);
       showMessage(response.message, "success");
+      // Redirect to the login page after a successful registration.
       setTimeout(() => {
         window.location.href = "/auth/login";
       }, 3000);
@@ -160,7 +182,9 @@ const RegisterPage = () => {
       {/* Right Panel: Register Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center bg-white md:bg-black p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <div className="relative w-full max-w-md p-6 sm:p-8 space-y-3 bg-white rounded-xl shadow-lg">
+          {/* Logo */}
           <img src={Logo} alt="Logo" className="w-20 h-20 mx-auto" />
+          {/* Message display area for success/error alerts */}
           {message && (
             <div
               key={message.id}
@@ -174,6 +198,7 @@ const RegisterPage = () => {
             </div>
           )}
 
+          {/* Form Header */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900">
               Create an Account
@@ -208,6 +233,7 @@ const RegisterPage = () => {
           {/* Register Form */}
           <form onSubmit={handleSubmit} className="space-y-2">
             <div>
+              {/* Email Input Field */}
               <Label htmlFor="email">Email address</Label>
               <Input
                 id="email"
@@ -229,6 +255,7 @@ const RegisterPage = () => {
 
             {/* Password field with toggle */}
             <div className="relative">
+              {/* Password Input Field */}
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -245,6 +272,7 @@ const RegisterPage = () => {
                 }
                 autoComplete="new-password"
               />
+              {/* Password visibility toggle button */}
               <button
                 type="button"
                 className="absolute right-3 top-[35px] text-gray-500"
@@ -263,6 +291,7 @@ const RegisterPage = () => {
 
             {/* Confirm Password field with toggle */}
             <div className="relative">
+              {/* Confirm Password Input Field */}
               <Label htmlFor="confirm-password">Confirm Password</Label>
               <Input
                 id="confirm-password"
@@ -279,6 +308,7 @@ const RegisterPage = () => {
                 }
                 autoComplete="new-password"
               />
+              {/* Confirm password visibility toggle button */}
               <button
                 type="button"
                 className="absolute right-3 top-[35px] text-gray-500"
@@ -297,6 +327,7 @@ const RegisterPage = () => {
               )}
             </div>
             <div>
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -316,6 +347,7 @@ const RegisterPage = () => {
             </div>
           </form>
 
+          {/* Link to the login page */}
           <p className="text-sm text-center text-gray-500">
             Already have an account?{" "}
             <a

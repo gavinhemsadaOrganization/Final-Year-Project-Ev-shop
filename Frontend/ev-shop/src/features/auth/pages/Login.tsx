@@ -5,55 +5,73 @@ import Logo from "@/assets/logo_no-bg.png";
 
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-import Label from "../components/Label";
-import Input from "../components/inputFiled";
+// Import reusable UI components.
+import Label from "../../../components/Label";
+import Input from "../../../components/inputFiled";
 import Loader from "@/components/Loader";
+
+// Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
 import type { UserRole } from "@/context/AuthContext";
 
+// Import React hooks for state, side-effects, and navigation.
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+// Import authentication service functions for API calls.
 import { login, googleLogin, facebookLogin } from "../authService";
 
+// The main component for the login page.
 const LoginPage = () => {
+  // State for form inputs.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // State to hold validation errors for the form fields.
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
   );
+  // State to manage the loading status during async operations (e.g., API calls).
   const [loading, setLoading] = useState(false);
+  // State to toggle password visibility.
   const [showPassword, setShowPassword] = useState(false);
+  // State for displaying feedback messages (e.g., success or error alerts).
   const [message, setMessage] = useState<{
     id: number;
     text: string;
     type: string;
   } | null>(null);
+  // Access the setUserData function from the authentication context.
   const { setUserData } = useAuth();
+  // Hook for programmatic navigation.
   const nav = useNavigate();
 
+  // On component mount, check for and handle any OAuth callback parameters in the URL.
   useEffect(() => {
     handleOAuthCallback();
   }, []);
 
+  // This effect sets a timer to clear any displayed message after 5 seconds.
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(null), 5000);
       return () => clearTimeout(timer); // cleanup if component unmounts
     }
   }, [message]);
-  // Show temporary message
+
+  // Helper function to show a temporary message to the user.
   const showMessage = (text: string, type = "error") => {
     setMessage({ id: Date.now(), text, type });
     setTimeout(() => setMessage(null), 5000);
   };
 
-  // Handle OAuth callback
+  // This function handles the OAuth callback after a user is redirected from Google/Facebook.
+  // It parses user data from the URL, sets the user state, and navigates to the dashboard.
   const handleOAuthCallback = () => {
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userid");
     const role = params.get("role") as UserRole;
     const error = params.get("error");
-    // Clear query parameters immediately
+    // Clean the URL by removing the query parameters.
     window.history.replaceState({}, document.title, window.location.pathname);
 
     if (error) {
@@ -62,6 +80,7 @@ const LoginPage = () => {
     }
 
     if (userId) {
+      // If authentication is successful, set user data and redirect.
       setUserData(userId, [role], { userid: userId });
       showMessage("OAuth authentication successful!", "success");
       setTimeout(() => {
@@ -70,7 +89,7 @@ const LoginPage = () => {
     }
   };
 
-  // Validation function
+  // Validates the email and password fields.
   const validate = (email: string, password: string) => {
     const newErrors: { email?: string; password?: string } = {};
 
@@ -91,6 +110,7 @@ const LoginPage = () => {
     return newErrors;
   };
 
+  // Initiates the OAuth flow for the specified provider (Google or Facebook).
   const handleOAuth = async (provider: string) => {
     setLoading(true);
     try {
@@ -106,6 +126,8 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  // Handles the form submission for standard email/password login.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validate(email, password);
@@ -118,14 +140,18 @@ const LoginPage = () => {
     setErrors({});
     setLoading(true);
     try {
+      // Call the login API service.
       const respons = await login(email, password);
       console.log(respons);
+      // On success, set user data in the context.
       setUserData(respons.user, respons.role, { userid: respons.user });
       showMessage(respons.message, "success");
+      // Redirect to the user dashboard after a short delay.
       setTimeout(() => {
         nav("/user/dashboard", { replace: true });
       }, 2000); // Wait 2 seconds before navigating
     } catch (err: any) {
+      // Handle different types of errors (response error vs. network error).
       if (err.response) {
         showMessage(err.response.data.message || "Login failed", "error");
       } else if (err.request) {
@@ -147,7 +173,9 @@ const LoginPage = () => {
       {/* Right Panel: Login Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center bg-white md:bg-black p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <div className="relative w-full max-w-md p-6 sm:p-8 space-y-6 bg-white rounded-xl shadow-lg">
+          {/* Logo */}
           <img src={Logo} alt="Logo" className="w-20 h-20 mx-auto" />
+          {/* Message display area for success/error alerts */}
           {message && (
             <div
               key={message.id}
@@ -160,6 +188,7 @@ const LoginPage = () => {
               {message.text}
             </div>
           )}
+          {/* Form Header */}
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Welcome Back!
@@ -171,6 +200,7 @@ const LoginPage = () => {
 
           {/* OAuth Buttons */}
           <div className="space-y-3 sm:space-y-4">
+            {/* Google Login Button */}
             <button
               disabled={loading}
               onClick={() => handleOAuth("google")}
@@ -180,6 +210,7 @@ const LoginPage = () => {
               <span className="hidden sm:inline">Continue with Google</span>
               <span className="sm:hidden">Google</span>
             </button>
+            {/* Facebook Login Button */}
             <button
               disabled={loading}
               onClick={() => handleOAuth("facebook")}
@@ -200,6 +231,7 @@ const LoginPage = () => {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+            {/* Email Input Field */}
             <div>
               <Label
                 htmlFor="email"
@@ -225,6 +257,7 @@ const LoginPage = () => {
               )}
             </div>
 
+            {/* Password Input Field */}
             <div>
               <div className="flex items-center justify-between">
                 <Label
@@ -233,6 +266,7 @@ const LoginPage = () => {
                 >
                   Password
                 </Label>
+                {/* Forgot Password Link */}
                 <a
                   href="/auth/forgot-password"
                   className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-500"
@@ -241,6 +275,7 @@ const LoginPage = () => {
                 </a>
               </div>
               <div className="relative">
+                {/* Password Input */}
                 <Input
                   id="password"
                   name="password"
@@ -256,6 +291,7 @@ const LoginPage = () => {
                   }
                   className="mt-1 block w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 />
+                {/* Password visibility toggle button */}
                 <button
                   type="button"
                   disabled={loading}
@@ -275,6 +311,7 @@ const LoginPage = () => {
             </div>
 
             <div>
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -290,6 +327,7 @@ const LoginPage = () => {
             </div>
           </form>
 
+          {/* Link to the registration page */}
           <p className="text-xs sm:text-sm text-center text-gray-500">
             Don't have an account?{" "}
             <a
