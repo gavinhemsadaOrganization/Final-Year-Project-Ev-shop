@@ -170,8 +170,31 @@ apiV1Router.use("/order", protectJWT, orderRouter());
 apiV1Router.use("/payment", paymentLimiter, protectJWT, paymentRouter());
 apiV1Router.use("/ev", protectJWT, evRouter());
 
+// ============================================
+// MONITORING & HEALTH CHECK ENDPOINTS
+// ============================================
 // Initialize monitoring BEFORE your API routes
-// This sets up all monitoring endpoints automatically
+// This sets up all monitoring endpoints automatically:
+//
+// Health & Readiness Checks:
+//   GET /health            - Overall application health status (database, memory)
+//   GET /ready             - Readiness probe (is app ready to receive traffic?)
+//   GET /live              - Liveness probe (is process alive?)
+//
+// Performance & Metrics:
+//   GET /metrics           - Performance metrics (requests, errors, response times, system resources)
+//   GET /status            - Application info (version, environment, uptime, Node version)
+//
+// Detailed Health Checks:
+//   GET /health/database   - Detailed database health (connection pool, response time)
+//   GET /health/sessions   - Session store health (active sessions count)
+//
+// System Resources:
+//   GET /system            - System resources (memory, CPU usage, process info)
+//
+// Note: These endpoints are NOT rate-limited and do NOT require authentication
+// ============================================
+
 initializeMonitoring(app);
 
 // Mount the API version 1 router under the "/api/v1" path
