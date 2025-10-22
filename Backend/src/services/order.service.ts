@@ -1,5 +1,5 @@
 import { CreateOrderDTO, UpdateOrderDTO } from "../dtos/order.DTO";
-import { OrderStatus, PaymentStatus } from "../enum/enum";
+import { OrderStatus, PaymentStatus } from "../shared/enum/enum";
 import { IOrderRepository } from "../repositories/order.repository";
 import CacheService from "./CacheService";
 

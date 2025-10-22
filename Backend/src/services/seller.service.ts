@@ -3,7 +3,7 @@ import { ISellerRepository } from "../repositories/seller.repository";
 import { IUserRepository } from "../repositories/user.repository";
 import { IReviewRepository } from "../repositories/review.repository";
 import CacheService from "./CacheService";
-import { UserRole } from "../enum/enum";
+import { UserRole } from "../shared/enum/enum";
 
 /**
  * Defines the interface for the seller service, outlining the methods for managing seller profiles.

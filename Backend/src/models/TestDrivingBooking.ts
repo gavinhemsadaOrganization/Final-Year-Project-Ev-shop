@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { TestDriveBookingStatus } from "../enum/enum";
+import { TestDriveBookingStatus } from "../shared/enum/enum";
 
 /**
  * Represents a customer's booking for a test drive in the database.

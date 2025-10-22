@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { PaymentStatus, PaymentMethod, PaymentType } from "../enum/enum";
+import { PaymentStatus, PaymentMethod, PaymentType } from "../shared/enum/enum";
 
 /**
  * Represents a payment transaction in the database.

@@ -6,7 +6,7 @@ import {
   Max,
   Min,
 } from "class-validator";
-import { ReviewType } from "../enum/enum";
+import { ReviewType } from "../shared/enum/enum";
 
 /**
  * Data Transfer Object (DTO) for creating or updating a review.

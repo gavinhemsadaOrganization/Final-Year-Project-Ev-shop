@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from "mongoose";
 import bcrypt from "bcrypt";
-import { UserRole } from "../enum/enum";
+import { UserRole } from "../shared/enum/enum";
 
 /**
  * Represents the structure for a One-Time Password (OTP) used for password resets.

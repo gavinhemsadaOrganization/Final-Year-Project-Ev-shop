@@ -4,6 +4,7 @@ import { container } from "tsyringe";
 // ============================================================================
 // REPOSITORY IMPORTS
 // ============================================================================
+import { AuthRepository, IAuthRepository } from "../modules/auth/auth.repository";
 import { IUserRepository, UserRepository } from "../repositories/user.repository";
 import { ICartRepository, CartRepository } from "../repositories/cart.repository";
 import { IChatbotRepository, ChatbotRepository } from "../repositories/chatbot.repository";
@@ -21,6 +22,7 @@ import { ITestDriveRepository, TestDriveRepository } from "../repositories/testD
 // ============================================================================
 // SERVICE IMPORTS
 // ============================================================================
+import { authService, IAuthService } from "../modules/auth/auth.service";
 import { IUserService, userService } from "../services/user.service";
 import { ICartService, cartService } from "../services/cart.service";
 import { IChatbotService, chatbotService } from "../services/chatbot.service";
@@ -38,6 +40,7 @@ import { ITestDriveService, testDriveService } from "../services/testDrive.servi
 // ============================================================================
 // CONTROLLER IMPORTS
 // ============================================================================
+import { authController, IAuthController } from "../modules/auth/auth.controller";
 import { IUserController, userController } from "../controllers/user.controller";
 import { ICartController, cartController } from "../controllers/cart.controller";
 import { IChatbotController, chatbotController } from "../controllers/chatbot.controller";
@@ -62,6 +65,7 @@ import { ITestDriveController, testDriveController } from "../controllers/testDr
 // ============================================================================
 // REPOSITORIES
 // ============================================================================
+container.register<IAuthRepository>("IAuthRepository", { useValue: AuthRepository });
 container.register<IUserRepository>("UserRepository", { useValue: UserRepository });
 container.register<ICartRepository>("CartRepository", { useValue: CartRepository });
 container.register<IChatbotRepository>("ChatbotRepository", { useValue: ChatbotRepository });
@@ -79,6 +83,9 @@ container.register<ITestDriveRepository>("TestDriveRepository", { useValue: Test
 // ============================================================================
 // SERVICES
 // ============================================================================
+container.register<IAuthService>("IAuthService", {
+  useFactory: (c) => authService(c.resolve<IAuthRepository>("IAuthRepository")),
+});
 container.register<IUserService>("UserService", {
   useFactory: (c) => userService(c.resolve<IUserRepository>("UserRepository")),
 });
@@ -176,6 +183,9 @@ container.register<ITestDriveService>("TestDriveService", {
 // ============================================================================
 // CONTROLLERS
 // ============================================================================
+container.register<IAuthController>("IAuthController", {
+  useFactory: (c) => authController(c.resolve<IAuthService>("IAuthService")),
+});
 container.register<IUserController>("UserController", {
   useFactory: (c) => userController(c.resolve<IUserService>("UserService")),
 });

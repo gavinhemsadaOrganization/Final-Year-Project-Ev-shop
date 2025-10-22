@@ -6,7 +6,7 @@ import {
   IsEnum,
   Min,
 } from "class-validator";
-import { OrderStatus, PaymentStatus } from "../enum/enum";
+import { OrderStatus, PaymentStatus } from "../shared/enum/enum";
 
 /**
  * Data Transfer Object (DTO) for creating a new order.

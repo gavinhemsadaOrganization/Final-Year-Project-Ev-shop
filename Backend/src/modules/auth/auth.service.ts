@@ -6,7 +6,7 @@ import {
   OTPverifyDTO,
   ResetPasswordDTO,
 } from "./auth.dto";
-import { sendOtpEmail } from "../shared/utils/Email.util";
+import { sendOtpEmail } from "../../shared/utils/Email.util";
 import crypto from "crypto";
 
 /**

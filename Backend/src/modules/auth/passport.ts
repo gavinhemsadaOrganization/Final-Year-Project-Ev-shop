@@ -7,7 +7,7 @@ import {
 } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
 import { IAuthService } from "./auth.service";
-import { container } from "./auth.di";
+import { container } from "../../di/container";
 import { Request } from "express";
 
 // Retrieve Google OAuth credentials from environment variables.

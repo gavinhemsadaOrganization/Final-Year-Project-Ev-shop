@@ -17,7 +17,7 @@ import {
   FinancingApplicationDTO,
   UpdateFinancingApplicationDTO,
 } from "../dtos/financial.DTO";
-import { ApplicationStatus } from "../enum/enum";
+import { ApplicationStatus } from "../shared/enum/enum";
 import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**

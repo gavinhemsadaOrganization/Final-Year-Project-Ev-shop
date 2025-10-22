@@ -1,5 +1,5 @@
 import { IsString, IsEnum, IsMongoId } from "class-validator";
-import { NotificationType } from "../enum/enum";
+import { NotificationType } from "../shared/enum/enum";
 
 /**
  * Data Transfer Object (DTO) for creating a new notification.

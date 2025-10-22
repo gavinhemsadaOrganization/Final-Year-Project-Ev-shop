@@ -1,4 +1,4 @@
-import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
+import { validateDto } from "../../shared/middlewares/DtoValidator.middleware";
 
 import { Router } from "express";
 import { IAuthController } from "./auth.controller";
@@ -9,7 +9,7 @@ import {
   OTPverifyDTO,
   ResetPasswordDTO,
 } from "./auth.dto";
-import { container } from "./auth.di";
+import { container } from "../../di/container";
 
 /**
  * Factory function that creates and configures the router for authentication-related endpoints.

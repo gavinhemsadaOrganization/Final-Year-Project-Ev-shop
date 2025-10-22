@@ -10,8 +10,8 @@ import {
   afterAll,
 } from "@jest/globals";
 import mongoose, { Types } from "mongoose";
-import { authService, IAuthService } from "../../../src/auth/auth.service";
-import { IAuthRepository } from "../../../src/auth/auth.repository";
+import { authService, IAuthService } from "../../../src//modules/auth/auth.service";
+import { IAuthRepository } from "../../../src//modules/auth/auth.repository";
 import { IUser } from "../../../src/models/User";
 import {
   RegisterDto,
@@ -19,8 +19,8 @@ import {
   ForgetPasswordDTO,
   OTPverifyDTO,
   ResetPasswordDTO,
-} from "../../../src/auth/auth.dto";
-import { UserRole } from "../../../src/enum/enum";
+} from "../../../src//modules/auth/auth.dto";
+import { UserRole } from "../../../src/shared/enum/enum";
 
 // Mock external dependencies
 jest.mock("../../../src/utils/Email.util", () => ({
@@ -28,7 +28,7 @@ jest.mock("../../../src/utils/Email.util", () => ({
 }));
 
 // Import the mocked function
-import { sendOtpEmail } from "../../../src/utils/Email.util";
+import { sendOtpEmail } from "../../../src/shared/utils/Email.util";
 
 // A more type-safe helper for creating mock user documents
 const createMockUserDocument = (

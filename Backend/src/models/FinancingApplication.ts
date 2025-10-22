@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { ApplicationStatus } from "../enum/enum";
+import { ApplicationStatus } from "../shared/enum/enum";
 
 /**
  * Represents a user's application for a financial product.

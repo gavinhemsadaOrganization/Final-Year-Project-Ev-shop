@@ -9,7 +9,7 @@ import {
   IsEnum,
 } from "class-validator";
 import { Type } from "class-transformer";
-import { TestDriveBookingStatus } from "../enum/enum";
+import { TestDriveBookingStatus } from "../shared/enum/enum";
 
 /**
  * Data Transfer Object (DTO) for creating or updating a test drive slot.

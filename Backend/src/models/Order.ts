@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { OrderStatus } from "../enum/enum";
+import { OrderStatus } from "../shared/enum/enum";
 
 /**
  * Represents a customer's order in the database.

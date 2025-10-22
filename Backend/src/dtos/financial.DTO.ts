@@ -14,7 +14,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Type, Transform } from "class-transformer";
-import { ApplicationStatus } from "../enum/enum";
+import { ApplicationStatus } from "../shared/enum/enum";
 
 /**
  * Data Transfer Object (DTO) for creating or updating a financial institution.

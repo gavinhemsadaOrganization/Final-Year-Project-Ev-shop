@@ -9,7 +9,7 @@ import {
 } from "./auth.dto";
 import { initializePassport } from "./passport";
 import Jwt from "jsonwebtoken";
-import logger from "../shared/utils/logger";
+import logger from "../../shared/utils/logger";
 
 /**
  * Defines the contract for the authentication controller, specifying methods for handling all authentication-related HTTP requests.

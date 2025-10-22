@@ -1,7 +1,7 @@
 import { CreatePaymentDTO } from "../dtos/payment.DTO";
 import { IPaymentRepository } from "../repositories/payment.repository";
 import { IOrderRepository } from "../repositories/order.repository";
-import { PaymentStatus } from "../enum/enum";
+import { PaymentStatus } from "../shared/enum/enum";
 import {
   createPaymentRequest,
   singelLineAddress,

@@ -6,7 +6,7 @@ import {
 import { ITestDriveRepository } from "../repositories/testDrive.repository";
 import { ISellerRepository } from "../repositories/seller.repository";
 import { IEvRepository } from "../repositories/ev.repository";
-import { TestDriveBookingStatus } from "../enum/enum";
+import { TestDriveBookingStatus } from "../shared/enum/enum";
 import CacheService from "./CacheService";
 
 /**

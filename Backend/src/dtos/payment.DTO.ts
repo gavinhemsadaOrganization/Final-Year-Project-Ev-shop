@@ -6,7 +6,7 @@ import {
   IsOptional,
   Min,
 } from "class-validator";
-import { PaymentStatus, PaymentType } from "../enum/enum";
+import { PaymentStatus, PaymentType } from "../shared/enum/enum";
 
 /**
  * Data Transfer Object (DTO) for creating a new payment session.

@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { NotificationType } from "../enum/enum";
+import { NotificationType } from "../shared/enum/enum";
 
 /**
  * Represents a user notification in the database.

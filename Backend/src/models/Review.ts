@@ -1,5 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { ReviewType } from "../enum/enum";
+import { ReviewType } from "../shared/enum/enum";
 
 /**
  * Represents a user-submitted review in the database.

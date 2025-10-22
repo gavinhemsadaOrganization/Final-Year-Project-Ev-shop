@@ -6,8 +6,8 @@ import bodyParser from "body-parser";
 import rateLimit from "express-rate-limit";
 
 // Oauth related imports
-import { initializePassport } from "./auth/passport";
-import "./auth/passport";
+import { initializePassport } from "./modules/auth/passport";
+import "./modules/auth/passport";
 
 // Session management imports
 import connectMongo from "connect-mongo";
@@ -21,7 +21,7 @@ import path from "path";
 import { protectJWT } from "./shared/middlewares/Jwt.middleware";
 
 // Import all defined API routers
-import { authRouter } from "./auth/auth.router";
+import { authRouter } from "./modules/auth/auth.router";
 import { userRouter } from "./routers/user.router";
 import { notificationRouter } from "./routers/notification.router";
 import { chatbotRouter } from "./routers/chatbot.router";

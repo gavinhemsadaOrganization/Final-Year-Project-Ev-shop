@@ -1,5 +1,9 @@
 import { Schema, model, Document, Types } from "mongoose";
-import { ListingType, VehicleCondition, ListingStatus } from "../enum/enum";
+import {
+  ListingType,
+  VehicleCondition,
+  ListingStatus,
+} from "../shared/enum/enum";
 
 /**
  * Represents a vehicle listing in the database.

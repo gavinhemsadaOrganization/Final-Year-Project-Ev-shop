@@ -9,7 +9,7 @@ import {
   Max,
   IsMongoId,
 } from "class-validator";
-import { ListingType, VehicleCondition } from "../enum/enum";
+import { ListingType, VehicleCondition } from "../shared/enum/enum";
 
 // --- Brand DTOs ---
 /**

@@ -1,5 +1,5 @@
-import { IUser, User } from "../models/User";
-import { withErrorHandling } from "../shared/utils/CustomException";
+import { IUser, User } from "../../models/User";
+import { withErrorHandling } from "../../shared/utils/CustomException";
 
 export interface IAuthRepository {
   /**
