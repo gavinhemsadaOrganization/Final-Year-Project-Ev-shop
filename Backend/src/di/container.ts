@@ -4,60 +4,162 @@ import { container } from "tsyringe";
 // ============================================================================
 // REPOSITORY IMPORTS
 // ============================================================================
-import { AuthRepository, IAuthRepository } from "../modules/auth/auth.repository";
-import { IUserRepository, UserRepository } from "../repositories/user.repository";
-import { ICartRepository, CartRepository } from "../repositories/cart.repository";
-import { IChatbotRepository, ChatbotRepository } from "../repositories/chatbot.repository";
-import { IEvRepository, EvRepository } from "../repositories/ev.repository";
-import { IFinancialRepository, FinancialRepository } from "../repositories/financial.repository";
-import { IMaintenanceRecordRepository, MaintenanceRecordRepository } from "../repositories/maintenanceRecord.repository";
-import { INotificationRepository, NotificationRepository } from "../repositories/notification.repository";
-import { IOrderRepository, OrderRepository } from "../repositories/order.repository";
-import { IPaymentRepository, PaymentRepository } from "../repositories/payment.repository";
-import { IPostRepository, PostRepository } from "../repositories/post.repository";
-import { IReviewRepository, ReviewRepository } from "../repositories/review.repository";
-import { ISellerRepository, SellerRepository } from "../repositories/seller.repository";
-import { ITestDriveRepository, TestDriveRepository } from "../repositories/testDrive.repository";
+import {
+  AuthRepository,
+  IAuthRepository,
+} from "../modules/auth/auth.repository";
+import {
+  IUserRepository,
+  UserRepository,
+} from "../modules/user/user.repository";
+import {
+  ICartRepository,
+  CartRepository,
+} from "../modules/cart/cart.repository";
+import {
+  IChatbotRepository,
+  ChatbotRepository,
+} from "../modules/chatbot/chatbot.repository";
+import { IEvRepository, EvRepository } from "../modules/ev/ev.repository";
+import {
+  IFinancialRepository,
+  FinancialRepository,
+} from "../modules/financial/financial.repository";
+import {
+  IMaintenanceRecordRepository,
+  MaintenanceRecordRepository,
+} from "../modules/maintenanceRecord/maintenanceRecord.repository";
+import {
+  INotificationRepository,
+  NotificationRepository,
+} from "../modules/notification/notification.repository";
+import {
+  IOrderRepository,
+  OrderRepository,
+} from "../modules/order/order.repository";
+import {
+  IPaymentRepository,
+  PaymentRepository,
+} from "../modules/payment/payment.repository";
+import {
+  IPostRepository,
+  PostRepository,
+} from "../modules/post/post.repository";
+import {
+  IReviewRepository,
+  ReviewRepository,
+} from "../modules/review/review.repository";
+import {
+  ISellerRepository,
+  SellerRepository,
+} from "../modules/seller/seller.repository";
+import {
+  ITestDriveRepository,
+  TestDriveRepository,
+} from "../modules/testDrive/testDrive.repository";
 
 // ============================================================================
 // SERVICE IMPORTS
 // ============================================================================
 import { authService, IAuthService } from "../modules/auth/auth.service";
-import { IUserService, userService } from "../services/user.service";
-import { ICartService, cartService } from "../services/cart.service";
-import { IChatbotService, chatbotService } from "../services/chatbot.service";
-import { IEvService, evService } from "../services/ev.service";
-import { IFinancialService, financialService } from "../services/financial.service";
-import { IMaintenanceRecordService, maintenanceRecordService } from "../services/maintenanceRecord.service";
-import { INotificationService, notificationService } from "../services/notification.service";
-import { IOrderService, orderService } from "../services/order.service";
-import { IPaymentService, paymentService } from "../services/payment.service";
-import { IPostService, postService } from "../services/post.service";
-import { IReviewService, reviewService } from "../services/review.service";
-import { ISellerService, sellerService } from "../services/seller.service";
-import { ITestDriveService, testDriveService } from "../services/testDrive.service";
+import { IUserService, userService } from "../modules/user/user.service";
+import { ICartService, cartService } from "../modules/cart/cart.service";
+import {
+  IChatbotService,
+  chatbotService,
+} from "../modules/chatbot/chatbot.service";
+import { IEvService, evService } from "../modules/ev/ev.service";
+import {
+  IFinancialService,
+  financialService,
+} from "../modules/financial/financial.service";
+import {
+  IMaintenanceRecordService,
+  maintenanceRecordService,
+} from "../modules/maintenanceRecord/maintenanceRecord.service";
+import {
+  INotificationService,
+  notificationService,
+} from "../modules/notification/notification.service";
+import { IOrderService, orderService } from "../modules/order/order.service";
+import {
+  IPaymentService,
+  paymentService,
+} from "../modules/payment/payment.service";
+import { IPostService, postService } from "../modules/post/post.service";
+import {
+  IReviewService,
+  reviewService,
+} from "../modules/review/review.service";
+import {
+  ISellerService,
+  sellerService,
+} from "../modules/seller/seller.service";
+import {
+  ITestDriveService,
+  testDriveService,
+} from "../modules/testDrive/testDrive.service";
 
 // ============================================================================
 // CONTROLLER IMPORTS
 // ============================================================================
-import { authController, IAuthController } from "../modules/auth/auth.controller";
-import { IUserController, userController } from "../controllers/user.controller";
-import { ICartController, cartController } from "../controllers/cart.controller";
-import { IChatbotController, chatbotController } from "../controllers/chatbot.controller";
-import { IEvController, evController } from "../controllers/ev.controller";
-import { IFinancialController, financialController } from "../controllers/financial.controller";
-import { IMaintenanceRecordController, maintenanceRecordController } from "../controllers/maintenanceRecord.controller";
-import { INotificationController, notificationController } from "../controllers/notification.controller";
-import { IOrderController, orderController } from "../controllers/order.controller";
-import { IPaymentController, paymentController } from "../controllers/payment.controller";
-import { IPostController, postController } from "../controllers/post.controller";
-import { IReviewController, reviewController } from "../controllers/review.controller";
-import { ISellerController, sellerController } from "../controllers/seller.controller";
-import { ITestDriveController, testDriveController } from "../controllers/testDrive.controller";
+import {
+  authController,
+  IAuthController,
+} from "../modules/auth/auth.controller";
+import {
+  IUserController,
+  userController,
+} from "../modules/user/user.controller";
+import {
+  ICartController,
+  cartController,
+} from "../modules/cart/cart.controller";
+import {
+  IChatbotController,
+  chatbotController,
+} from "../modules/chatbot/chatbot.controller";
+import { IEvController, evController } from "../modules/ev/ev.controller";
+import {
+  IFinancialController,
+  financialController,
+} from "../modules/financial/financial.controller";
+import {
+  IMaintenanceRecordController,
+  maintenanceRecordController,
+} from "../modules/maintenanceRecord/maintenanceRecord.controller";
+import {
+  INotificationController,
+  notificationController,
+} from "../modules/notification/notification.controller";
+import {
+  IOrderController,
+  orderController,
+} from "../modules/order/order.controller";
+import {
+  IPaymentController,
+  paymentController,
+} from "../modules/payment/payment.controller";
+import {
+  IPostController,
+  postController,
+} from "../modules/post/post.controller";
+import {
+  IReviewController,
+  reviewController,
+} from "../modules/review/review.controller";
+import {
+  ISellerController,
+  sellerController,
+} from "../modules/seller/seller.controller";
+import {
+  ITestDriveController,
+  testDriveController,
+} from "../modules/testDrive/testDrive.controller";
 
 /**
  * Central Dependency Injection Container
- * 
+ *
  * Registers all application dependencies using tsyringe.
  * Organized by layer: Repositories → Services → Controllers
  */
@@ -65,20 +167,47 @@ import { ITestDriveController, testDriveController } from "../controllers/testDr
 // ============================================================================
 // REPOSITORIES
 // ============================================================================
-container.register<IAuthRepository>("IAuthRepository", { useValue: AuthRepository });
-container.register<IUserRepository>("UserRepository", { useValue: UserRepository });
-container.register<ICartRepository>("CartRepository", { useValue: CartRepository });
-container.register<IChatbotRepository>("ChatbotRepository", { useValue: ChatbotRepository });
+container.register<IAuthRepository>("IAuthRepository", {
+  useValue: AuthRepository,
+});
+container.register<IUserRepository>("UserRepository", {
+  useValue: UserRepository,
+});
+container.register<ICartRepository>("CartRepository", {
+  useValue: CartRepository,
+});
+container.register<IChatbotRepository>("ChatbotRepository", {
+  useValue: ChatbotRepository,
+});
 container.register<IEvRepository>("EvRepository", { useValue: EvRepository });
-container.register<IFinancialRepository>("FinancialRepository", { useValue: FinancialRepository });
-container.register<IMaintenanceRecordRepository>("MaintenanceRecordRepository", { useValue: MaintenanceRecordRepository });
-container.register<INotificationRepository>("NotificationRepository", { useValue: NotificationRepository });
-container.register<IOrderRepository>("OrderRepository", { useValue: OrderRepository });
-container.register<IPaymentRepository>("PaymentRepository", { useValue: PaymentRepository });
-container.register<IPostRepository>("PostRepository", { useValue: PostRepository });
-container.register<IReviewRepository>("ReviewRepository", { useValue: ReviewRepository });
-container.register<ISellerRepository>("SellerRepository", { useValue: SellerRepository });
-container.register<ITestDriveRepository>("TestDriveRepository", { useValue: TestDriveRepository });
+container.register<IFinancialRepository>("FinancialRepository", {
+  useValue: FinancialRepository,
+});
+container.register<IMaintenanceRecordRepository>(
+  "MaintenanceRecordRepository",
+  { useValue: MaintenanceRecordRepository }
+);
+container.register<INotificationRepository>("NotificationRepository", {
+  useValue: NotificationRepository,
+});
+container.register<IOrderRepository>("OrderRepository", {
+  useValue: OrderRepository,
+});
+container.register<IPaymentRepository>("PaymentRepository", {
+  useValue: PaymentRepository,
+});
+container.register<IPostRepository>("PostRepository", {
+  useValue: PostRepository,
+});
+container.register<IReviewRepository>("ReviewRepository", {
+  useValue: ReviewRepository,
+});
+container.register<ISellerRepository>("SellerRepository", {
+  useValue: SellerRepository,
+});
+container.register<ITestDriveRepository>("TestDriveRepository", {
+  useValue: TestDriveRepository,
+});
 
 // ============================================================================
 // SERVICES
@@ -135,7 +264,8 @@ container.register<INotificationService>("NotificationService", {
 });
 
 container.register<IOrderService>("OrderService", {
-  useFactory: (c) => orderService(c.resolve<IOrderRepository>("OrderRepository")),
+  useFactory: (c) =>
+    orderService(c.resolve<IOrderRepository>("OrderRepository")),
 });
 
 container.register<IPaymentService>("PaymentService", {
@@ -195,7 +325,8 @@ container.register<ICartController>("CartController", {
 });
 
 container.register<IChatbotController>("ChatbotController", {
-  useFactory: (c) => chatbotController(c.resolve<IChatbotService>("ChatbotService")),
+  useFactory: (c) =>
+    chatbotController(c.resolve<IChatbotService>("ChatbotService")),
 });
 
 container.register<IEvController>("EvController", {
@@ -203,16 +334,25 @@ container.register<IEvController>("EvController", {
 });
 
 container.register<IFinancialController>("FinancialController", {
-  useFactory: (c) => financialController(c.resolve<IFinancialService>("FinancialService")),
+  useFactory: (c) =>
+    financialController(c.resolve<IFinancialService>("FinancialService")),
 });
 
-container.register<IMaintenanceRecordController>("MaintenanceRecordController", {
-  useFactory: (c) =>
-    maintenanceRecordController(c.resolve<IMaintenanceRecordService>("MaintenanceRecordService")),
-});
+container.register<IMaintenanceRecordController>(
+  "MaintenanceRecordController",
+  {
+    useFactory: (c) =>
+      maintenanceRecordController(
+        c.resolve<IMaintenanceRecordService>("MaintenanceRecordService")
+      ),
+  }
+);
 
 container.register<INotificationController>("NotificationController", {
-  useFactory: (c) => notificationController(c.resolve<INotificationService>("NotificationService")),
+  useFactory: (c) =>
+    notificationController(
+      c.resolve<INotificationService>("NotificationService")
+    ),
 });
 
 container.register<IOrderController>("OrderController", {
@@ -220,7 +360,8 @@ container.register<IOrderController>("OrderController", {
 });
 
 container.register<IPaymentController>("PaymentController", {
-  useFactory: (c) => paymentController(c.resolve<IPaymentService>("PaymentService")),
+  useFactory: (c) =>
+    paymentController(c.resolve<IPaymentService>("PaymentService")),
 });
 
 container.register<IPostController>("PostController", {
@@ -228,15 +369,18 @@ container.register<IPostController>("PostController", {
 });
 
 container.register<IReviewController>("ReviewController", {
-  useFactory: (c) => reviewController(c.resolve<IReviewService>("ReviewService")),
+  useFactory: (c) =>
+    reviewController(c.resolve<IReviewService>("ReviewService")),
 });
 
 container.register<ISellerController>("SellerController", {
-  useFactory: (c) => sellerController(c.resolve<ISellerService>("SellerService")),
+  useFactory: (c) =>
+    sellerController(c.resolve<ISellerService>("SellerService")),
 });
 
 container.register<ITestDriveController>("TestDriveController", {
-  useFactory: (c) => testDriveController(c.resolve<ITestDriveService>("TestDriveService")),
+  useFactory: (c) =>
+    testDriveController(c.resolve<ITestDriveService>("TestDriveService")),
 });
 
 export { container };

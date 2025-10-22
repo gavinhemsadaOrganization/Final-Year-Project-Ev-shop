@@ -22,19 +22,19 @@ import { protectJWT } from "./shared/middlewares/Jwt.middleware";
 
 // Import all defined API routers
 import { authRouter } from "./modules/auth/auth.router";
-import { userRouter } from "./routers/user.router";
-import { notificationRouter } from "./routers/notification.router";
-import { chatbotRouter } from "./routers/chatbot.router";
-import { postRouter } from "./routers/post.router";
-import { reviewRouter } from "./routers/review.router";
-import { testDriveRouter } from "./routers/testDrive.router";
-import { cartRouter } from "./routers/cart.router";
-import { financialRouter } from "./routers/financial.router";
-import { sellerRouter } from "./routers/seller.router";
-import { maintenanceRecordRouter } from "./routers/maintenanceRecord.router";
-import { orderRouter } from "./routers/order.router";
-import { paymentRouter } from "./routers/payment.router";
-import { evRouter } from "./routers/ev.router";
+import { userRouter } from "./modules/user/user.router";
+import { notificationRouter } from "./modules/notification/notification.router";
+import { chatbotRouter } from "./modules/chatbot/chatbot.router";
+import { postRouter } from "./modules/post/post.router";
+import { reviewRouter } from "./modules/review/review.router";
+import { testDriveRouter } from "./modules/testDrive/testDrive.router";
+import { cartRouter } from "./modules/cart/cart.router";
+import { financialRouter } from "./modules/financial/financial.router";
+import { sellerRouter } from "./modules/seller/seller.router";
+import { maintenanceRecordRouter } from "./modules/maintenanceRecord/maintenanceRecord.router";
+import { orderRouter } from "./modules/order/order.router";
+import { paymentRouter } from "./modules/payment/payment.router";
+import { evRouter } from "./modules/ev/ev.router";
 
 // Logging utilities
 import morgan from "morgan";
