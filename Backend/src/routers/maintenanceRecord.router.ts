@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { container } from "tsyringe";
 import { validateDto } from "../middlewares/DtoValidator.middleware";
 import {
   MaintenanceRecordDTO,
   UpdateMaintenanceRecordDTO,
 } from "../dtos/maintenanceRecord.DTO";
 import { IMaintenanceRecordController } from "../controllers/maintenanceRecord.controller";
-import "../di/maintenanceRecord.di";
+import { container } from "../di/container";
 
 /**
  * Factory function that creates and configures the router for maintenance record-related endpoints.

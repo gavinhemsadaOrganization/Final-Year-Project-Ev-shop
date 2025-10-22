@@ -1,9 +1,8 @@
 import { Router } from "express";
-import { container } from "tsyringe";
 import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { CreatePaymentDTO } from "../dtos/payment.DTO";
 import { IPaymentController } from "../controllers/payment.controller";
-import "../di/payment.di";
+import { container } from "../di/container";
 
 /**
  * Factory function that creates and configures the router for payment-related endpoints.

@@ -2,7 +2,7 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { INotificationController } from "../controllers/notification.controller";
 import { NotificationDTO } from "../dtos/notification.DTO";
-import { container } from "../di/notification.di";
+import { container } from "../di/container";
 
 /**
  * Factory function that creates and configures the router for notification-related endpoints.

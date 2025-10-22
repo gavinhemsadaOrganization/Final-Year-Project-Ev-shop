@@ -2,7 +2,7 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { IPostController } from "../controllers/post.controller";
 import { PostDTO, PostReplyDTO } from "../dtos/post.DTO";
-import { container } from "../di/post.di";
+import { container } from "../di/container";
 
 /**
  * Factory function that creates and configures the router for forum post-related endpoints.

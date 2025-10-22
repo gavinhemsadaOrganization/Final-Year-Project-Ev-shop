@@ -2,7 +2,7 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { IUserController } from "../controllers/user.controller";
 import { UserDTO } from "../dtos/user.DTO";
-import { container } from "../di/user.di";
+import { container } from "../di/container";
 import { upload } from "../utils/imageHandel";
 
 /**

@@ -1,9 +1,8 @@
 import { Router } from "express";
-import { container } from "tsyringe";
 import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { CreateOrderDTO, UpdateOrderDTO } from "../dtos/order.DTO";
 import { IOrderController } from "../controllers/order.controller";
-import "../di/order.di";
+import { container } from "../di/container";
 
 /**
  * Factory function that creates and configures the router for order-related endpoints.

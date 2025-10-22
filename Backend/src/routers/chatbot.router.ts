@@ -2,7 +2,7 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { IChatbotController } from "../controllers/chatbot.controller";
 import { ChatbotConversationDTO, PredictionDTO } from "../dtos/chatbot.DTO";
-import { container } from "../di/chatbot.di";
+import { container } from "../di/container";
 
 /**
  * Factory function that creates and configures the router for chatbot-related endpoints.

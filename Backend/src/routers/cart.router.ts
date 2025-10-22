@@ -1,9 +1,8 @@
 import { Router } from "express";
-import { container } from "tsyringe";
 import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { CartItemDTO, UpdateCartItemDTO } from "../dtos/cart.DTO";
 import { ICartController } from "../controllers/cart.controller";
-import "../di/cart.di";
+import { container } from "../di/container";
 
 /**
  * Factory function that creates and configures the router for shopping cart-related endpoints.

@@ -5,7 +5,7 @@ import {
   TestDriveSlotDTO,
   FeedbackDTO,
 } from "../dtos/testDrive.DTO";
-import { container } from "../di/testDrive.di";
+import { container } from "../di/container";
 import { ITestDriveController } from "../controllers/testDrive.controller";
 
 /**

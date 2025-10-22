@@ -2,7 +2,7 @@ import { validateDto } from "../middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { IReviewController } from "../controllers/review.controller";
 import { ReviewDTO } from "../dtos/review.DTO";
-import { container } from "../di/review.di";
+import { container } from "../di/container";
 
 /**
  * Factory function that creates and configures the router for review-related endpoints.

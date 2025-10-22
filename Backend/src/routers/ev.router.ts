@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { container } from "tsyringe";
 import { validateDto } from "../middlewares/DtoValidator.middleware";
 import {
   EvBrandDTO,
@@ -9,7 +8,7 @@ import {
   UpdateVehicleListingDTO,
 } from "../dtos/ev.DTO";
 import { IEvController } from "../controllers/ev.controller";
-import "../di/ev.di";
+import { container } from "../di/container";
 import { upload } from "../utils/imageHandel";
 
 /**

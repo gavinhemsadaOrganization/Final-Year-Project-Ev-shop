@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { container } from "tsyringe";
 import { validateDto } from "../middlewares/DtoValidator.middleware";
 import {
   FinancialInstitutionDTO,
@@ -8,7 +7,7 @@ import {
   UpdateFinancingApplicationDTO,
 } from "../dtos/financial.DTO";
 import { IFinancialController } from "../controllers/financial.controller";
-import "../di/financial.di";
+import { container } from "../di/container";
 import { upload } from "../utils/fileHandel";
 
 /**
