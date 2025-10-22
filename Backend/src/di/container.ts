@@ -28,7 +28,7 @@ import {
 import {
   IMaintenanceRecordRepository,
   MaintenanceRecordRepository,
-} from "../modules/maintenanceRecord/maintenanceRecord.repository";
+} from "../modules/maintenance_record/maintenanceRecord.repository";
 import {
   INotificationRepository,
   NotificationRepository,
@@ -76,7 +76,7 @@ import {
 import {
   IMaintenanceRecordService,
   maintenanceRecordService,
-} from "../modules/maintenanceRecord/maintenanceRecord.service";
+} from "../modules/maintenance_record/maintenanceRecord.service";
 import {
   INotificationService,
   notificationService,
@@ -127,7 +127,7 @@ import {
 import {
   IMaintenanceRecordController,
   maintenanceRecordController,
-} from "../modules/maintenanceRecord/maintenanceRecord.controller";
+} from "../modules/maintenance_record/maintenanceRecord.controller";
 import {
   INotificationController,
   notificationController,

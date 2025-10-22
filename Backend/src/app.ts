@@ -31,7 +31,7 @@ import { testDriveRouter } from "./modules/testDrive/testDrive.router";
 import { cartRouter } from "./modules/cart/cart.router";
 import { financialRouter } from "./modules/financial/financial.router";
 import { sellerRouter } from "./modules/seller/seller.router";
-import { maintenanceRecordRouter } from "./modules/maintenanceRecord/maintenanceRecord.router";
+import { maintenanceRecordRouter } from "./modules/maintenance_record/maintenanceRecord.router";
 import { orderRouter } from "./modules/order/order.router";
 import { paymentRouter } from "./modules/payment/payment.router";
 import { evRouter } from "./modules/ev/ev.router";
