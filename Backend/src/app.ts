@@ -43,6 +43,10 @@ import logger from "./shared/utils/logger";
 // Monitoring initialization function
 import { initializeMonitoring } from "./monitoring";
 
+// Swagger documentation setup
+import { swaggerSpec } from './config/swagger.config';
+import swaggerUi from 'swagger-ui-express';
+
 // Initialize the Express application
 const app: Express = express();
 
@@ -216,6 +220,13 @@ app.get("/images/:filename", (req, res) => {
     res.status(404).json({ error: "Image not found" });
   }
 });
+
+// Swagger Documentation Route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Ev-shop API Documentation',
+}));
 
 // Global Error Handling Middleware
 // This middleware catches any errors that occur during request processing

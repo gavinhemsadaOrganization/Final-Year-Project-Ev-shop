@@ -18,19 +18,63 @@ import { upload } from "../../shared/utils/imageHandel";
  *
  * @returns The configured Express Router for the EV catalog.
  */
+/**
+ * @swagger
+ * tags:
+ *   - name: EV Brands
+ *     description: Operations related to EV brands
+ *   - name: EV Categories
+ *     description: Operations related to EV categories
+ *   - name: EV Models
+ *     description: Operations related to EV models
+ *   - name: EV Listings
+ *     description: Operations related to vehicle listings for sale
+ */
 export const evRouter = (): Router => {
   const router = Router();
   // Resolve the EV controller from the DI container.
   const controller = container.resolve<IEvController>("EvController");
 
   // --- Brand Routes ---
-
   /**
-   * @route POST /api/ev/brands
-   * @description Creates a new EV brand.
-   * @middleware upload.single("brand_logo") - Handles a single file upload for the brand's logo.
-   * @middleware validateDto(EvBrandDTO) - Validates the request body.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/brands:
+   *   post:
+   *     summary: Create a new EV brand
+   *     description: Creates a new EV brand with a logo. Requires admin privileges.
+   *     tags: [EV Brands]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               brand_name:
+   *                 type: string
+   *                 example: "Tesla"
+   *               brand_logo:
+   *                 type: string
+   *                 format: binary
+   *                 description: The logo image file for the brand.
+   *     responses:
+   *       '201':
+   *         description: Brand created successfully.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success: { type: boolean, example: true }
+   *                 brand: { type: object } # Ideally $ref to a Brand schema
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.post(
     "/brands",
@@ -40,25 +84,97 @@ export const evRouter = (): Router => {
   );
 
   /**
-   * @route GET /api/ev/brands
-   * @description Retrieves a list of all EV brands.
-   * @access Public
+   * @swagger
+   * /ev/brands:
+   *   get:
+   *     summary: Get all EV brands
+   *     description: Retrieves a list of all available EV brands.
+   *     tags: [EV Brands]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       '200':
+   *         description: A list of brands.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success: { type: boolean, example: true }
+   *                 brands: { type: array, items: { type: object } }
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/brands", (req, res) => controller.getAllBrands(req, res));
 
   /**
-   * @route GET /api/ev/brands/:id
-   * @description Retrieves a single EV brand by its unique ID.
-   * @access Public
+   * @swagger
+   * /ev/brands/{id}:
+   *   get:
+   *     summary: Get an EV brand by ID
+   *     description: Retrieves a single EV brand by its unique ID.
+   *     tags: [EV Brands]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the brand to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Brand details.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Brand not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/brands/:id", (req, res) => controller.getById(req, res));
 
   /**
-   * @route PUT /api/ev/brands/:id
-   * @description Updates an existing EV brand.
-   * @middleware upload.single("brand_logo") - Handles an optional file upload for updating the brand's logo.
-   * @middleware validateDto(EvBrandDTO) - Validates the request body.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/brands/{id}:
+   *   put:
+   *     summary: Update an EV brand
+   *     description: Updates an existing EV brand's details and/or logo. Requires admin privileges.
+   *     tags: [EV Brands]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the brand to update.
+   *     requestBody:
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               brand_name:
+   *                 type: string
+   *               brand_logo:
+   *                 type: string
+   *                 format: binary
+   *     responses:
+   *       '200':
+   *         description: Brand updated successfully.
+   *       '400':
+   *         description: Bad request.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Brand not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put(
     "/brands/:id",
@@ -68,56 +184,178 @@ export const evRouter = (): Router => {
   );
 
   /**
-   * @route DELETE /api/ev/brands/:id
-   * @description Deletes an EV brand by its unique ID.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/brands/{id}:
+   *   delete:
+   *     summary: Delete an EV brand
+   *     description: Deletes an EV brand by its unique ID. Requires admin privileges.
+   *     tags: [EV Brands]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the brand to delete.
+   *     responses:
+   *       '200':
+   *         description: Brand deleted successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Brand not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.delete("/brands/:id", (req, res) => controller.deleteBrand(req, res));
 
   // --- Category Routes ---
 
   /**
-   * @route POST /api/ev/categories
-   * @description Creates a new EV category.
-   * @middleware validateDto(EvCategoryDTO) - Validates the request body.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/categories:
+   *   post:
+   *     summary: Create a new EV category
+   *     description: Creates a new EV category (e.g., SUV, Sedan). Requires admin privileges.
+   *     tags: [EV Categories]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/EvCategoryDTO'
+   *     responses:
+   *       '201':
+   *         description: Category created successfully.
+   *       '400':
+   *         description: Bad request.
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.post("/categories", validateDto(EvCategoryDTO), (req, res) =>
     controller.createCategory(req, res)
   );
 
   /**
-   * @route GET /api/ev/categories
-   * @description Retrieves a list of all EV categories.
-   * @access Public
+   * @swagger
+   * /ev/categories:
+   *   get:
+   *     summary: Get all EV categories
+   *     description: Retrieves a list of all available EV categories.
+   *     tags: [EV Categories]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       '200':
+   *         description: A list of categories.
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/categories", (req, res) =>
     controller.getAllCategories(req, res)
   );
 
   /**
-   * @route GET /api/ev/categories/:id
-   * @description Retrieves a single EV category by its unique ID.
-   * @access Public
+   * @swagger
+   * /ev/categories/{id}:
+   *   get:
+   *     summary: Get an EV category by ID
+   *     description: Retrieves a single EV category by its unique ID.
+   *     tags: [EV Categories]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the category to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Category details.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Category not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/categories/:id", (req, res) =>
     controller.getCategoryByid(req, res)
   );
 
   /**
-   * @route PUT /api/ev/categories/:id
-   * @description Updates an existing EV category.
-   * @middleware validateDto(EvCategoryDTO) - Validates the request body.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/categories/{id}:
+   *   put:
+   *     summary: Update an EV category
+   *     description: Updates an existing EV category. Requires admin privileges.
+   *     tags: [EV Categories]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the category to update.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/EvCategoryDTO'
+   *     responses:
+   *       '200':
+   *         description: Category updated successfully.
+   *       '400':
+   *         description: Bad request.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Category not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put("/categories/:id", validateDto(EvCategoryDTO), (req, res) =>
     controller.updateCategory(req, res)
   );
 
   /**
-   * @route DELETE /api/ev/categories/:id
-   * @description Deletes an EV category by its unique ID.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/categories/{id}:
+   *   delete:
+   *     summary: Delete an EV category
+   *     description: Deletes an EV category by its unique ID. Requires admin privileges.
+   *     tags: [EV Categories]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the category to delete.
+   *     responses:
+   *       '200':
+   *         description: Category deleted successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Category not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.delete("/categories/:id", (req, res) =>
     controller.deleteCategory(req, res)
@@ -126,11 +364,29 @@ export const evRouter = (): Router => {
   // --- Model Routes ---
 
   /**
-   * @route POST /api/ev/models
-   * @description Creates a new EV model.
-   * @middleware upload.array("images", 5) - Handles up to 5 file uploads for model images.
-   * @middleware validateDto(EvModelDTO) - Validates the request body.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/models:
+   *   post:
+   *     summary: Create a new EV model
+   *     description: Creates a new EV model with images. Requires admin privileges.
+   *     tags: [EV Models]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             $ref: '#/components/schemas/EvModelDTO'
+   *     responses:
+   *       '201':
+   *         description: Model created successfully.
+   *       '400':
+   *         description: Bad request.
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.post(
     "/models",
@@ -140,25 +396,84 @@ export const evRouter = (): Router => {
   );
 
   /**
-   * @route GET /api/ev/models
-   * @description Retrieves a list of all EV models.
-   * @access Public
+   * @swagger
+   * /ev/models:
+   *   get:
+   *     summary: Get all EV models
+   *     description: Retrieves a list of all available EV models.
+   *     tags: [EV Models]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       '200':
+   *         description: A list of models.
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/models", (req, res) => controller.getAllModels(req, res));
 
   /**
-   * @route GET /api/ev/models/:id
-   * @description Retrieves a single EV model by its unique ID.
-   * @access Public
+   * @swagger
+   * /ev/models/{id}:
+   *   get:
+   *     summary: Get an EV model by ID
+   *     description: Retrieves a single EV model by its unique ID.
+   *     tags: [EV Models]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the model to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Model details.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Model not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/models/:id", (req, res) => controller.getModelById(req, res));
 
   /**
-   * @route PUT /api/ev/models/:id
-   * @description Updates an existing EV model.
-   * @middleware upload.array("images", 5) - Handles optional file uploads for updating model images.
-   * @middleware validateDto(EvModelDTO) - Validates the request body.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/models/{id}:
+   *   put:
+   *     summary: Update an EV model
+   *     description: Updates an existing EV model's details and/or images. Requires admin privileges.
+   *     tags: [EV Models]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the model to update.
+   *     requestBody:
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             $ref: '#/components/schemas/EvModelDTO'
+   *     responses:
+   *       '200':
+   *         description: Model updated successfully.
+   *       '400':
+   *         description: Bad request.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Model not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put(
     "/models/:id",
@@ -168,20 +483,61 @@ export const evRouter = (): Router => {
   );
 
   /**
-   * @route DELETE /api/ev/models/:id
-   * @description Deletes an EV model by its unique ID.
-   * @access Private (e.g., Admin)
+   * @swagger
+   * /ev/models/{id}:
+   *   delete:
+   *     summary: Delete an EV model
+   *     description: Deletes an EV model by its unique ID. Requires admin privileges.
+   *     tags: [EV Models]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the model to delete.
+   *     responses:
+   *       '200':
+   *         description: Model deleted successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Model not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.delete("/models/:id", (req, res) => controller.deleteModel(req, res));
 
   // --- Listing Routes ---
 
   /**
-   * @route POST /api/ev/listings
-   * @description Creates a new vehicle listing.
-   * @middleware upload.array("images", 5) - Handles up to 5 file uploads for listing images.
-   * @middleware validateDto(VehicleListingDTO) - Validates the request body.
-   * @access Private (e.g., Seller, Admin)
+   * @swagger
+   * /ev/listings:
+   *   post:
+   *     summary: Create a new vehicle listing
+   *     description: Creates a new vehicle listing for sale. Requires seller or admin privileges.
+   *     tags: [EV Listings]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             $ref: '#/components/schemas/VehicleListingDTO'
+   *     responses:
+   *       '201':
+   *         description: Listing created successfully.
+   *       '400':
+   *         description: Bad request.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '500':
+   *         description: Internal server error.
    */
   router.post(
     "/listings",
@@ -191,36 +547,135 @@ export const evRouter = (): Router => {
   );
 
   /**
-   * @route GET /api/ev/listings
-   * @description Retrieves a list of all vehicle listings, with optional filtering via query parameters.
-   * @access Public
+   * @swagger
+   * /ev/listings:
+   *   get:
+   *     summary: Get all vehicle listings
+   *     description: Retrieves a list of all vehicle listings, with optional filtering and pagination.
+   *     tags: [EV Listings]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema: { type: integer, default: 1 }
+   *         description: Page number for pagination.
+   *       - in: query
+   *         name: limit
+   *         schema: { type: integer, default: 10 }
+   *         description: Number of items per page.
+   *       - in: query
+   *         name: search
+   *         schema: { type: string }
+   *         description: Search term to filter listings.
+   *       - in: query
+   *         name: filter
+   *         schema: { type: string }
+   *         description: Filter criteria (e.g., by condition, color).
+   *     responses:
+   *       '200':
+   *         description: A paginated list of listings.
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/listings", (req, res) => controller.getAllListings(req, res));
 
   /**
-   * @route GET /api/ev/listings/seller/:sellerId
-   * @description Retrieves all listings for a specific seller.
-   * @access Public
+   * @swagger
+   * /ev/listings/seller/{sellerId}:
+   *   get:
+   *     summary: Get listings by seller
+   *     description: Retrieves all listings for a specific seller.
+   *     tags: [EV Listings]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: sellerId
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the seller.
+   *     responses:
+   *       '200':
+   *         description: A list of the seller's listings.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Seller not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/listings/seller/:sellerId", (req, res) =>
     controller.getListingsBySeller(req, res)
   );
 
   /**
-   * @route GET /api/ev/listings/:id
-   * @description Retrieves a single vehicle listing by its unique ID.
-   * @access Public
+   * @swagger
+   * /ev/listings/{id}:
+   *   get:
+   *     summary: Get a vehicle listing by ID
+   *     description: Retrieves a single vehicle listing by its unique ID.
+   *     tags: [EV Listings]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the listing to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Listing details.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Listing not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/listings/:id", (req, res) =>
     controller.getListingById(req, res)
   );
 
   /**
-   * @route PUT /api/ev/listings/:id
-   * @description Updates an existing vehicle listing.
-   * @middleware upload.array("images", 5) - Handles optional file uploads for updating listing images.
-   * @middleware validateDto(UpdateVehicleListingDTO) - Validates the request body.
-   * @access Private (e.g., Seller, Admin)
+   * @swagger
+   * /ev/listings/{id}:
+   *   put:
+   *     summary: Update a vehicle listing
+   *     description: Updates an existing vehicle listing. Requires ownership or admin privileges.
+   *     tags: [EV Listings]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the listing to update.
+   *     requestBody:
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             $ref: '#/components/schemas/UpdateVehicleListingDTO'
+   *     responses:
+   *       '200':
+   *         description: Listing updated successfully.
+   *       '400':
+   *         description: Bad request.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Listing not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put(
     "/listings/:id",
@@ -230,9 +685,32 @@ export const evRouter = (): Router => {
   );
 
   /**
-   * @route DELETE /api/ev/listings/:id
-   * @description Deletes a vehicle listing by its unique ID.
-   * @access Private (e.g., Seller, Admin)
+   * @swagger
+   * /ev/listings/{id}:
+   *   delete:
+   *     summary: Delete a vehicle listing
+   *     description: Deletes a vehicle listing by its unique ID. Requires ownership or admin privileges.
+   *     tags: [EV Listings]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the listing to delete.
+   *     responses:
+   *       '200':
+   *         description: Listing deleted successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Listing not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.delete("/listings/:id", (req, res) =>
     controller.deleteListing(req, res)

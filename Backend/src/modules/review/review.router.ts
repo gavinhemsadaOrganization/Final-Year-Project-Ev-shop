@@ -11,6 +11,12 @@ import { container } from "../../di/container";
  *
  * @returns The configured Express Router for review management.
  */
+/**
+ * @swagger
+ * tags:
+ *   name: Reviews
+ *   description: Review and rating management
+ */
 export const reviewRouter = (): Router => {
   const router = Router();
   // Resolve the review controller from the DI container.
@@ -18,68 +24,247 @@ export const reviewRouter = (): Router => {
     container.resolve<IReviewController>("ReviewController");
 
   /**
-   * @route GET /api/reviews/reviews
-   * @description Retrieves a list of all reviews.
-   * @access Public
+   * @swagger
+   * /review/reviews:
+   *   get:
+   *     summary: Get all reviews
+   *     description: Retrieves a list of all reviews. (Typically restricted to Admins)
+   *     tags: [Reviews]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       '200':
+   *         description: A list of all reviews.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '500':
+   *         description: Internal server error.
    */
-  router.get("/reviews", (req, res) =>
-    reviewController.getAllReviews(req, res)
+  router.get(
+    "/reviews",
+    (
+      req,
+      res // Note: Path is /review/reviews due to app.ts prefix
+    ) => reviewController.getAllReviews(req, res)
   );
 
   /**
-   * @route GET /api/reviews/reviews/target/:targetId
-   * @description Retrieves all reviews for a specific target entity (e.g., a seller or product).
-   * @access Public
+   * @swagger
+   * /review/reviews/target/{targetId}:
+   *   get:
+   *     summary: Get reviews by target ID
+   *     description: Retrieves all reviews for a specific target entity (e.g., a seller or product).
+   *     tags: [Reviews]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: targetId
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the target entity (e.g., seller ID, product ID).
+   *     responses:
+   *       '200':
+   *         description: A list of reviews for the specified target.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Target not found or no reviews found.
+   *       '500':
+   *         description: Internal server error.
    */
-  router.get("/reviews/target/:targetId", (req, res) =>
-    reviewController.getReviewByTargetId(req, res)
+  router.get(
+    "/reviews/target/:targetId",
+    (
+      req,
+      res // Note: Path is /review/reviews/target/:targetId
+    ) => reviewController.getReviewByTargetId(req, res)
   );
 
   /**
-   * @route GET /api/reviews/reviews/reviewer/:reviewerId
-   * @description Retrieves all reviews written by a specific user.
-   * @access Public
+   * @swagger
+   * /review/reviews/reviewer/{reviewerId}:
+   *   get:
+   *     summary: Get reviews by reviewer ID
+   *     description: Retrieves all reviews written by a specific user.
+   *     tags: [Reviews]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: reviewerId
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the user who wrote the reviews.
+   *     responses:
+   *       '200':
+   *         description: A list of reviews written by the user.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Reviewer not found or no reviews found.
+   *       '500':
+   *         description: Internal server error.
    */
-  router.get("/reviews/reviewer/:reviewerId", (req, res) =>
-    reviewController.getReviewsByReviewerId(req, res)
+  router.get(
+    "/reviews/reviewer/:reviewerId",
+    (
+      req,
+      res // Note: Path is /review/reviews/reviewer/:reviewerId
+    ) => reviewController.getReviewsByReviewerId(req, res)
   );
 
   /**
-   * @route GET /api/reviews/review/:id
-   * @description Retrieves a single review by its unique ID.
-   * @access Public
+   * @swagger
+   * /review/review/{id}:
+   *   get:
+   *     summary: Get review by ID
+   *     description: Retrieves a single review by its unique ID.
+   *     tags: [Reviews]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the review to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Review details.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Review not found.
+   *       '500':
+   *         description: Internal server error.
    */
-  router.get("/review/:id", (req, res) =>
-    reviewController.getReviewById(req, res)
+  router.get(
+    "/review/:id",
+    (
+      req,
+      res // Note: Path is /review/review/:id
+    ) => reviewController.getReviewById(req, res)
   );
 
   /**
-   * @route POST /api/reviews/review
-   * @description Creates a new review.
-   * @middleware validateDto(ReviewDTO) - Validates the request body.
-   * @access Private (Authenticated User)
+   * @swagger
+   * /review/review:
+   *   post:
+   *     summary: Create a new review
+   *     description: Creates a new review. Requires user authentication.
+   *     tags: [Reviews]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ReviewDTO'
+   *     responses:
+   *       '201':
+   *         description: Review created successfully.
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
-  router.post("/review", validateDto(ReviewDTO), (req, res) =>
-    reviewController.createReview(req, res)
+  router.post(
+    "/review",
+    validateDto(ReviewDTO),
+    (
+      req,
+      res // Note: Path is /review/review
+    ) => reviewController.createReview(req, res)
   );
 
   /**
-   * @route PUT /api/reviews/review/:id
-   * @description Updates an existing review.
-   * @middleware validateDto(ReviewDTO) - Validates the request body.
-   * @access Private (User who wrote the review, or Admin)
+   * @swagger
+   * /review/review/{id}:
+   *   put:
+   *     summary: Update a review
+   *     description: Updates an existing review. Requires ownership or admin privileges.
+   *     tags: [Reviews]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the review to update.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ReviewDTO'
+   *     responses:
+   *       '200':
+   *         description: Review updated successfully.
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Review not found.
+   *       '500':
+   *         description: Internal server error.
    */
-  router.put("/review/:id", validateDto(ReviewDTO), (req, res) =>
-    reviewController.updateReview(req, res)
+  router.put(
+    "/review/:id",
+    validateDto(ReviewDTO),
+    (
+      req,
+      res // Note: Path is /review/review/:id
+    ) => reviewController.updateReview(req, res)
   );
 
   /**
-   * @route DELETE /api/reviews/review/:id
-   * @description Deletes a review by its unique ID.
-   * @access Private (User who wrote the review, or Admin)
+   * @swagger
+   * /review/review/{id}:
+   *   delete:
+   *     summary: Delete a review
+   *     description: Deletes a review by its unique ID. Requires ownership or admin privileges.
+   *     tags: [Reviews]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the review to delete.
+   *     responses:
+   *       '200':
+   *         description: Review deleted successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Review not found.
+   *       '500':
+   *         description: Internal server error.
    */
-  router.delete("/review/:id", (req, res) =>
-    reviewController.deleteReview(req, res)
+  router.delete(
+    "/review/:id",
+    (
+      req,
+      res // Note: Path is /review/review/:id
+    ) => reviewController.deleteReview(req, res)
   );
   return router;
 };

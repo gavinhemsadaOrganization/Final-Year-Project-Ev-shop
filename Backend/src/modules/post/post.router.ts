@@ -11,149 +11,537 @@ import { container } from "../../di/container";
  *
  * @returns The configured Express Router for forum posts.
  */
+/**
+ * @swagger
+ * tags:
+ *   - name: Posts
+ *     description: Forum post management
+ *   - name: Replies
+ *     description: Management of replies to forum posts
+ */
 export const postRouter = (): Router => {
   const router = Router();
   // Resolve the post controller from the DI container.
   const postController = container.resolve<IPostController>("PostController");
 
   // --- Post Routes ---
-
   /**
-   * @route GET /api/posts/post/:id
-   * @description Retrieves a single post by its unique ID.
-   * @access Public
-   */
-  router.get("/post/:id", (req, res) => postController.findPostById(req, res));
-
-  /**
-   * @route GET /api/posts/posts
-   * @description Retrieves a list of all posts.
-   * @access Public
+   * @swagger
+   * /post/posts:
+   *   get:
+   *     summary: Get all posts
+   *     description: Retrieves a list of all forum posts, with optional filtering and pagination.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema: { type: integer, default: 1 }
+   *         description: Page number for pagination.
+   *       - in: query
+   *         name: limit
+   *         schema: { type: integer, default: 10 }
+   *         description: Number of items per page.
+   *       - in: query
+   *         name: search
+   *         schema: { type: string }
+   *         description: Search term to filter posts by title or content.
+   *       - in: query
+   *         name: filter
+   *         schema: { type: string }
+   *         description: Filter criteria for posts.
+   *     responses:
+   *       '200':
+   *         description: A paginated list of posts.
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/posts", (req, res) => postController.findAllPosts(req, res));
 
   /**
-   * @route GET /api/posts/posts/user/:user_id
-   * @description Retrieves all posts created by a specific user.
-   * @access Public
-   */
-  router.get("/posts/user/:user_id", (req, res) =>
-    postController.findPostsByUserId(req, res)
-  );
-  /**
-   * @route POST /api/posts/post
-   * @description Creates a new forum post.
-   * @middleware validateDto(PostDTO) - Validates the request body.
-   * @access Private (Authenticated User)
+   * @swagger
+   * /post/post:
+   *   post:
+   *     summary: Create a new post
+   *     description: Creates a new forum post. Requires user authentication.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/PostDTO'
+   *     responses:
+   *       '201':
+   *         description: Post created successfully.
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.post("/post", validateDto(PostDTO), (req, res) =>
     postController.createPost(req, res)
   );
 
   /**
-   * @route PUT /api/posts/post/:id
-   * @description Updates an existing forum post.
-   * @middleware validateDto(PostDTO) - Validates the request body.
-   * @access Private (User who created the post, or Admin)
+   * @swagger
+   * /post/posts/user/{user_id}:
+   *   get:
+   *     summary: Get posts by user ID
+   *     description: Retrieves all posts created by a specific user.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: user_id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the user whose posts are to be retrieved.
+   *     responses:
+   *       '200':
+   *         description: A list of the user's posts.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: User not found or no posts found.
+   *       '500':
+   *         description: Internal server error.
+   */
+  router.get("/posts/user/:user_id", (req, res) =>
+    postController.findPostsByUserId(req, res)
+  );
+
+  /**
+   * @swagger
+   * /post/post/{id}:
+   *   get:
+   *     summary: Get post by ID
+   *     description: Retrieves a single forum post by its unique ID, including its replies.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the post to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Post details including author and replies.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Post not found.
+   *       '500':
+   *         description: Internal server error.
+   */
+  router.get("/post/:id", (req, res) => postController.findPostById(req, res));
+
+  /**
+   * @swagger
+   * /post/post/{id}:
+   *   put:
+   *     summary: Update a post
+   *     description: Updates an existing forum post. Requires ownership or admin privileges.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the post to update.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/PostDTO'
+   *     responses:
+   *       '200':
+   *         description: Post updated successfully.
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Post not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put("/post/:id", validateDto(PostDTO), (req, res) =>
     postController.updatePost(req, res)
   );
 
   /**
-   * @route PUT /api/posts/post/:id/views
-   * @description Updates the view count of a post.
-   * @access Private (Typically called internally when a post is viewed)
+   * @swagger
+   * /post/post/{id}/views:
+   *   put:
+   *     summary: Update post view count
+   *     description: Updates the view count of a post. Typically called internally when a post is viewed.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the post to update.
+   *     requestBody:
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               views:
+   *                 type: number
+   *                 description: The new view count.
+   *     responses:
+   *       '200':
+   *         description: View count updated successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Post not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put("/post/:id/views", (req, res) =>
     postController.updatePostViews(req, res)
   );
 
   /**
-   * @route PUT /api/posts/post/:id/reply-count
-   * @description Updates the reply count of a post.
-   * @access Private (Typically called internally when a reply is added/deleted)
+   * @swagger
+   * /post/post/{id}/reply-count:
+   *   put:
+   *     summary: Update post reply count
+   *     description: Updates the reply count of a post. Typically called internally when a reply is added or deleted.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the post to update.
+   *     requestBody:
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               reply_count:
+   *                 type: number
+   *                 description: The new reply count.
+   *     responses:
+   *       '200':
+   *         description: Reply count updated successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Post not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put("/post/:id/reply-count", (req, res) =>
     postController.updatePostReplyCount(req, res)
   );
 
   /**
-   * @route PUT /api/posts/post/:id/last-reply-by
-   * @description Updates the user who made the last reply on a post.
-   * @access Private (Typically called internally when a reply is added)
+   * @swagger
+   * /post/post/{id}/last-reply-by:
+   *   put:
+   *     summary: Update post's last reply author
+   *     description: Updates the user who made the last reply on a post. Typically called internally when a reply is added.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the post to update.
+   *     requestBody:
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               last_reply_by:
+   *                 type: string
+   *                 description: The ID of the user who made the last reply.
+   *     responses:
+   *       '200':
+   *         description: Last reply author updated successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Post not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put("/post/:id/last-reply-by", (req, res) =>
     postController.updatePostLastReplyBy(req, res)
   );
 
   /**
-   * @route DELETE /api/posts/post/:id
-   * @description Deletes a post by its unique ID.
-   * @access Private (User who created the post, or Admin)
+   * @swagger
+   * /post/post/{id}:
+   *   delete:
+   *     summary: Delete a post
+   *     description: Deletes a post by its unique ID. Requires ownership or admin privileges.
+   *     tags: [Posts]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the post to delete.
+   *     responses:
+   *       '200':
+   *         description: Post deleted successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Post not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.delete("/post/:id", (req, res) => postController.deletePost(req, res));
 
   // --- Reply Routes ---
 
   /**
-   * @route GET /api/posts/reply/:id
-   * @description Retrieves a single reply by its unique ID.
-   * @access Public
-   */
-  router.get("/reply/:id", (req, res) =>
-    postController.findReplyById(req, res)
-  );
-
-  /**
-   * @route GET /api/posts/replies/post/:post_id
-   * @description Retrieves all replies for a specific post.
-   * @access Public
-   */
-  router.get("/replies/post/:post_id", (req, res) =>
-    postController.findRepliesByPostId(req, res)
-  );
-
-  /**
-   * @route GET /api/posts/replies/user/:user_id
-   * @description Retrieves all replies created by a specific user.
-   * @access Public
-   */
-  router.get("/replies/user/:user_id", (req, res) =>
-    postController.findRepliesByUserId(req, res)
-  );
-
-  /**
-   * @route GET /api/posts/replies
-   * @description Retrieves a list of all replies across all posts.
-   * @access Public
+   * @swagger
+   * /post/replies:
+   *   get:
+   *     summary: Get all replies
+   *     description: Retrieves a list of all replies across all posts.
+   *     tags: [Replies]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       '200':
+   *         description: A list of all replies.
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/replies", (req, res) => postController.findAllReplies(req, res));
 
   /**
-   * @route POST /api/posts/reply
-   * @description Creates a new reply to a post.
-   * @middleware validateDto(PostReplyDTO) - Validates the request body.
-   * @access Private (Authenticated User)
+   * @swagger
+   * /post/reply:
+   *   post:
+   *     summary: Create a new reply
+   *     description: Creates a new reply to a post. Requires user authentication.
+   *     tags: [Replies]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/PostReplyDTO'
+   *     responses:
+   *       '201':
+   *         description: Reply created successfully.
+   *       '400':
+   *         description: Bad request (validation error, post not found).
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.post("/reply", validateDto(PostReplyDTO), (req, res) =>
     postController.createReply(req, res)
   );
 
   /**
-   * @route PUT /api/posts/reply/:id
-   * @description Updates an existing reply.
-   * @middleware validateDto(PostReplyDTO) - Validates the request body.
-   * @access Private (User who created the reply, or Admin)
+   * @swagger
+   * /post/replies/post/{post_id}:
+   *   get:
+   *     summary: Get replies by post ID
+   *     description: Retrieves all replies for a specific post.
+   *     tags: [Replies]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: post_id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the post to retrieve replies for.
+   *     responses:
+   *       '200':
+   *         description: A list of replies for the specified post.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Post not found or no replies found.
+   *       '500':
+   *         description: Internal server error.
+   */
+  router.get("/replies/post/:post_id", (req, res) =>
+    postController.findRepliesByPostId(req, res)
+  );
+
+  /**
+   * @swagger
+   * /post/replies/user/{user_id}:
+   *   get:
+   *     summary: Get replies by user ID
+   *     description: Retrieves all replies created by a specific user.
+   *     tags: [Replies]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: user_id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the user whose replies are to be retrieved.
+   *     responses:
+   *       '200':
+   *         description: A list of the user's replies.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: User not found or no replies found.
+   *       '500':
+   *         description: Internal server error.
+   */
+  router.get("/replies/user/:user_id", (req, res) =>
+    postController.findRepliesByUserId(req, res)
+  );
+
+  /**
+   * @swagger
+   * /post/reply/{id}:
+   *   get:
+   *     summary: Get reply by ID
+   *     description: Retrieves a single reply by its unique ID.
+   *     tags: [Replies]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the reply to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Reply details.
+   *       '401':
+   *         description: Unauthorized.
+   *       '404':
+   *         description: Reply not found.
+   *       '500':
+   *         description: Internal server error.
+   */
+  router.get("/reply/:id", (req, res) =>
+    postController.findReplyById(req, res)
+  );
+
+  /**
+   * @swagger
+   * /post/reply/{id}:
+   *   put:
+   *     summary: Update a reply
+   *     description: Updates an existing reply. Requires ownership or admin privileges.
+   *     tags: [Replies]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the reply to update.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/PostReplyDTO'
+   *     responses:
+   *       '200':
+   *         description: Reply updated successfully.
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Reply not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put("/reply/:id", validateDto(PostReplyDTO), (req, res) =>
     postController.updateReply(req, res)
   );
 
   /**
-   * @route DELETE /api/posts/reply/:id
-   * @description Deletes a reply by its unique ID.
-   * @access Private (User who created the reply, or Admin)
+   * @swagger
+   * /post/reply/{id}:
+   *   delete:
+   *     summary: Delete a reply
+   *     description: Deletes a reply by its unique ID. Requires ownership or admin privileges.
+   *     tags: [Replies]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the reply to delete.
+   *     responses:
+   *       '200':
+   *         description: Reply deleted successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Reply not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.delete("/reply/:id", (req, res) =>
     postController.deleteReply(req, res)

@@ -11,60 +11,214 @@ import { container } from "../../di/container";
  *
  * @returns The configured Express Router for order management.
  */
+/**
+ * @swagger
+ * tags:
+ *   name: Orders
+ *   description: Order management
+ */
 export const orderRouter = (): Router => {
   const router = Router();
   // Resolve the order controller from the DI container.
   const controller = container.resolve<IOrderController>("OrderController");
 
   /**
-   * @route POST /api/orders/
-   * @description Creates a new order.
-   * @middleware validateDto(CreateOrderDTO) - Validates the request body.
-   * @access Private (Authenticated User)
+   * @swagger
+   * /order:
+   *   post:
+   *     summary: Create a new order
+   *     description: Creates a new order based on the provided details. Requires user authentication.
+   *     tags: [Orders]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateOrderDTO'
+   *     responses:
+   *       '201':
+   *         description: Order created successfully.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success: { type: boolean, example: true }
+   *                 order: { type: object } # Ideally $ref to an Order schema
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.post("/", validateDto(CreateOrderDTO), (req, res) =>
     controller.createOrder(req, res)
   );
 
   /**
-   * @route GET /api/orders/user/:userId
-   * @description Retrieves all orders for a specific user.
-   * @access Private (User can get their own orders, or Admin can get any)
+   * @swagger
+   * /order/user/{userId}:
+   *   get:
+   *     summary: Get orders by user ID
+   *     description: Retrieves all orders for a specific user. Requires user to be the owner or an admin.
+   *     tags: [Orders]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: userId
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the user whose orders are to be retrieved.
+   *     responses:
+   *       '200':
+   *         description: A list of the user's orders.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden (if user is not the owner or an admin).
+   *       '404':
+   *         description: User not found or no orders found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/user/:userId", (req, res) =>
     controller.getOrdersByUserId(req, res)
   );
 
   /**
-   * @route GET /api/orders/seller/:sellerId
-   * @description Retrieves all orders for a specific seller.
-   * @access Private (Seller can get their own orders, or Admin can get any)
+   * @swagger
+   * /order/seller/{sellerId}:
+   *   get:
+   *     summary: Get orders by seller ID
+   *     description: Retrieves all orders for a specific seller. Requires user to be the seller or an admin.
+   *     tags: [Orders]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: sellerId
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the seller whose orders are to be retrieved.
+   *     responses:
+   *       '200':
+   *         description: A list of the seller's orders.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden (if user is not the seller or an admin).
+   *       '404':
+   *         description: Seller not found or no orders found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/seller/:sellerId", (req, res) =>
     controller.getOrdersBySellerId(req, res)
   );
 
   /**
-   * @route GET /api/orders/:id
-   * @description Retrieves a single order by its unique ID.
-   * @access Private (User/Seller involved in the order, or Admin)
+   * @swagger
+   * /order/{id}:
+   *   get:
+   *     summary: Get order by ID
+   *     description: Retrieves a single order by its unique ID. Requires user to be involved in the order or an admin.
+   *     tags: [Orders]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the order to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Order details.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Order not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/:id", (req, res) => controller.getOrderById(req, res));
 
   /**
-   * @route PATCH /api/orders/:id
-   * @description Updates an existing order (e.g., to change its status).
-   * @middleware validateDto(UpdateOrderDTO) - Validates the request body.
-   * @access Private (Seller involved in the order, or Admin)
+   * @swagger
+   * /order/{id}:
+   *   patch:
+   *     summary: Update order status
+   *     description: Updates an existing order, typically to change its status (e.g., 'SHIPPED', 'DELIVERED'). Requires seller or admin privileges.
+   *     tags: [Orders]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the order to update.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/UpdateOrderDTO'
+   *     responses:
+   *       '200':
+   *         description: Order updated successfully.
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Order not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.patch("/:id", validateDto(UpdateOrderDTO), (req, res) =>
     controller.updateOrder(req, res)
   );
 
   /**
-   * @route PATCH /api/orders/:id/cancel
-   * @description Cancels an order.
-   * @access Private (User who placed the order, or Admin)
+   * @swagger
+   * /order/{id}/cancel:
+   *   patch:
+   *     summary: Cancel an order
+   *     description: Cancels an order. Requires user to be the one who placed the order or an admin.
+   *     tags: [Orders]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the order to cancel.
+   *     responses:
+   *       '200':
+   *         description: Order cancelled successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Order not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.patch("/:id/cancel", (req, res) => controller.cancelOrder(req, res));
 

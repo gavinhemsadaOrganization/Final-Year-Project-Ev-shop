@@ -11,75 +11,240 @@ import { container } from "../../di/container";
  *
  * @returns The configured Express Router for notification management.
  */
+/**
+ * @swagger
+ * tags:
+ *   name: Notifications
+ *   description: Notification management for users
+ */
 export const notificationRouter = (): Router => {
   const router = Router();
   // Resolve the notification controller from the DI container.
   const notificationController = container.resolve<INotificationController>(
     "NotificationController"
   );
-
   /**
-   * @route GET /api/notifications/:id
-   * @description Retrieves a single notification by its unique ID.
-   * @access Private (User who owns the notification, or Admin)
-   */
-  router.get("/:id", (req, res) =>
-    notificationController.getNotificationByID(req, res)
-  );
-
-  /**
-   * @route GET /api/notifications/:user_id
-   * @description Retrieves all notifications for a specific user.
-   * @warning This route is currently unreachable due to the preceding `/:id` route.
-   *          Consider changing the path to `/user/:user_id` to resolve the conflict.
-   * @access Private (User can get their own notifications, or Admin)
-   */
-  router.get("/:user_id", (req, res) =>
-    notificationController.getNotificationsByUserID(req, res)
-  );
-
-  /**
-   * @route GET /api/notifications/
-   * @description Retrieves a list of all notifications.
-   * @access Private (Typically restricted to Admins)
+   * @swagger
+   * /notification:
+   *   get:
+   *     summary: Get all notifications
+   *     description: Retrieves a list of all notifications. (Typically restricted to Admins)
+   *     tags: [Notifications]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       '200':
+   *         description: A list of all notifications.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success: { type: boolean, example: true }
+   *                 notifications: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden (if user is not an admin).
+   *       '500':
+   *         description: Internal server error.
    */
   router.get("/", (req, res) =>
     notificationController.getAllNotifications(req, res)
   );
 
   /**
-   * @route PUT /api/notifications/:id/read
-   * @description Marks a specific notification as read.
-   * @access Private (User who owns the notification)
-   */
-  router.put("/:id/read", (req, res) =>
-    notificationController.markNotificationAsRead(req, res)
-  );
-
-  /**
-   * @route POST /api/notifications/
-   * @description Creates a new notification.
-   * @middleware validateDto(NotificationDTO) - Validates the request body.
-   * @access Private (Typically called internally by other services)
+   * @swagger
+   * /notification:
+   *   post:
+   *     summary: Create a new notification
+   *     description: Creates a new notification. (Typically called internally by other services or by an admin)
+   *     tags: [Notifications]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/NotificationDTO'
+   *     responses:
+   *       '201':
+   *         description: Notification created successfully.
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '500':
+   *         description: Internal server error.
    */
   router.post("/", validateDto(NotificationDTO), (req, res) =>
     notificationController.createNotification(req, res)
   );
 
   /**
-   * @route PUT /api/notifications/:id
-   * @description Updates an existing notification.
-   * @middleware validateDto(NotificationDTO) - Validates the request body.
-   * @access Private (Typically restricted to Admins)
+   * @swagger
+   * /notification/user/{userId}:
+   *   get:
+   *     summary: Get notifications by user ID
+   *     description: Retrieves all notifications for a specific user.
+   *     tags: [Notifications]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: userId
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the user whose notifications are to be retrieved.
+   *     responses:
+   *       '200':
+   *         description: A list of notifications for the user.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden (if user is not the owner or an admin).
+   *       '404':
+   *         description: User not found.
+   *       '500':
+   *         description: Internal server error.
+   */
+  router.get("/user/:userId", (req, res) =>
+    notificationController.getNotificationsByUserID(req, res)
+  );
+
+  /**
+   * @swagger
+   * /notification/{id}:
+   *   get:
+   *     summary: Get notification by ID
+   *     description: Retrieves a single notification by its unique ID.
+   *     tags: [Notifications]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the notification to retrieve.
+   *     responses:
+   *       '200':
+   *         description: Notification details.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden (if user does not own the notification and is not an admin).
+   *       '404':
+   *         description: Notification not found.
+   *       '500':
+   *         description: Internal server error.
+   */
+  router.get("/:id", (req, res) =>
+    notificationController.getNotificationByID(req, res)
+  );
+
+  /**
+   * @swagger
+   * /notification/{id}:
+   *   put:
+   *     summary: Update a notification
+   *     description: Updates an existing notification. (Typically restricted to Admins)
+   *     tags: [Notifications]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the notification to update.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/NotificationDTO'
+   *     responses:
+   *       '200':
+   *         description: Notification updated successfully.
+   *       '400':
+   *         description: Bad request (validation error).
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden.
+   *       '404':
+   *         description: Notification not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.put("/:id", validateDto(NotificationDTO), (req, res) =>
     notificationController.updateNotification(req, res)
   );
 
   /**
-   * @route DELETE /api/notifications/:id
-   * @description Deletes a notification by its unique ID.
-   * @access Private (User who owns the notification, or Admin)
+   * @swagger
+   * /notification/{id}/read:
+   *   patch:
+   *     summary: Mark a notification as read
+   *     description: Marks a specific notification as read.
+   *     tags: [Notifications]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the notification to mark as read.
+   *     responses:
+   *       '200':
+   *         description: Notification marked as read successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden (if user does not own the notification).
+   *       '404':
+   *         description: Notification not found.
+   *       '500':
+   *         description: Internal server error.
+   */
+  router.patch("/:id/read", (req, res) =>
+    notificationController.markNotificationAsRead(req, res)
+  );
+
+  /**
+   * @swagger
+   * /notification/{id}:
+   *   delete:
+   *     summary: Delete a notification
+   *     description: Deletes a notification by its unique ID.
+   *     tags: [Notifications]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The ID of the notification to delete.
+   *     responses:
+   *       '200':
+   *         description: Notification deleted successfully.
+   *       '401':
+   *         description: Unauthorized.
+   *       '403':
+   *         description: Forbidden (if user does not own the notification and is not an admin).
+   *       '404':
+   *         description: Notification not found.
+   *       '500':
+   *         description: Internal server error.
    */
   router.delete("/:id", (req, res) =>
     notificationController.deleteNotification(req, res)
