@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { Cart, ICart } from "../models/Cart";
 import { CartItem, ICartItem } from "../models/CartItem";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the cart repository, specifying the methods for data access operations

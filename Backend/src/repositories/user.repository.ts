@@ -1,5 +1,5 @@
 import { IUser, User } from "../models/User";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the user repository, specifying the methods for data access operations related to users.

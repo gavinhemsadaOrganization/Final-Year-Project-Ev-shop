@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ISellerService } from "../services/seller.service";
-import { handleResult, handleError } from "../utils/Respons.util";
+import { handleResult, handleError } from "../shared/utils/Respons.util";
 
 /**
  * Defines the contract for the seller controller, specifying methods for handling HTTP requests related to sellers.

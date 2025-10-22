@@ -1,6 +1,6 @@
 import { IReview, Review } from "../models/Review";
 import { ReviewDTO } from "../dtos/review.DTO";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the review repository, specifying the methods for data access operations related to reviews.

@@ -1,8 +1,14 @@
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 
 import { Router } from "express";
 import { IAuthController } from "./auth.controller";
-import { RegisterDto, LoginDTO, ForgetPasswordDTO, OTPverifyDTO, ResetPasswordDTO } from "./auth.dto";
+import {
+  RegisterDto,
+  LoginDTO,
+  ForgetPasswordDTO,
+  OTPverifyDTO,
+  ResetPasswordDTO,
+} from "./auth.dto";
 import { container } from "./auth.di";
 
 /**
@@ -119,6 +125,6 @@ export const authRouter = (): Router => {
    * @access Private (Requires active session)
    */
   router.post("/logout", (req, res) => authController.logout(req, res));
-  
+
   return router;
-}
+};

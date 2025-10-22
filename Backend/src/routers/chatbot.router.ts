@@ -1,4 +1,4 @@
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { IChatbotController } from "../controllers/chatbot.controller";
 import { ChatbotConversationDTO, PredictionDTO } from "../dtos/chatbot.DTO";

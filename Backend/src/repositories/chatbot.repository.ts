@@ -4,7 +4,7 @@ import {
 } from "../models/ChatbotConversation";
 import { Prediction, IPrediction } from "../models/Prediction";
 import { ChatbotConversationDTO, PredictionDTO } from "../dtos/chatbot.DTO";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the chatbot repository, specifying the methods for data access operations

@@ -7,7 +7,7 @@ import {
   UpdateMaintenanceRecordDTO,
 } from "../dtos/maintenanceRecord.DTO";
 import { Types } from "mongoose";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the maintenance record repository, specifying the methods for data access operations related to maintenance records.

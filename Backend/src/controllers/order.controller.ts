@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IOrderService } from "../services/order.service";
-import { handleResult, handleError } from "../utils/Respons.util";
+import { handleResult, handleError } from "../shared/utils/Respons.util";
 
 /**
  * Defines the contract for the order controller, specifying methods for handling HTTP requests related to orders.

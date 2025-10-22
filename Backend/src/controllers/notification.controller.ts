@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { INotificationService } from "../services/notification.service";
-import { handleResult, handleError } from "../utils/Respons.util";
+import { handleResult, handleError } from "../shared/utils/Respons.util";
 
 /**
  * Defines the contract for the notification controller, specifying methods for handling HTTP requests related to notifications.

@@ -1,9 +1,9 @@
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { IUserController } from "../controllers/user.controller";
 import { UserDTO } from "../dtos/user.DTO";
 import { container } from "../di/container";
-import { upload } from "../utils/imageHandel";
+import { upload } from "../shared/utils/imageHandel";
 
 /**
  * Factory function that creates and configures the router for user-related endpoints.

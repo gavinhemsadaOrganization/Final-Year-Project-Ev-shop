@@ -1,6 +1,6 @@
 import { Payment, IPayment } from "../models/Payment";
 import { CreatePaymentDTO } from "../dtos/payment.DTO";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the payment repository, specifying the methods for data access operations related to payments.

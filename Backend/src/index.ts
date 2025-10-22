@@ -4,7 +4,7 @@ dotenv.config();
 
 import app from "./app";
 import DB from "./config/DBConnection";
-import logger from "./utils/logger";
+import logger from "./shared/utils/logger";
 import { connectRedis } from "./config/redis";
 
 const PORT = process.env.PORT;

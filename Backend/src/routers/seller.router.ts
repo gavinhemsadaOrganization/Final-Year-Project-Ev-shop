@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { container } from "../di/container";
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import { SellerDTO, UpdateSellerDTO } from "../dtos/seller.DTO";
 import { ISellerController } from "../controllers/seller.controller";
 

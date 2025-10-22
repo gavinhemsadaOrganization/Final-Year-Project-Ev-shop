@@ -18,7 +18,7 @@ import {
   UpdateFinancingApplicationDTO,
 } from "../dtos/financial.DTO";
 import { ApplicationStatus } from "../enum/enum";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the financial repository, specifying the methods for data access operations

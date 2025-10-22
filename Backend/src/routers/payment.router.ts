@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import { CreatePaymentDTO } from "../dtos/payment.DTO";
 import { IPaymentController } from "../controllers/payment.controller";
 import { container } from "../di/container";

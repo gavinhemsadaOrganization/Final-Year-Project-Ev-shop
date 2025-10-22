@@ -1,7 +1,7 @@
 import { IChatbotRepository } from "../repositories/chatbot.repository";
 import { ChatbotConversationDTO, PredictionDTO } from "../dtos/chatbot.DTO";
 import { IUserRepository } from "../repositories/user.repository";
-import { getChatbotResponse } from "../utils/chatbot";
+import { getChatbotResponse } from "../shared/utils/chatbot";
 import CacheService from "./CacheService";
 
 /**

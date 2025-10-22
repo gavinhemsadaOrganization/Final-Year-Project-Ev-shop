@@ -1,6 +1,6 @@
 import { INotification, Notification } from "../models/Notification";
 import { NotificationDTO } from "../dtos/notification.DTO";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the notification repository, specifying the methods for data access operations related to notifications.

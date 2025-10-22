@@ -9,7 +9,7 @@ import {
   TestDriveSlotDTO,
   FeedbackDTO,
 } from "../dtos/testDrive.DTO";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the test drive repository, specifying methods for data access operations

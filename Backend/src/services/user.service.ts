@@ -1,6 +1,6 @@
 import { IUserRepository } from "../repositories/user.repository";
 import { UserDTO } from "../dtos/user.DTO";
-import { addImage, deleteImage } from "../utils/imageHandel";
+import { addImage, deleteImage } from "../shared/utils/imageHandel";
 import CacheService from "./CacheService";
 
 /**

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ITestDriveService } from "../services/testDrive.service";
-import { handleResult, handleError } from "../utils/Respons.util";
+import { handleResult, handleError } from "../shared/utils/Respons.util";
 
 /**
  * Defines the contract for the test drive controller, specifying methods for handling HTTP requests

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import {
   MaintenanceRecordDTO,
   UpdateMaintenanceRecordDTO,

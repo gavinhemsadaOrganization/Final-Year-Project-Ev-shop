@@ -11,7 +11,7 @@ import {
   addImages,
   deleteImage,
   deleteImages,
-} from "../utils/imageHandel";
+} from "../shared/utils/imageHandel";
 import { ISellerRepository } from "../repositories/seller.repository";
 import CacheService from "./CacheService";
 

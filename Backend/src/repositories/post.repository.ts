@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { IPost, Post } from "../models/Post";
 import { IPostReply, PostReply } from "../models/PostReply";
 import { PostDTO, PostReplyDTO } from "../dtos/post.DTO";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the post repository, specifying the methods for data access operations

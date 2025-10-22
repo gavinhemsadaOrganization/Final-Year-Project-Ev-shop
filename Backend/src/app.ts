@@ -18,7 +18,7 @@ import fs from "fs";
 import path from "path";
 
 // JWT middleware for authentication
-import { protectJWT } from "./middlewares/Jwt.middleware";
+import { protectJWT } from "./shared/middlewares/Jwt.middleware";
 
 // Import all defined API routers
 import { authRouter } from "./auth/auth.router";
@@ -38,7 +38,7 @@ import { evRouter } from "./routers/ev.router";
 
 // Logging utilities
 import morgan from "morgan";
-import logger from "./utils/logger";
+import logger from "./shared/utils/logger";
 
 // Monitoring initialization function
 import { initializeMonitoring } from "./monitoring";

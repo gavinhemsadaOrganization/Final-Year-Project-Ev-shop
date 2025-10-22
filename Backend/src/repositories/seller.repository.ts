@@ -1,7 +1,7 @@
 import { Seller, ISeller } from "../models/Seller";
 import { SellerDTO, UpdateSellerDTO } from "../dtos/seller.DTO";
 import { Types } from "mongoose";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the seller repository, specifying the methods for data access operations related to sellers.

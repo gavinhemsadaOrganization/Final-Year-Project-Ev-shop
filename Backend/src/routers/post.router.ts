@@ -1,4 +1,4 @@
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import { Router } from "express";
 import { IPostController } from "../controllers/post.controller";
 import { PostDTO, PostReplyDTO } from "../dtos/post.DTO";

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import {
   FinancialInstitutionDTO,
   FinancialProductDTO,
@@ -8,7 +8,7 @@ import {
 } from "../dtos/financial.DTO";
 import { IFinancialController } from "../controllers/financial.controller";
 import { container } from "../di/container";
-import { upload } from "../utils/fileHandel";
+import { upload } from "../shared/utils/fileHandel";
 
 /**
  * Factory function that creates and configures the router for financial services endpoints.

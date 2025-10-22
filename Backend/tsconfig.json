@@ -13,7 +13,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": ["node", "express-session", "jest"],
-    "typeRoots": ["./src/types", "./node_modules/@types"]
+    "typeRoots": ["src/shared/types", "./node_modules/@types"]
   },
   "include": ["src/**/*", "_test_/**/**/*.test.ts"], // include all TS files in src
   "exclude": ["node_modules", "dist"]

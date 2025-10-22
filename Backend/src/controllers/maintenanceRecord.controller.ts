@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IMaintenanceRecordService } from "../services/maintenanceRecord.service";
-import { handleResult, handleError } from "../utils/Respons.util";
+import { handleResult, handleError } from "../shared/utils/Respons.util";
 
 /**
  * Defines the contract for the maintenance record controller, specifying methods for handling HTTP requests related to maintenance records.

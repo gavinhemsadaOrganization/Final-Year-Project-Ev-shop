@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import { CartItemDTO, UpdateCartItemDTO } from "../dtos/cart.DTO";
 import { ICartController } from "../controllers/cart.controller";
 import { container } from "../di/container";

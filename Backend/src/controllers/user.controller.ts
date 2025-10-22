@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { IUserService } from "../services/user.service";
 import { UserDTO } from "../dtos/user.DTO";
-import { handleResult, handleError } from "../utils/Respons.util";
+import { handleResult, handleError } from "../shared/utils/Respons.util";
 
 /**
  * Defines the contract for the user controller, specifying the methods for handling user-related HTTP requests.

@@ -1,5 +1,5 @@
 import md5 from "crypto-js/md5";
-import { AddressDTO } from "../dtos/user.DTO";
+import { AddressDTO } from "../../dtos/user.DTO";
 
 /**
  * Defines the structure for customer information required by the PayHere gateway.

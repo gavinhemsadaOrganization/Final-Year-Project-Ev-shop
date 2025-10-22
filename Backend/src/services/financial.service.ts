@@ -8,7 +8,7 @@ import { ApplicationStatus } from "../enum/enum";
 import { IFinancialRepository } from "../repositories/financial.repository";
 import { IUserRepository } from "../repositories/user.repository";
 import { UserRole } from "../enum/enum";
-import { addFiles, deleteFiles } from "../utils/fileHandel";
+import { addFiles, deleteFiles } from "../shared/utils/fileHandel";
 import CacheService from "./CacheService";
 
 /**

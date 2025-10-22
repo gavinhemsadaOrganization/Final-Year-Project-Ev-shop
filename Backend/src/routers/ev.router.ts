@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateDto } from "../middlewares/DtoValidator.middleware";
+import { validateDto } from "../shared/middlewares/DtoValidator.middleware";
 import {
   EvBrandDTO,
   EvCategoryDTO,
@@ -9,7 +9,7 @@ import {
 } from "../dtos/ev.DTO";
 import { IEvController } from "../controllers/ev.controller";
 import { container } from "../di/container";
-import { upload } from "../utils/imageHandel";
+import { upload } from "../shared/utils/imageHandel";
 
 /**
  * Factory function that creates and configures the router for EV-related endpoints.

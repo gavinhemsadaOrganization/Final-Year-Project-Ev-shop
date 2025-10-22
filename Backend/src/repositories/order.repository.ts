@@ -1,7 +1,7 @@
 import Order, { IOrder } from "../models/Order";
 import { UpdateOrderDTO, CreateOrderDTO } from "../dtos/order.DTO";
 import { Types } from "mongoose";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Represents a populated Order document, where referenced ObjectIds

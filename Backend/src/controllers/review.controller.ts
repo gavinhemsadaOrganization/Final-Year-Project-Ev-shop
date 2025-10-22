@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IReviewService } from "../services/review.service";
-import { handleResult, handleError } from "../utils/Respons.util";
+import { handleResult, handleError } from "../shared/utils/Respons.util";
 
 /**
  * Defines the contract for the review controller, specifying methods for handling HTTP requests related to reviews.

@@ -6,7 +6,7 @@ import {
   createPaymentRequest,
   singelLineAddress,
   verifyNotificationHash,
-} from "../utils/Payhere";
+} from "../shared/utils/Payhere";
 import CacheService from "./CacheService";
 
 /**

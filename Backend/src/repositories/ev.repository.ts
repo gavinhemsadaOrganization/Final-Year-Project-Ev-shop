@@ -10,7 +10,7 @@ import {
   UpdateVehicleListingDTO,
 } from "../dtos/ev.DTO";
 import { Types } from "mongoose";
-import { withErrorHandling } from "../utils/CustomException";
+import { withErrorHandling } from "../shared/utils/CustomException";
 
 /**
  * Defines the contract for the EV repository, specifying the methods for data access operations
