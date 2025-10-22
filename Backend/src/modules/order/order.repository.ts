@@ -1,4 +1,4 @@
-import Order, { IOrder } from "../../models/Order";
+import Order, { IOrder } from "../../entities/Order";
 import { UpdateOrderDTO, CreateOrderDTO } from "../../dtos/order.DTO";
 import { Types } from "mongoose";
 import { withErrorHandling } from "../../shared/utils/CustomException";

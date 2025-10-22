@@ -2,15 +2,15 @@ import { Types } from "mongoose";
 import {
   FinancialInstitution,
   IFinancialInstitution,
-} from "../../models/FinancialInstitution";
+} from "../../entities/FinancialInstitution";
 import {
   FinancialProduct,
   IFinancialProduct,
-} from "../../models/FinancialProduct";
+} from "../../entities/FinancialProduct";
 import {
   FinancingApplication,
   IFinancingApplication,
-} from "../../models/FinancingApplication";
+} from "../../entities/FinancingApplication";
 import {
   FinancialInstitutionDTO,
   FinancialProductDTO,

@@ -1,4 +1,4 @@
-import { Seller, ISeller } from "../../models/Seller";
+import { Seller, ISeller } from "../../entities/Seller";
 import { SellerDTO, UpdateSellerDTO } from "../../dtos/seller.DTO";
 import { Types } from "mongoose";
 import { withErrorHandling } from "../../shared/utils/CustomException";

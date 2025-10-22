@@ -1,4 +1,4 @@
-import { IUser, User } from "../../models/User";
+import { IUser, User } from "../../entities/User";
 import { withErrorHandling } from "../../shared/utils/CustomException";
 
 /**

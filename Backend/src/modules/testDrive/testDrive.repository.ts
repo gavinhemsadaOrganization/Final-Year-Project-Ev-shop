@@ -1,9 +1,9 @@
 import { Types } from "mongoose";
-import { TestDriveSlot, ITestDriveSlot } from "../../models/TestDriveSlot";
+import { TestDriveSlot, ITestDriveSlot } from "../../entities/TestDriveSlot";
 import {
   TestDriveBooking,
   ITestDriveBooking,
-} from "../../models/TestDrivingBooking";
+} from "../../entities/TestDrivingBooking";
 import {
   TestDriveBookingDTO,
   TestDriveSlotDTO,

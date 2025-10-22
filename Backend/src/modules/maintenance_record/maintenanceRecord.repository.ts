@@ -1,7 +1,7 @@
 import {
   MaintenanceRecord,
   IMaintenanceRecord,
-} from "../../models/MaintenanceRecord";
+} from "../../entities/MaintenanceRecord";
 import {
   MaintenanceRecordDTO,
   UpdateMaintenanceRecordDTO,

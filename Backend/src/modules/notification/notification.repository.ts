@@ -1,4 +1,4 @@
-import { INotification, Notification } from "../../models/Notification";
+import { INotification, Notification } from "../../entities/Notification";
 import { NotificationDTO } from "../../dtos/notification.DTO";
 import { withErrorHandling } from "../../shared/utils/CustomException";
 

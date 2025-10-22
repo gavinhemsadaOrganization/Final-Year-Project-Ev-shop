@@ -1,7 +1,7 @@
-import { EvBrand, IEvBrand } from "../../models/EvBrand";
-import { EvCategory, IEvCategory } from "../../models/EvCategory";
-import { EvModel, IEvModel } from "../../models/EvModel";
-import { VehicleListing, IVehicleListing } from "../../models/VehicleListing";
+import { EvBrand, IEvBrand } from "../../entities/EvBrand";
+import { EvCategory, IEvCategory } from "../../entities/EvCategory";
+import { EvModel, IEvModel } from "../../entities/EvModel";
+import { VehicleListing, IVehicleListing } from "../../entities/VehicleListing";
 import {
   EvBrandDTO,
   EvCategoryDTO,

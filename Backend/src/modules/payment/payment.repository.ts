@@ -1,4 +1,4 @@
-import { Payment, IPayment } from "../../models/Payment";
+import { Payment, IPayment } from "../../entities/Payment";
 import { CreatePaymentDTO } from "../../dtos/payment.DTO";
 import { withErrorHandling } from "../../shared/utils/CustomException";
 

@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
-import { Cart, ICart } from "../../models/Cart";
-import { CartItem, ICartItem } from "../../models/CartItem";
+import { Cart, ICart } from "../../entities/Cart";
+import { CartItem, ICartItem } from "../../entities/CartItem";
 import { withErrorHandling } from "../../shared/utils/CustomException";
 
 /**

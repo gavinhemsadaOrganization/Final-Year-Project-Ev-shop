@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
-import { IPost, Post } from "../../models/Post";
-import { IPostReply, PostReply } from "../../models/PostReply";
+import { IPost, Post } from "../../entities/Post";
+import { IPostReply, PostReply } from "../../entities/PostReply";
 import { PostDTO, PostReplyDTO } from "../../dtos/post.DTO";
 import { withErrorHandling } from "../../shared/utils/CustomException";
 

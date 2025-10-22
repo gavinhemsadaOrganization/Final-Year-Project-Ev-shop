@@ -1,4 +1,4 @@
-import { IReview, Review } from "../../models/Review";
+import { IReview, Review } from "../../entities/Review";
 import { ReviewDTO } from "../../dtos/review.DTO";
 import { withErrorHandling } from "../../shared/utils/CustomException";
 

@@ -1,8 +1,8 @@
 import {
   ChatbotConversation,
   IChatbotConversation,
-} from "../../models/ChatbotConversation";
-import { Prediction, IPrediction } from "../../models/Prediction";
+} from "../../entities/ChatbotConversation";
+import { Prediction, IPrediction } from "../../entities/Prediction";
 import { ChatbotConversationDTO, PredictionDTO } from "../../dtos/chatbot.DTO";
 import { withErrorHandling } from "../../shared/utils/CustomException";
 
