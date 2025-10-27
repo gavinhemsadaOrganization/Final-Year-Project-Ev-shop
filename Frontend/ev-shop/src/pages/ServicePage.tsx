@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { FaChargingStation, FaTools, FaHandHoldingUsd, FaHeadset } from 'react-icons/fa';
+import { itemVariants, listVariants } from '../components/animations/variants';
 
 const services = [
   {
@@ -24,15 +25,6 @@ const services = [
   },
 ];
 
-const listVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
-};
-
-const itemVariants = {
-  hidden: { x: -20, opacity: 0 },
-  visible: { x: 0, opacity: 1, transition: { duration: 0.5 } },
-};
 
 const ServicesPage = () => {
   return (

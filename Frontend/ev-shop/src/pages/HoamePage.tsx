@@ -5,27 +5,29 @@ import {
   containerVariants,
   itemVariants,
 } from "../components/animations/variants";
-import EvModelCard from "@/components/EvModelCard";
+import { EvModelCard } from "@/components/EvModelCard";
+import bgVideo from "@/assets/Video/bg_video.mp4";
+
 // --- Mock Data (replace with your actual data from an API) ---
 const featuredModels = [
   {
     name: "Aura-X",
     image:
-      "https://images.unsplash.com/photo-1617986014354-1358a89694c0?q=80&w=2070&auto=format&fit=crop", // Replace with your image URL
+      "https://images.unsplash.com/photo-1617986014354-1358a89694c0?q=80&w=2070&auto=format&fit=crop",
     specs: "0-100 km/h in 3.2s",
     range: "610 km Range",
   },
   {
     name: "Photon GT",
     image:
-      "https://images.unsplash.com/photo-1621292898738-166199104328?q=80&w=1974&auto=format&fit=crop", // Replace with your image URL
+      "https://images.unsplash.com/photo-1621292898738-166199104328?q=80&w=1974&auto=format&fit=crop",
     specs: "Luxury & Performance",
     range: "550 km Range",
   },
   {
     name: "Volt Urban",
     image:
-      "https://images.unsplash.com/photo-1603487002163-95273130d939?q=80&w=2070&auto=format&fit=crop", // Replace with your image URL
+      "https://images.unsplash.com/photo-1603487002163-95273130d939?q=80&w=2070&auto=format&fit=crop",
     specs: "Compact & Efficient",
     range: "420 km Range",
   },
@@ -77,7 +79,7 @@ const HeroSection = () => (
       loop
       muted
       className="absolute inset-0 w-full h-full object-cover"
-      src="https://cdn.pixabay.com/video/2022/09/20/129759-756184519_large.mp4"
+      src={bgVideo}
     />
     <motion.div
       className="relative z-20 p-4"
@@ -141,11 +143,11 @@ const FeaturedModelsSection = () => (
         {/* Map through the `featuredModels` data to render each model card. */}
         {featuredModels.map((model, index) => (
           <EvModelCard
-          key={index}
-          name={model.name}
-          image={model.image}
-          specs={model.specs}
-          range={model.range}
+            key={index}
+            name={model.name}
+            image={model.image}
+            specs={model.specs}
+            range={model.range}
           />
         ))}
       </motion.div>

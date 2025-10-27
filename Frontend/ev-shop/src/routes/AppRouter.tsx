@@ -4,8 +4,8 @@ import ProtectedRoute from "../routes/ProtectedRouter";
 import BuyerRouter from "@/features/buyer/buyerRouter";
 import SellerRouter from "@/features/seller/sellerRouter";
 
-import NotFound from "../pages/NotFound";
-import UnauthorizedPage from "@/pages/Unauthorized";
+import NotFound from "../pages/NotFoundPage";
+import UnauthorizedPage from "@/pages/UnauthorizedPage";
 import PageRouter from "./WelcomePageRouter";
 
 const AppRoutes = () => {

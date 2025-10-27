@@ -1,0 +1,1 @@
+export type ActiveTab = "dashboard" | "orders" | "profile" | "saved" | "services" | "notification";

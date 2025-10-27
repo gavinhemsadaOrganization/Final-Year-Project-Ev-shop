@@ -12,18 +12,18 @@ import {
 import mongoose, { Types } from "mongoose";
 import { authService, IAuthService } from "../../../src//modules/auth/auth.service";
 import { IAuthRepository } from "../../../src//modules/auth/auth.repository";
-import { IUser } from "../../../src/models/User";
+import { IUser } from "../../../src/entities/User";
 import {
   RegisterDto,
   LoginDTO,
   ForgetPasswordDTO,
   OTPverifyDTO,
   ResetPasswordDTO,
-} from "../../../src//modules/auth/auth.dto";
+} from "../../../src/modules/auth/auth.dto";
 import { UserRole } from "../../../src/shared/enum/enum";
 
 // Mock external dependencies
-jest.mock("../../../src/utils/Email.util", () => ({
+jest.mock("../../../src/shared/utils/Email.util", () => ({
   sendOtpEmail: jest.fn(() => Promise.resolve(true)),
 }));
 
@@ -65,7 +65,7 @@ describe("AuthService", () => {
 
   beforeAll(async () => {
     // Use MONGO_URI from global setup
-    await mongoose.connect(process.env.MONGO_URI!);
+    await mongoose.connect(process.env.TEST_MONGO_URI!);
   });
 
   beforeEach(() => {

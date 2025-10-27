@@ -10,14 +10,14 @@ import {
   afterAll,
 } from "@jest/globals";
 import mongoose, { Types } from "mongoose";
-import { userService, IUserService } from "../../../src/services/user.service";
-import { IUserRepository } from "../../../src/repositories/user.repository";
-import CacheService from "../../../src/services/CacheService";
-import { IUser } from "../../../src/models/User";
+import { userService, IUserService } from "../../../src/modules/user/user.service";
+import { IUserRepository } from "../../../src/modules/user/user.repository";
+import CacheService from "../../../src/shared/cache/CacheService";
+import { IUser } from "../../../src/entities/User";
 
 // Mock the dependencies
-jest.mock("../../../src/services/CacheService");
-jest.mock("../../../src/utils/imageHandel", () => ({
+jest.mock("../../../src/shared/cache/CacheService");
+jest.mock("../../../src/shared/utils/imageHandel", () => ({
   addImage: jest.fn().mockReturnValue("path/to/new-image.jpg"),
   deleteImage: jest.fn(),
 }));

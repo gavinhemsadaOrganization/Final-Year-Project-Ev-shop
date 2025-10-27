@@ -1,8 +1,18 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { itemVariants, cardHover } from "./animations/variants"; // Adjust path as needed
+import { HeartIcon } from "@/assets/icons/icons";
 
-// --- Updated Props Interface ---
+export type Vehicle = {
+  id: number;
+  name: string;
+  model: string;
+  price: string;
+  range: string;
+  image: string;
+  topSpeed: string;
+};
+
 interface EvModelCardProps {
   // Required props
   name: string;
@@ -27,7 +37,7 @@ interface EvModelCardProps {
  *
  * @param {EvModelCardProps} props - The properties for the model card.
  */
-const EvModelCard = ({
+export const EvModelCard = ({
   name,
   image,
   logo,
@@ -111,4 +121,51 @@ const EvModelCard = ({
   );
 };
 
-export default EvModelCard;
+export const VehicleCard: React.FC<{
+  vehicle: Vehicle;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ vehicle, className, style }) => (
+  <div
+    className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${className}`}
+    style={style}
+  >
+    <img
+      className="h-56 w-full object-cover"
+      src={vehicle.image}
+      alt={vehicle.name}
+    />
+    <div className="p-6">
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="uppercase tracking-wide text-sm text-blue-600 font-bold">
+            {vehicle.model}
+          </div>
+          <a
+            href="#"
+            className="block mt-1 text-xl leading-tight font-semibold text-gray-900 hover:underline"
+          >
+            {vehicle.name}
+          </a>
+        </div>
+        <button className="text-gray-400 hover:text-red-500 p-2 -mr-2 -mt-2 transition-colors">
+          <HeartIcon className="h-6 w-6" />
+        </button>
+      </div>
+      <p className="mt-2 text-2xl font-light text-gray-800">{vehicle.price}</p>
+      <div className="mt-4 flex justify-between text-sm text-gray-600">
+        <span>
+          <strong>Range:</strong> {vehicle.range}
+        </span>
+        <span>
+          <strong>Top Speed:</strong> {vehicle.topSpeed}
+        </span>
+      </div>
+      <div className="mt-6">
+        <button className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Book a Test Drive
+        </button>
+      </div>
+    </div>
+  </div>
+);

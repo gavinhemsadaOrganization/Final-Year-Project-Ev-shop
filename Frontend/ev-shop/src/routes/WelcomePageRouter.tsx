@@ -1,11 +1,11 @@
 import { Route, Routes } from "react-router-dom";
 import HomePage from "../pages/HoamePage";
-import ModelsPage from "../pages/Model";
-import ServicesPage from "../pages/Service";
-import AboutPage from "../pages/About";
-import ContactPage from "../pages/Contact";
+import ModelsPage from "../pages/ModelPage";
+import ServicesPage from "../pages/ServicePage";
+import AboutPage from "../pages/AboutPage";
+import ContactPage from "../pages/ContactPage";
 import Header from "@/pages/Header";
-import TermsPage from "@/pages/Terms";
+import TermsPage from "@/pages/TermsPage";
 
 const WelcomePageRouter = () => {
   return (
