@@ -17,7 +17,7 @@ import { SavedVehicles } from "./SavedVehicalsPage";
 import { NotificationPage } from "./NotificationPage";
 
 import type { UserRole, Notification, Order, User, Service, ChatMessage, ActiveTab } from "@/types";
-
+import { useAuth } from "@/context/AuthContext";
 // --- Mock Data ------------
 const user: User = {
   name: "Kasun Sampath",
@@ -94,6 +94,7 @@ const services: Service[] = [
   },
 ];
 
+
 const orders: Order[] = [
   {
     id: "ORD-2025-007",
@@ -145,6 +146,9 @@ const App: React.FC = () => {
       sender: "bot",
     },
   ]);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  
+
   useEffect(() => {
     // Disable back button by pushing state and listening to popstate
     const state = { page: "dashboard" };
@@ -212,12 +216,14 @@ const App: React.FC = () => {
       case "saved":
         return <SavedVehicles />;
       case "notification":
-        return <NotificationPage />;
+        return <NotificationPage notifications={notifications} />;
       default:
         return <VehicleList vehicles={filteredVehicles} />;
     }
   };
-
+    const { getProfile, getUserID } = useAuth();
+  console.log(getProfile());
+  console.log(getUserID());
   return (
     <>
       <style>{`
@@ -235,7 +241,9 @@ const App: React.FC = () => {
                 .animate-popIn { animation: popIn 0.3s ease-out forwards; }
             `}</style>
       <div className="flex h-screen bg-gray-100 text-gray-800">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isExpanded={isSidebarExpanded}
+         onExpand={() => setIsSidebarExpanded(true)}
+        onCollapse={() => setIsSidebarExpanded(false)}/>
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header
@@ -285,7 +293,6 @@ const SellerComingSoon: React.FC<{ onSwitchBack: () => void }> = ({
   onSwitchBack,
 }) => {
   const navigate = useNavigate();
-
   return (
     <div className="bg-white p-8 rounded-xl shadow-md text-center flex flex-col items-center justify-center h-full">
       <h1 className="text-3xl font-bold mb-4">Seller Dashboard</h1>

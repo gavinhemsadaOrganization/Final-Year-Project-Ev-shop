@@ -162,7 +162,8 @@ export function authController(authService: IAuthService): IAuthController {
         logger.info(`User logged in successfully: ${result.user.id}`);
         return res.status(200).json({
           message: "User logged in successfully",
-          user: result.user.id,
+          userid: result.user.id,
+          user: result.user,
           role: result.user.role,
         });
       } catch (error: any) {
@@ -232,7 +233,7 @@ export function authController(authService: IAuthService): IAuthController {
             });
             logger.info(`User logged in successfully: ${user._id}`);
             res.redirect(
-              `${redirect_url}?userid=${user._id}&role=${user.role}`
+              `${redirect_url}?userid=${user._id}&role=${user.role}&user=${user}`
             );
           } catch (error: any) {
             logger.error(`Error Google logging in user: ${error}`);
@@ -299,7 +300,7 @@ export function authController(authService: IAuthService): IAuthController {
               }
             });
             logger.info(`User logged in successfully: ${user.id}`);
-            res.redirect(`${redirect_url}?userid=${user.id}&role=${user.role}`);
+            res.redirect(`${redirect_url}?userid=${user.id}&role=${user.role}&user=${user}`);
           } catch (error: any) {
             logger.error(`Error Facebook logging in user: ${error}`);
             res.redirect(`${redirect_url}?userid=null`);

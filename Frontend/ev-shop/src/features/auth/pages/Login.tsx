@@ -12,7 +12,7 @@ import Loader from "@/components/Loader";
 
 // Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
-import type { UserRole } from "@/context/AuthContext";
+import type { UserRole } from "@/types";
 
 // Import React hooks for state, side-effects, and navigation.
 import { useState, useEffect } from "react";
@@ -69,6 +69,7 @@ const LoginPage = () => {
   const handleOAuthCallback = () => {
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("userid");
+    const user = params.get("user");
     const role = params.get("role") as UserRole;
     const error = params.get("error");
     // Clean the URL by removing the query parameters.
@@ -81,7 +82,7 @@ const LoginPage = () => {
 
     if (userId) {
       // If authentication is successful, set user data and redirect.
-      setUserData(userId, [role], { userid: userId });
+      setUserData(userId, [role], { userid: userId }, { profile: user });
       showMessage("OAuth authentication successful!", "success");
       setTimeout(() => {
         nav("/user/dashboard", { replace: true });
@@ -144,7 +145,7 @@ const LoginPage = () => {
       const respons = await login(email, password);
       console.log(respons);
       // On success, set user data in the context.
-      setUserData(respons.user, respons.role, { userid: respons.user });
+      setUserData(respons.user, respons.role, { userid: respons.userid }, {profile: respons.user});
       showMessage(respons.message, "success");
       // Redirect to the user dashboard after a short delay.
       setTimeout(() => {

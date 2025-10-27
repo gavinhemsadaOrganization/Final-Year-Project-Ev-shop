@@ -1,8 +1,11 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
 
-// Define the possible roles a user can have within the application.
-export type UserRole = "user" | "seller" | "finance" | "admin";
+import type { UserRole } from "@/types";
+
+// Define the structure for optional, additional user data.
+// Using Record<string, any> for maximum flexibility.
+type UserProfile = Record<string, any>;
 
 // Define the structure of the User object.
 interface User {
@@ -15,6 +18,7 @@ interface User {
     financeid?: string;
     adminid?: string;
   };
+  profile?: UserProfile; // Optional additional user profile data.
 }
 
 // Define the shape of the context that will be provided to consuming components.
@@ -29,11 +33,14 @@ interface AuthContextType {
       sellerid?: string;
       financeid?: string;
       adminid?: string;
-    }
+    },
+    profile?: UserProfile
+
   ) => void;
   getUserID: () => string | null; // Function to get the primary user ID.
   setActiveRole: (role: UserRole) => void; // Function to switch the user's active role.
   getActiveRoleId: () => string | null; // Function to get the ID associated with the current active role.
+  getProfile: () => UserProfile | undefined; // Function to get the user's profile data.
   logout: () => void; // Function to log the user out and clear their session.
 }
 
@@ -75,13 +82,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sellerid?: string;
       financeid?: string;
       adminid?: string;
-    }
+    },
+    profile?: UserProfile
   ) => {
     const userData: User = {
       userid: userid, // The main user ID
       roles: roles,
       activeRole: roles[0], // Default to the first role
       ids: ids,
+      profile: profile,
     };
     setUser(userData);
   };
@@ -116,6 +125,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return user.ids.userid ?? null;
     }
   };
+
+  // You can also just access it via `user.profile`
+  const getProfile = (): UserProfile | undefined => {
+    if (!user) return undefined;
+    return user.profile;
+  };
+
   // Clears the user state and removes the user data from localStorage to end the session.
   const logout = () => {
     setUser(null);
@@ -131,6 +147,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setActiveRole,
         getUserID,
         getActiveRoleId,
+        getProfile,
         logout,
       }}
     >

@@ -1,19 +1,11 @@
 import type { Service } from "@/types";
 
 /**
- * Props for the Services component.
- */
-type ServicesProps = {
-  /** An array of service objects to be displayed. */
-  services: Service[];
-};
-
-/**
  * A page component that displays a list of available services.
  * It renders a grid of service cards based on the provided `services` prop,
  * and also includes a static card for a "Charging Station Locator".
  */
-export const Services: React.FC<ServicesProps> = ({ services }) => (
+export const Services: React.FC<{ services: Service[] }> = ({ services }) => (
   // Main container for the services page with padding, rounded corners, and a shadow.
   <div className="bg-white p-8 rounded-xl shadow-md">
     <h1 className="text-3xl font-bold mb-6">Our Services</h1>

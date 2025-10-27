@@ -1,32 +1,10 @@
 import { BellIcon } from "@/assets/icons/icons"; 
 import type { Notification } from "@/types";
 
-const notifications: Notification[] = [
-  {
-    id: 1,
-    message: "Your test drive for Aura EV is confirmed for Oct 15. Your test drive for Aura EV is confirmed for Oct 15. Your test drive for Aura EV is confirmed for Oct 15.",
-    time: "2 hours ago",
-  },
-  {
-    id: 2,
-    message: "New accessory added: All-weather floor mats.",
-    time: "1 day ago",
-  },
-  {
-    id: 3,
-    message: "Your order ORD-2025-007 has been delivered.",
-    time: "3 days ago",
-  },
-  {
-    id: 4,
-    message:
-      "A software update is available for your Pulse XR. Schedule an appointment?",
-    time: "5 days ago",
-  },
-];
+
 // --- End Mock Data ---
 
-export const NotificationPage: React.FC = () => {
+export const NotificationPage: React.FC<{ notifications: Notification[] }> = ({ notifications }) => {
   return (
     <div className="bg-white p-8 rounded-xl shadow-md">
       <div className="flex items-center gap-4 mb-6">
