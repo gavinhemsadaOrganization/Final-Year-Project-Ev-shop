@@ -18,7 +18,7 @@ import { NotificationPage } from "./NotificationPage";
 
 import type { UserRole, Notification, Order, User, Service, ChatMessage, ActiveTab } from "@/types";
 
-// --- Mock Data ---
+// --- Mock Data ------------
 const user: User = {
   name: "Kasun Sampath",
   email: "kasun@example.com",
