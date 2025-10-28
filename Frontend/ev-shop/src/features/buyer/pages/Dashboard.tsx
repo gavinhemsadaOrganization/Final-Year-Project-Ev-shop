@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  CloseIcon,
-  ChatBubbleIcon,
-  SwitchIcon,
-} from "@/assets/icons/icons";
+import { CloseIcon, ChatBubbleIcon, SwitchIcon } from "@/assets/icons/icons";
 import { Chatbot } from "../components/ChatBot";
 import { Sidebar } from "../components/SideBar";
 import { Header } from "../components/Header";
 import { VehicleList } from "../components/VehicalList";
-import type { Vehicle } from "@/components/EvModelCard";
+import type { Vehicle } from "@/types";
 import { OrderHistory } from "./OrderHistoryPage";
 import { UserProfile } from "./UserProfilePage";
-import { Services} from "./ServicePage";
+import { Services } from "./ServicePage";
 import { SavedVehicles } from "./SavedVehicalsPage";
 import { NotificationPage } from "./NotificationPage";
+import { CartPage } from "./CartPage";
+import { MyReviewsPage } from "./MyReviewsPage";
+import { TestDrivesPage } from "./TestDrivePage";
 
-import type { UserRole, Notification, Order, User, Service, ChatMessage, ActiveTab } from "@/types";
+import type {
+  UserRole,
+  Notification,
+  Order,
+  User,
+  Service,
+  ChatMessage,
+  ActiveTab,
+} from "@/types";
 import { useAuth } from "@/context/AuthContext";
 // --- Mock Data ------------
 const user: User = {
@@ -94,7 +101,6 @@ const services: Service[] = [
   },
 ];
 
-
 const orders: Order[] = [
   {
     id: "ORD-2025-007",
@@ -139,16 +145,10 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      text: "Hello! I'm the EV-Shop assistant. How can I help you today?",
-      sender: "bot",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  
-
+  const navigate = useNavigate();
+  const { getProfile, getUserID, logout } = useAuth();
   useEffect(() => {
     // Disable back button by pushing state and listening to popstate
     const state = { page: "dashboard" };
@@ -217,33 +217,69 @@ const App: React.FC = () => {
         return <SavedVehicles />;
       case "notification":
         return <NotificationPage notifications={notifications} />;
+      case "cart":
+        return <CartPage cart={[]} onRemove={() => {}} />;
+      case "test-drives":
+        return <TestDrivesPage />;
+      case "reviews":
+        return <MyReviewsPage />;
       default:
         return <VehicleList vehicles={filteredVehicles} />;
     }
   };
-    const { getProfile, getUserID } = useAuth();
+
+  // --- NEW ---
+  // 1. Helper function to capitalize tab names for breadcrumbs
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // --- NEW ---
+  // 2. Wrapper function to "disable" profile link from sidebar
+  const handleSidebarTabClick = (tab: ActiveTab) => {
+    if (tab === "profile") {
+      // Do nothing if the sidebar tries to set the tab to "profile"
+      return;
+    }
+    setActiveTab(tab);
+  };
+
+  const handleLogout = () => {
+    if (logout) {
+      logout(); // Call the logout function from your auth context
+    }
+    navigate("/login"); // Redirect to login or home page
+  };
+
+  useEffect(() => {
+    // ... (keep your existing useEffect)
+  }, []);
   console.log(getProfile());
   console.log(getUserID());
   return (
     <>
       <style>{`
-                body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-                .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-                
-                @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-                .animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
+                  body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+                  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                  .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+                  
+                  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                  .animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
 
-                @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-                .animate-slideInUp { animation: slideInUp 0.3s ease-out forwards; }
+                  @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                  .animate-slideInUp { animation: slideInUp 0.3s ease-out forwards; }
 
-                @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                .animate-popIn { animation: popIn 0.3s ease-out forwards; }
-            `}</style>
+                  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                  .animate-popIn { animation: popIn 0.3s ease-out forwards; }
+                `}</style>
       <div className="flex h-screen bg-gray-100 text-gray-800">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isExpanded={isSidebarExpanded}
-         onExpand={() => setIsSidebarExpanded(true)}
-        onCollapse={() => setIsSidebarExpanded(false)}/>
+        <Sidebar
+          activeTab={activeTab}
+          // --- MODIFIED ---
+          // Pass the new handler to the Sidebar
+          setActiveTab={handleSidebarTabClick}
+          isExpanded={isSidebarExpanded}
+          onExpand={() => setIsSidebarExpanded(true)}
+          onCollapse={() => setIsSidebarExpanded(false)}
+        />
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header
@@ -253,10 +289,38 @@ const App: React.FC = () => {
             onRoleSwitch={handleRoleSwitch}
             user={user}
             notifications={notifications}
+            onLogout={handleLogout}
             setActiveTab={setActiveTab}
           />
 
           <main className="flex-1 overflow-y-auto p-6 md:p-8">
+            {/* --- NEW --- */}
+            {/* 3. Added Breadcrumb Navigation */}
+            {activeTab !== "dashboard" && userRole === "user" && (
+              <nav
+                className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn"
+                aria-label="Breadcrumb"
+              >
+                <ol className="list-none p-0 inline-flex">
+                  <li className="flex items-center">
+                    <button
+                      onClick={() => setActiveTab("dashboard")}
+                      className="hover:text-blue-600 hover:underline"
+                    >
+                      Dashboard
+                    </button>
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mx-2">/</span>
+                    <span className="text-gray-700 font-semibold">
+                      {capitalize(activeTab)}
+                    </span>
+                  </li>
+                </ol>
+              </nav>
+            )}
+            {/* --- END NEW --- */}
+
             <div key={activeTab + userRole} className="animate-fadeIn">
               {renderContent()}
             </div>

@@ -283,3 +283,137 @@ export const ChevronLeftIcon: React.FC<IconProps> = ({ className }) => (
     <path d="M15 18l-6-6 6-6" />
   </svg>
 );
+
+// This is the component for the icon.
+// You can add this to your main `icons.tsx` file.
+
+export const QuestionMarkCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props
+) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props} // This allows you to pass className, h-5, w-5, etc.
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"
+      />
+    </svg>
+  );
+};
+
+// This is the component for the icon.
+// You can add this to your main `icons.tsx` file.
+
+export const UserCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props
+) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props} // This allows you to pass className, h-5, w-5, etc.
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+      />
+    </svg>
+  );
+};
+
+export const ChevronDownIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props
+) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={3.5}
+      stroke="currentColor"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m19.5 8.25-7.5 7.5-7.5-7.5"
+      />
+    </svg>
+  );
+};
+
+export const ReviewsIcon: React.FC<IconProps> = ({ className }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      viewBox="0 -960 960 960"  // matches the original path coordinate system
+      width="24"
+      height="24"
+      fill="currentColor"       // fill the icon with color
+    >
+      <path d="m363-390 117-71 117 71-31-133 104-90-137-11-53-126-53 126-137 11 104 90-31 133ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
+    </svg>
+  );
+};
+
+
+export const KeyIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z"
+      />
+    </svg>
+  );
+};
+
+export const CalendarIcon: React.FC<IconProps> = ({ className }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      viewBox="0 -960 960 960"
+      width="24"
+      height="24"
+      fill="currentColor"
+    >
+      <path d="M160-120q-33 0-56.5-23.5T80-200v-560q0-33 23.5-56.5T160-840h80v-80h80v80h320v-80h80v80h80q33 0 56.5 23.5T880-760v560q0 33-23.5 56.5T800-120H160Zm0-80h640v-400H160v400Zm0-480h640v-80H160v80Zm0 480v-480 480Zm160-320h160v160H320v-160Z" />
+    </svg>
+  );
+};
+
+export const ClockIcon: React.FC<IconProps> = ({ className }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      viewBox="0 -960 960 960"
+      width="24"
+      height="24"
+      fill="currentColor"
+    >
+      <path d="M480-80q-83 0-156-31.5T197.5-197Q160-234 128.5-307T97-464q0-83 31.5-156T197-762.5Q234-800 307-831.5T464-863q83 0 156 31.5T762.5-763Q800-726 831.5-653T863-496q0 83-31.5 156T763-197q-37 37-110 68.5T496-80h-16Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm40-200 120 70-30 50-150-90v-250h60v220Z" />
+    </svg>
+  );
+};

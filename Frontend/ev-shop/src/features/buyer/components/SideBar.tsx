@@ -1,12 +1,11 @@
 import {
   CarIcon,
   ShoppingCartIcon,
-  UserIcon,
   HeartIcon,
   SettingsIcon,
   LogoutIcon,
-  BellIcon,
-  // Chevron icons are no longer needed
+  ReviewsIcon,
+  KeyIcon,
 } from "@/assets/icons/icons";
 import type { ActiveTab } from "@/types";
 
@@ -84,13 +83,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         isExpanded={isExpanded}
       />
       <SidebarLink
-        text="My Profile"
-        icon={<UserIcon className="h-5 w-5" />}
-        active={activeTab === "profile"}
-        onClick={() => setActiveTab("profile")}
-        isExpanded={isExpanded}
-      />
-      <SidebarLink
         text="Saved Vehicles"
         icon={<HeartIcon className="h-5 w-5" />}
         active={activeTab === "saved"}
@@ -105,10 +97,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
         isExpanded={isExpanded}
       />
       <SidebarLink
-        text="Notification"
-        icon={<BellIcon className="h-5 w-5" />}
-        active={activeTab === "notification"}
-        onClick={() => setActiveTab("notification")}
+        text="Test Drives"
+        icon={<KeyIcon className="h-5 w-5" />}
+        active={activeTab === "test-drives"}
+        onClick={() => setActiveTab("test-drives")}
+        isExpanded={isExpanded}
+      />
+      <SidebarLink
+        text="My Reviews"
+        icon={<ReviewsIcon />}
+        active={activeTab === "reviews"}
+        onClick={() => setActiveTab("reviews")}
         isExpanded={isExpanded}
       />
     </nav>

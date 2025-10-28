@@ -2,17 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { itemVariants, cardHover } from "./animations/variants"; // Adjust path as needed
 import { HeartIcon } from "@/assets/icons/icons";
-
-export type Vehicle = {
-  id: number;
-  name: string;
-  model: string;
-  price: string;
-  range: string;
-  image: string;
-  topSpeed: string;
-};
-
+import type { Vehicle } from "@/types";
 interface EvModelCardProps {
   // Required props
   name: string;

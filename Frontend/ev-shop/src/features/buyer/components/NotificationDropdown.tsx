@@ -70,7 +70,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       {/* Notification bell icon button that toggles the dropdown's visibility. */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none"
+        className="relative p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-greay-700 focus:outline-non"
       >
         <BellIcon className="h-6 w-6" />
 
@@ -84,7 +84,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
       {/* The dropdown panel, conditionally rendered based on the `isOpen` state. */}
       {isOpen && (
-        <div className="animate-popIn absolute right-0 mt-2 w-80 max-w-sm bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+        <div className="animate-popIn absolute right-0 mt-2 w-80 max-w-sm bg-white rounded-lg shadow-xl border border-gray-300 z-50">
           {/* Dropdown Header */}
           <div className="p-4 flex justify-between items-center border-b">
             <h3 className="font-bold text-lg">Notifications</h3>
