@@ -1,8 +1,4 @@
-import {
-  ShoppingCartIcon,
-  SearchIcon,
-  SwitchIcon,
-} from "@/assets/icons/icons";
+import { ShoppingCartIcon, SearchIcon, SwitchIcon } from "@/assets/icons/icons";
 import { NotificationDropdown } from "./NotificationDropdown";
 import type { UserRole, ActiveTab } from "@/types";
 import { ProfileDropdown } from "./ProfileDropdown";
@@ -18,7 +14,7 @@ type HeaderProps = {
   /** Callback function to update the search term state. */
   setSearchTerm: (term: string) => void;
   /** The current role of the user (e.g., 'user' or 'seller'). */
-  userRole: UserRole;
+  userRole: UserRole[];
   /** Callback function to handle the role switching action. */
   onRoleSwitch: () => void;
   /** The user object, containing details like avatar, name, and email. */
@@ -47,8 +43,6 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   onLogout,
 }) => {
-  
-
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6">
       {" "}
@@ -76,30 +70,51 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <SwitchIcon className="h-5 w-5 flex-shrink-0" />
-          <span className="hidden sm:inline whitespace-nowrap">
-            {" "}
-            {/* <-- MODIFIED: Hides text on xs screens */}
-            Switch to {userRole === "user" ? "Seller" : "Buyer"}
-          </span>
+          {userRole.length === 1 ? (
+            <>
+              <span className="hidden sm:inline whitespace-nowrap">
+                {" "}
+                become a Seller
+              </span>
+              <span className="hidden sm:inline whitespace-nowrap">
+                {" "}
+                become a financial contributor
+              </span>
+            </>
+          ) : (
+            <span className="hidden sm:inline whitespace-nowrap">
+              {" "}
+              Switch to{" "}
+              {userRole.includes("seller")
+                ? "Buyer"
+                : userRole.includes("finance")
+                ? "Buyer"
+                : "Seller"}
+            </span>
+          )}
         </button>
-
         {/* Shopping Cart Button */}
-        <button className="relative rounded-full text-gray-500 hover:bg-gray-200 hover:text-greay-700 focus:outline-non transition-colors p-2" onClick={() => setActiveTab("cart")}>
+        <button
+          className="relative rounded-full text-gray-500 hover:bg-gray-200 hover:text-greay-700 focus:outline-non transition-colors p-2"
+          onClick={() => setActiveTab("cart")}
+        >
           {" "}
           <ShoppingCartIcon className="h-6 w-6" />
           <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white">
             2
           </span>
         </button>
-
         {/* Notification Dropdown Component */}
         <NotificationDropdown
           notifications={notifications}
           setActiveTab={setActiveTab}
         />
-        
         {/* --- Profile Dropdown --- */}
-        <ProfileDropdown user={user} onLogout={onLogout} setActiveTab={setActiveTab} />
+        <ProfileDropdown
+          user={user}
+          onLogout={onLogout}
+          setActiveTab={setActiveTab}
+        />
         {/* End of Profile Dropdown */}
       </div>
     </header>

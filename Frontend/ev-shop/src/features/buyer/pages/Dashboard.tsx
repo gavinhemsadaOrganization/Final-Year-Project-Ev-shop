@@ -25,6 +25,7 @@ import type {
   ActiveTab,
 } from "@/types";
 import { useAuth } from "@/context/AuthContext";
+
 // --- Mock Data ------------
 const user: User = {
   name: "Kasun Sampath",
@@ -141,14 +142,14 @@ const notifications: Notification[] = [
 // --- Main Dashboard Component ---
 
 const App: React.FC = () => {
-  const [userRole, setUserRole] = useState<UserRole>("user");
+  const [userRole, setUserRole] = useState<UserRole[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const navigate = useNavigate();
-  const { getProfile, getUserID, logout } = useAuth();
+  const { getProfile, getUserID, logout, getRoles } = useAuth();
   useEffect(() => {
     // Disable back button by pushing state and listening to popstate
     const state = { page: "dashboard" };
@@ -166,17 +167,22 @@ const App: React.FC = () => {
       window.removeEventListener("popstate", handleBackButton);
     };
   }, []);
+
   const filteredVehicles = vehicles.filter(
     (vehicle) =>
       vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  console.log(userRole);
+  useEffect(() => {
+  setUserRole(getRoles()!);
+  }, [getRoles]);
 
   const handleRoleSwitch = () => {
-    const newRole = userRole === "user" ? "seller" : "user";
-    setUserRole(newRole);
+    const newRole = getRoles();
+    setUserRole(newRole!);
     // If switching back to user, ensure a valid tab is active
-    if (newRole === "user") {
+    if (newRole?.includes("user")) {
       setActiveTab("dashboard");
     }
   };
@@ -200,9 +206,9 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (userRole === "seller") {
-      return <SellerComingSoon onSwitchBack={handleRoleSwitch} />;
-    }
+    // if (userRole.includes("seller")) {
+    //   return <SellerComingSoon onSwitchBack={handleRoleSwitch} />;
+    // }
 
     switch (activeTab) {
       case "dashboard":
@@ -296,7 +302,7 @@ const App: React.FC = () => {
           <main className="flex-1 overflow-y-auto p-6 md:p-8">
             {/* --- NEW --- */}
             {/* 3. Added Breadcrumb Navigation */}
-            {activeTab !== "dashboard" && userRole === "user" && (
+            {activeTab !== "dashboard" && userRole.includes("user") && (
               <nav
                 className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn"
                 aria-label="Breadcrumb"

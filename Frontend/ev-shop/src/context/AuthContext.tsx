@@ -42,6 +42,7 @@ interface AuthContextType {
   getActiveRoleId: () => string | null; // Function to get the ID associated with the current active role.
   getProfile: () => UserProfile | undefined; // Function to get the user's profile data.
   logout: () => void; // Function to log the user out and clear their session.
+  getRoles: () => UserRole[] | undefined; // Function to get the user's roles.
 }
 
 // Create the React Context for authentication. It's initialized as undefined.
@@ -131,7 +132,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return undefined;
     return user.profile;
   };
-
+  const getRoles = (): UserRole[] | undefined => {
+    if (!user) return undefined;
+    return user.roles;
+  };
   // Clears the user state and removes the user data from localStorage to end the session.
   const logout = () => {
     setUser(null);
@@ -148,6 +152,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         getUserID,
         getActiveRoleId,
         getProfile,
+        getRoles,
         logout,
       }}
     >
