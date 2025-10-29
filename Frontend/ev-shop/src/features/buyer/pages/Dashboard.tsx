@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CloseIcon, ChatBubbleIcon, SwitchIcon } from "@/assets/icons/icons";
+import { CloseIcon, ChatBubbleIcon } from "@/assets/icons/icons";
 import { Chatbot } from "../components/ChatBot";
 import { Sidebar } from "../components/SideBar";
 import { Header } from "../components/Header";
@@ -21,7 +21,6 @@ import type {
   Order,
   User,
   Service,
-  ChatMessage,
   ActiveTab,
 } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -146,7 +145,7 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const navigate = useNavigate();
   const { getProfile, getUserID, logout, getRoles } = useAuth();
@@ -175,35 +174,8 @@ const App: React.FC = () => {
   );
   console.log(userRole);
   useEffect(() => {
-  setUserRole(getRoles()!);
+    setUserRole(getRoles()!);
   }, [getRoles]);
-
-  const handleRoleSwitch = () => {
-    const newRole = getRoles();
-    setUserRole(newRole!);
-    // If switching back to user, ensure a valid tab is active
-    if (newRole?.includes("user")) {
-      setActiveTab("dashboard");
-    }
-  };
-
-  const handleSendMessage = (text: string) => {
-    const newUserMessage: ChatMessage = {
-      id: Date.now(),
-      text,
-      sender: "user",
-    };
-    setMessages((prev) => [...prev, newUserMessage]);
-
-    setTimeout(() => {
-      const botResponse: ChatMessage = {
-        id: Date.now() + 1,
-        text: "Thanks for your message! A specialist will get back to you shortly.",
-        sender: "bot",
-      };
-      setMessages((prev) => [...prev, botResponse]);
-    }, 1500);
-  };
 
   const renderContent = () => {
     // if (userRole.includes("seller")) {
@@ -262,25 +234,21 @@ const App: React.FC = () => {
   console.log(getUserID());
   return (
     <>
+      {/* Removed the inline <style> block that was forcing a light background */}
       <style>{`
-                  body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
                   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
                   .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
                   
                   @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
                   .animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
-
                   @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
                   .animate-slideInUp { animation: slideInUp 0.3s ease-out forwards; }
-
                   @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
                   .animate-popIn { animation: popIn 0.3s ease-out forwards; }
                 `}</style>
-      <div className="flex h-screen bg-gray-100 text-gray-800">
+      <div className="flex h-screen bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
         <Sidebar
           activeTab={activeTab}
-          // --- MODIFIED ---
-          // Pass the new handler to the Sidebar
           setActiveTab={handleSidebarTabClick}
           isExpanded={isSidebarExpanded}
           onExpand={() => setIsSidebarExpanded(true)}
@@ -292,14 +260,13 @@ const App: React.FC = () => {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             userRole={userRole}
-            onRoleSwitch={handleRoleSwitch}
             user={user}
             notifications={notifications}
             onLogout={handleLogout}
             setActiveTab={setActiveTab}
           />
 
-          <main className="flex-1 overflow-y-auto p-6 md:p-8">
+          <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-100 dark:bg-gray-900">
             {/* --- NEW --- */}
             {/* 3. Added Breadcrumb Navigation */}
             {activeTab !== "dashboard" && userRole.includes("user") && (
@@ -311,13 +278,13 @@ const App: React.FC = () => {
                   <li className="flex items-center">
                     <button
                       onClick={() => setActiveTab("dashboard")}
-                      className="hover:text-blue-600 hover:underline"
+                      className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
                     >
                       Dashboard
                     </button>
                   </li>
                   <li className="flex items-center">
-                    <span className="mx-2">/</span>
+                    <span className="mx-2 dark:text-gray-500">/</span>
                     <span className="text-gray-700 font-semibold">
                       {capitalize(activeTab)}
                     </span>
@@ -337,7 +304,7 @@ const App: React.FC = () => {
       <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900"
         >
           {isChatOpen ? (
             <CloseIcon className="h-6 w-6" />
@@ -347,37 +314,8 @@ const App: React.FC = () => {
         </button>
       </div>
 
-      {isChatOpen && (
-        <Chatbot
-          onClose={() => setIsChatOpen(false)}
-          messages={messages}
-          onSendMessage={handleSendMessage}
-        />
-      )}
+      {isChatOpen && <Chatbot onClose={() => setIsChatOpen(false)} />}
     </>
-  );
-};
-
-// --- Seller View Placeholder ---
-const SellerComingSoon: React.FC<{ onSwitchBack: () => void }> = ({
-  onSwitchBack,
-}) => {
-  const navigate = useNavigate();
-  return (
-    <div className="bg-white p-8 rounded-xl shadow-md text-center flex flex-col items-center justify-center h-full">
-      <h1 className="text-3xl font-bold mb-4">Seller Dashboard</h1>
-      <p className="text-gray-600 mb-6 max-w-md">
-        You are currently in the buyer view. Click below to go to your seller
-        dashboard.
-      </p>
-      <button
-        onClick={() => navigate("/seller/dashboard")}
-        className="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-300 flex items-center gap-2"
-      >
-        <SwitchIcon className="h-5 w-5" />
-        Go to Seller Dashboard
-      </button>
-    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMenu, FiX } from "react-icons/fi"; // Icons for the menu button
+import { FiMenu, FiX } from "react-icons/fi";
 import type { Variants } from "framer-motion";
 import Logo from "../assets/logo_no-bg.png";
 

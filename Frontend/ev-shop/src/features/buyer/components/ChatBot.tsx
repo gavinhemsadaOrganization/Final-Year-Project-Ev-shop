@@ -5,18 +5,15 @@ import type { ChatMessage } from "@/types";
 // Define the props interface for the Chatbot component
 type ChatbotProps = {
   onClose: () => void; // Function to call when the chatbot needs to be closed
-  messages: ChatMessage[]; // Array of chat messages to display
-  onSendMessage: (text: string) => void; // Function to call when a new message is sent by the user
 };
 
 // Chatbot functional component definition
 export const Chatbot: React.FC<ChatbotProps> = ({
   onClose,
-  messages,
-  onSendMessage,
 }) => {
   // State to manage the input field's value
   const [inputValue, setInputValue] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   // Ref to automatically scroll to the latest message
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -29,15 +26,34 @@ export const Chatbot: React.FC<ChatbotProps> = ({
   // Effect hook to scroll to the bottom whenever the messages array updates
   useEffect(scrollToBottom, [messages]);
 
+   const handleSendMessage = (text: string) => {
+      const newUserMessage: ChatMessage = {
+        id: Date.now(),
+        text,
+        sender: "user",
+      };
+      setMessages((prev) => [...prev, newUserMessage]);
+  
+      setTimeout(() => {
+        const botResponse: ChatMessage = {
+          id: Date.now() + 1,
+          text: "Thanks for your message! A specialist will get back to you shortly.",
+          sender: "bot",
+        };
+        setMessages((prev) => [...prev, botResponse]);
+      }, 1500);
+    };
+
   // Handler for form submission (sending a message)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault(); // Prevent default form submission behavior (page reload)
     // Check if the input value is not empty after trimming whitespace
     if (inputValue.trim()) {
-      onSendMessage(inputValue.trim()); // Call the onSendMessage prop with the trimmed input
+      handleSendMessage(inputValue.trim()); // Call the onSendMessage prop with the trimmed input
       setInputValue(""); // Clear the input field after sending
     }
   };
+
 
   return (
     // Main container for the chatbot, positioned fixed at the bottom right

@@ -40,12 +40,12 @@ export const ShoppingCartIcon: React.FC<IconProps> = ({ className }) => (
   <svg
     className={className}
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
+    width="28"
+    height="28"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="2.5"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
@@ -417,3 +417,80 @@ export const ClockIcon: React.FC<IconProps> = ({ className }) => {
     </svg>
   );
 };
+
+export const SunIcon: React.FC<IconProps> = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Outer glow effect */}
+    <circle cx="12" cy="12" r="5" fill="currentColor" opacity="0.2" />
+    
+    {/* Main sun circle */}
+    <circle cx="12" cy="12" r="4" fill="currentColor" />
+    
+    {/* Sun rays - longer and more prominent */}
+    <line x1="12" y1="1" x2="12" y2="4" strokeWidth="2.5" />
+    <line x1="12" y1="20" x2="12" y2="23" strokeWidth="2.5" />
+    <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" strokeWidth="2.5" />
+    <line x1="17.66" y1="17.66" x2="19.78" y2="19.78" strokeWidth="2.5" />
+    <line x1="1" y1="12" x2="4" y2="12" strokeWidth="2.5" />
+    <line x1="20" y1="12" x2="23" y2="12" strokeWidth="2.5" />
+    <line x1="4.22" y1="19.78" x2="6.34" y2="17.66" strokeWidth="2.5" />
+    <line x1="17.66" y1="6.34" x2="19.78" y2="4.22" strokeWidth="2.5" />
+    
+    {/* Inner rays - shorter alternating rays */}
+    <line x1="12" y1="5.5" x2="12" y2="7" strokeWidth="2" opacity="0.6" />
+    <line x1="12" y1="17" x2="12" y2="18.5" strokeWidth="2" opacity="0.6" />
+    <line x1="5.5" y1="12" x2="7" y2="12" strokeWidth="2" opacity="0.6" />
+    <line x1="17" y1="12" x2="18.5" y2="12" strokeWidth="2" opacity="0.6" />
+  </svg>
+);
+
+export const MoonIcon: React.FC<IconProps> = ({ className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Outer glow */}
+    <path 
+      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" 
+      fill="currentColor" 
+      opacity="0.2"
+      strokeWidth="0"
+    />
+    
+    {/* Main moon shape - filled */}
+    <path 
+      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" 
+      fill="currentColor"
+      strokeWidth="1.5"
+    />
+    
+    {/* Craters for detail */}
+    <circle cx="10" cy="10" r="1.5" fill="currentColor" opacity="0.3" />
+    <circle cx="14" cy="14" r="1" fill="currentColor" opacity="0.3" />
+    <circle cx="9" cy="15" r="0.8" fill="currentColor" opacity="0.3" />
+    
+    {/* Stars around moon */}
+    <circle cx="19" cy="6" r="0.5" fill="currentColor" />
+    <circle cx="22" cy="10" r="0.5" fill="currentColor" />
+    <circle cx="18" cy="19" r="0.5" fill="currentColor" />
+  </svg>
+);

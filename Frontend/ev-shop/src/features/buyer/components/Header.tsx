@@ -1,121 +1,125 @@
+import { ArrowUpCircle } from "lucide-react";
 import { ShoppingCartIcon, SearchIcon, SwitchIcon } from "@/assets/icons/icons";
 import { NotificationDropdown } from "./NotificationDropdown";
 import type { UserRole, ActiveTab } from "@/types";
 import { ProfileDropdown } from "./ProfileDropdown";
 
-// --- Better Types (based on usage) ---
-
-/**
- * Props for the Header component.
- */
 type HeaderProps = {
-  /** The current value of the search input. */
   searchTerm: string;
-  /** Callback function to update the search term state. */
   setSearchTerm: (term: string) => void;
-  /** The current role of the user (e.g., 'user' or 'seller'). */
   userRole: UserRole[];
-  /** Callback function to handle the role switching action. */
-  onRoleSwitch: () => void;
-  /** The user object, containing details like avatar, name, and email. */
-
-  user: any; // <-- MODIFIED: Used specific interface
-
-  /** An array of notification objects to be displayed. */
-  notifications: any[]; // <-- MODIFIED: Used specific interface
-  /** Callback function to set the active tab in the parent component, used by the NotificationDropdown. */
+  user: any;
+  notifications: any[];
   setActiveTab: (tab: ActiveTab) => void;
-
   onLogout: () => void;
 };
 
-/**
- * Header component for the buyer dashboard.
- * It includes a search bar, role switch button, shopping cart, notification dropdown, and user profile display.
- */
 export const Header: React.FC<HeaderProps> = ({
   searchTerm,
   setSearchTerm,
   userRole,
-  onRoleSwitch,
   user,
   notifications,
   setActiveTab,
   onLogout,
 }) => {
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6">
-      {" "}
-      {/* <-- MODIFIED: Responsive padding */}
-      {/* Search Bar Section - Now responsive */}
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 dark:bg-gray-800 dark:border-gray-700">
+      {/* Search Bar */}
       <div className="relative flex-1 min-w-0 lg:flex-none lg:w-full lg:max-w-xs xl:max-w-md">
-        {" "}
-        {/* <-- MODIFIED: Added flex-1, min-w-0, and lg:flex-none */}
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
         <input
           type="text"
           placeholder="Search vehicles..."
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-      {/* Right-side Actions and User Info */}
-      <div className="flex items-center flex-shrink-0 space-x-2 sm:space-x-4 ml-3">
-        {" "}
-        {/* <-- MODIFIED: Responsive spacing & margin */}
-        {/* Role Switch Button - Text hides on mobile */}
-        <button
-          onClick={onRoleSwitch}
-          className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <SwitchIcon className="h-5 w-5 flex-shrink-0" />
-          {userRole.length === 1 ? (
-            <>
-              <span className="hidden sm:inline whitespace-nowrap">
-                {" "}
-                become a Seller
-              </span>
-              <span className="hidden sm:inline whitespace-nowrap">
-                {" "}
-                become a financial contributor
-              </span>
-            </>
-          ) : (
-            <span className="hidden sm:inline whitespace-nowrap">
-              {" "}
-              Switch to{" "}
-              {userRole.includes("seller")
-                ? "Buyer"
-                : userRole.includes("finance")
-                ? "Buyer"
-                : "Seller"}
+
+      {/* Right Actions */}
+      <div className="flex items-center flex-shrink-0 space-x-3 ml-3">
+        {/* Show "become" buttons only if user doesn't have that role */}
+        {!userRole.includes("seller") ? (
+          <button
+            onClick={() => {}}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full 
+             hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm"
+            title="Become a Seller"
+          >
+            <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden md:inline whitespace-nowrap">
+              become a Seller
             </span>
-          )}
-        </button>
-        {/* Shopping Cart Button */}
+          </button>
+        ) : (
+          <button
+            onClick={() => {}}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full 
+             hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm"
+            title="Become a Seller"
+          >
+            <SwitchIcon className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden md:inline whitespace-nowrap">
+              Switch to Seller
+            </span>
+          </button>
+        )}
+
+        {!userRole.includes("finance") ? (
+          <button
+            onClick={() => {}}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full 
+             hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm"
+            title="Become a Financial Contributor"
+          >
+            <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden md:inline whitespace-nowrap">
+              become a financial contributor
+            </span>
+          </button>
+        ) : (
+          <button
+            onClick={() => {}}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full 
+             hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm"
+            title="Become a Seller"
+          >
+            <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden md:inline whitespace-nowrap">
+              {" "}
+              Switch to financial contributor
+            </span>
+          </button>
+        )}
+
+        {/* Visual separator */}
+        <div className="h-6 w-px bg-gray-300 hidden sm:block dark:bg-gray-600" />
+
+        {/* Shopping Cart */}
         <button
-          className="relative rounded-full text-gray-500 hover:bg-gray-200 hover:text-greay-700 focus:outline-non transition-colors p-2"
+          className="relative rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none transition-colors p-2 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
           onClick={() => setActiveTab("cart")}
+          title="Shopping Cart"
         >
-          {" "}
-          <ShoppingCartIcon className="h-6 w-6" />
-          <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white">
+          <ShoppingCartIcon className="h-5 w-5" />
+          <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
             2
           </span>
         </button>
-        {/* Notification Dropdown Component */}
+
+        {/* Notifications */}
         <NotificationDropdown
           notifications={notifications}
           setActiveTab={setActiveTab}
         />
-        {/* --- Profile Dropdown --- */}
+
+        {/* Profile */}
         <ProfileDropdown
           user={user}
           onLogout={onLogout}
           setActiveTab={setActiveTab}
         />
-        {/* End of Profile Dropdown */}
       </div>
     </header>
   );

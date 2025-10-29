@@ -3,145 +3,148 @@ import {
   ShoppingCartIcon,
   HeartIcon,
   SettingsIcon,
-  LogoutIcon,
   ReviewsIcon,
   KeyIcon,
 } from "@/assets/icons/icons";
 import type { ActiveTab } from "@/types";
+import { useTheme } from "@/context/ThemeContext";
+import { SunIcon, MoonIcon } from "@/assets/icons/icons";
 
-/**
- * Props for the Sidebar component.
- */
 type SidebarProps = {
-  /** The currently active tab, which determines which link is highlighted. */
   activeTab: ActiveTab;
-  /** Callback function to change the active tab in the parent component. */
   setActiveTab: (tab: ActiveTab) => void;
-  /** Whether the sidebar is currently expanded. */
   isExpanded: boolean;
-  /** Callback function to set the state to expanded. */
-  onExpand: () => void; // <-- MODIFIED
-  /** Callback function to set the state to collapsed. */
-  onCollapse: () => void; // <-- MODIFIED
+  onExpand: () => void;
+  onCollapse: () => void;
 };
 
-/**
- * A responsive sidebar navigation component for the buyer dashboard.
- * It displays navigation links and a logo, expanding on hover.
- */
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
   isExpanded,
-  onExpand, // <-- MODIFIED
-  onCollapse, // <-- MODIFIED
-}) => (
-  <aside
-    className={`w-16 ${
-      isExpanded ? "md:w-64" : "md:w-16"
-    } flex-shrink-0 bg-white border-r border-gray-200 flex flex-col
-       transition-all duration-300 relative`}
-       
-    // --- ADDED HOVER EVENTS ---
-    onMouseEnter={onExpand}
-    onMouseLeave={onCollapse}
-    // --- END HOVER EVENTS ---
-  >
-    {/* --- Floating Toggle Button REMOVED --- */}
+  onExpand,
+  onCollapse,
+}) => {
+  const { theme, setTheme } = useTheme();
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
-    {/* --- Logo (not a button) --- */}
-    <div
-      className={`h-16 w-full flex items-center border-b border-gray-200
-                 px-2 md:px-4 transition-all duration-300
-                 justify-center ${isExpanded ? "md:justify-start" : "md:justify-center"}`}
+  return (
+    <aside
+      className={`w-16 ${
+        isExpanded ? "md:w-64" : "md:w-16"
+      } flex-shrink-0 bg-white border-r border-gray-200 flex flex-col
+         transition-all duration-300 relative
+         {/* --- MODIFIED --- */}
+         dark:bg-gray-800 dark:border-gray-700`}
+      onMouseEnter={onExpand}
+      onMouseLeave={onCollapse}
     >
-      <CarIcon className="h-8 w-8 text-blue-600 flex-shrink-0" />
-      <span
-        className={`hidden ${
-          isExpanded ? "md:inline" : "hidden"
-        } ml-2 text-xl font-bold whitespace-nowrap`}
+      {/* --- Logo (not a button) --- */}
+      <div
+        className={`h-16 w-full flex items-center border-b border-gray-200
+                   px-2 md:px-4 transition-all duration-300
+                   justify-center ${
+                     isExpanded ? "md:justify-start" : "md:justify-center"
+                   }
+                   {/* --- MODIFIED --- */}
+                   dark:border-gray-700`}
       >
-        EV-Shop
-      </span>
-    </div>
-    {/* --- END OF LOGO --- */}
+        <CarIcon className="h-8 w-8 text-blue-600 dark:text-blue-500 flex-shrink-0" />
+        <span
+          className={`hidden ${
+            isExpanded ? "md:inline" : "hidden"
+          } ml-2 text-xl font-bold whitespace-nowrap
+           text-gray-900 dark:text-white`}
+        >
+          EV-Shop
+        </span>
+      </div>
+      {/* --- END OF LOGO --- */}
 
-    {/* Main navigation links */}
-    <nav className="flex-1 px-2 md:px-4 py-6 space-y-2">
-      <SidebarLink
-        text="Dashboard"
-        icon={<CarIcon className="h-5 w-5" />}
-        active={activeTab === "dashboard"}
-        onClick={() => setActiveTab("dashboard")}
-        isExpanded={isExpanded}
-      />
-      <SidebarLink
-        text="My Orders"
-        icon={<ShoppingCartIcon className="h-5 w-5" />}
-        active={activeTab === "orders"}
-        onClick={() => setActiveTab("orders")}
-        isExpanded={isExpanded}
-      />
-      <SidebarLink
-        text="Saved Vehicles"
-        icon={<HeartIcon className="h-5 w-5" />}
-        active={activeTab === "saved"}
-        onClick={() => setActiveTab("saved")}
-        isExpanded={isExpanded}
-      />
-      <SidebarLink
-        text="Services"
-        icon={<SettingsIcon className="h-5 w-5" />}
-        active={activeTab === "services"}
-        onClick={() => setActiveTab("services")}
-        isExpanded={isExpanded}
-      />
-      <SidebarLink
-        text="Test Drives"
-        icon={<KeyIcon className="h-5 w-5" />}
-        active={activeTab === "test-drives"}
-        onClick={() => setActiveTab("test-drives")}
-        isExpanded={isExpanded}
-      />
-      <SidebarLink
-        text="My Reviews"
-        icon={<ReviewsIcon />}
-        active={activeTab === "reviews"}
-        onClick={() => setActiveTab("reviews")}
-        isExpanded={isExpanded}
-      />
-    </nav>
+      {/* Main navigation links */}
+      <nav className="flex-1 px-2 md:px-4 py-6 space-y-2">
+        {/* ... (All your other SidebarLinks stay the same) ... */}
+        <SidebarLink
+          text="Dashboard"
+          icon={<CarIcon className="h-5 w-5" />}
+          active={activeTab === "dashboard"}
+          onClick={() => setActiveTab("dashboard")}
+          isExpanded={isExpanded}
+        />
+        <SidebarLink
+          text="My Orders"
+          icon={<ShoppingCartIcon className="h-5 w-5" />}
+          active={activeTab === "orders"}
+          onClick={() => setActiveTab("orders")}
+          isExpanded={isExpanded}
+        />
+        <SidebarLink
+          text="Saved Vehicles"
+          icon={<HeartIcon className="h-5 w-5" />}
+          active={activeTab === "saved"}
+          onClick={() => setActiveTab("saved")}
+          isExpanded={isExpanded}
+        />
+        <SidebarLink
+          text="Services"
+          icon={<SettingsIcon className="h-5 w-5" />}
+          active={activeTab === "services"}
+          onClick={() => setActiveTab("services")}
+          isExpanded={isExpanded}
+        />
+        <SidebarLink
+          text="Test Drives"
+          icon={<KeyIcon className="h-5 w-5" />}
+          active={activeTab === "test-drives"}
+          onClick={() => setActiveTab("test-drives")}
+          isExpanded={isExpanded}
+        />
+        <SidebarLink
+          text="My Reviews"
+          icon={<ReviewsIcon />}
+          active={activeTab === "reviews"}
+          onClick={() => setActiveTab("reviews")}
+          isExpanded={isExpanded}
+        />
+      </nav>
 
-    {/* Sidebar Footer section */}
-    <div className="px-2 md:px-4 py-4 border-t border-gray-200">
-      <SidebarLink
-        text="Logout"
-        icon={<LogoutIcon className="h-5 w-5" />}
-        onClick={() => alert("Logged out!")}
-        isExpanded={isExpanded}
-      />
-    </div>
-  </aside>
-);
-/**
- * Props for the SidebarLink component.
- */
+      {/* Sidebar Footer section */}
+      <div
+        className="px-2 md:px-4 py-4 border-t border-gray-200
+                   {/* --- MODIFIED --- */}
+                   dark:border-gray-700"
+      >
+        <SidebarLink
+          // --- MODIFIED: Shows the *action* now ---
+          text={theme === "light" ? "Dark Mode" : "Light Mode"}
+          icon={
+            theme === "light" ? (
+              // Show MoonIcon (action: go to dark mode)
+              <MoonIcon className="h-5 w-5 text-gray-600" />
+            ) : (
+              // Show SunIcon (action: go to light mode)
+              <SunIcon className="h-5 w-5 text-yellow-400" />
+            )
+          }
+          onClick={toggleTheme}
+          isExpanded={isExpanded}
+        />
+      </div>
+    </aside>
+  );
+};
+
+// ... (SidebarLinkProps type remains the same)
 type SidebarLinkProps = {
-  /** The text label for the link, visible on medium screens and up. */
   text: string;
-  /** The icon to display for the link. */
   icon: React.ReactNode;
-  /** A boolean to indicate if the link is currently active, used for styling. */
   active?: boolean;
-  /** The function to execute when the link is clicked. */
-  onClick: () => void; // <-- THIS WAS THE TYPO, NOW FIXED
-  /** Whether the parent sidebar is expanded. */
+  onClick: () => void;
   isExpanded: boolean;
 };
 
-/**
- * A reusable link component for the sidebar.
- */
 const SidebarLink: React.FC<SidebarLinkProps> = ({
   text,
   icon,
@@ -160,8 +163,10 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
       isExpanded ? "md:justify-start" : "md:justify-center"
     } px-2 md:px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
       active
-        ? "bg-blue-50 text-blue-600"
-        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+        ? /* --- MODIFIED: Active State --- */
+          "bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+        : /* --- MODIFIED: Inactive State --- */
+          "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
     }`}
   >
     <div className="flex-shrink-0" aria-hidden="true">
@@ -178,9 +183,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
     </span>
 
     {/* --- This is the Tooltip --- */}
-    {/* This entire `<span>` is only rendered if `!isExpanded` (isExpanded is false).
-        This is why tooltips correctly show ONLY when the sidebar is collapsed.
-    */}
+    {/* This dark tooltip works well on both light and dark backgrounds, no change needed */}
     {!isExpanded && (
       <span
         className="

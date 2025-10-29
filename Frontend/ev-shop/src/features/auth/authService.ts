@@ -1,4 +1,4 @@
-import {axiosInstance} from "@/config";
+import {axiosInstance} from "@/config/config";
 
 // Get the base URL for the API from environment variables.
 const baseURL = import.meta.env.VITE_API_BASE_URL;

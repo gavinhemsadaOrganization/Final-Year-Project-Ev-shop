@@ -1,5 +1,5 @@
-import { VehicleCard, type Vehicle } from "@/components/EvModelCard";
-
+import { VehicleCard } from "@/components/EvModelCard";
+import type {Vehicle} from "@/types";
 /**
  * Props for the VehicleList component.
  */
