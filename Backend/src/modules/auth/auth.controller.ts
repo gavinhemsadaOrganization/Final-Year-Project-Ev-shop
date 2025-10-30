@@ -439,7 +439,7 @@ export function authController(authService: IAuthService): IAuthController {
         req.session.jwt = newAccessToken;
         req.session.save();
 
-        return res.status(200).json({ accessToken: newAccessToken });
+        return res.status(200).json({ message: "Token refreshed", success: true });
       } catch (error: any) {
         return res
           .status(403)

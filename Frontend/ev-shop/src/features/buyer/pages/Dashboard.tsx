@@ -14,6 +14,7 @@ import { NotificationPage } from "./NotificationPage";
 import { CartPage } from "./CartPage";
 import { MyReviewsPage } from "./MyReviewsPage";
 import { TestDrivesPage } from "./TestDrivePage";
+import { FinancingPage } from "./FinancingPage";
 
 import type {
   UserRole,
@@ -191,6 +192,8 @@ const App: React.FC = () => {
         return <UserProfile user={user} />;
       case "services":
         return <Services services={services} />;
+      case "financing":
+        return <FinancingPage />;
       case "saved":
         return <SavedVehicles />;
       case "notification":

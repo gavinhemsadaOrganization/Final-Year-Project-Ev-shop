@@ -17,9 +17,24 @@ export const axiosPrivate = axios.create({
 axiosPrivate.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      // refresh logic here, or redirect to login
+    const originalRequest = error.config;
+
+    // If token expired and not already retried
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        await axiosInstance.get(
+          "/auth/refresh",
+          { withCredentials: true }
+        );
+        return axiosPrivate(originalRequest);
+      } catch (refreshError) {
+        console.error("Refresh token failed:", refreshError);
+        window.location.href = "/auth/login";
+      }
     }
+
     return Promise.reject(error);
   }
 );

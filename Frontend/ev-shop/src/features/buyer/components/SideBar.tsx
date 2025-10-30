@@ -2,9 +2,10 @@ import {
   CarIcon,
   ShoppingCartIcon,
   HeartIcon,
-  SettingsIcon,
+  ServiceIcon,
   ReviewsIcon,
   KeyIcon,
+  BanknoteIcon,
 } from "@/assets/icons/icons";
 import type { ActiveTab } from "@/types";
 import { useTheme } from "@/context/ThemeContext";
@@ -89,9 +90,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
         <SidebarLink
           text="Services"
-          icon={<SettingsIcon className="h-5 w-5" />}
+          icon={<ServiceIcon className="h-5 w-5" />}
           active={activeTab === "services"}
           onClick={() => setActiveTab("services")}
+          isExpanded={isExpanded}
+        />
+        <SidebarLink
+          text="Financing"
+          icon={<BanknoteIcon className="h-5 w-5" />}
+          active={activeTab === "financing"}
+          onClick={() => setActiveTab("financing")}
           isExpanded={isExpanded}
         />
         <SidebarLink

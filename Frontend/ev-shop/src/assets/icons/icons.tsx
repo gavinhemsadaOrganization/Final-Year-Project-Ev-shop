@@ -110,7 +110,7 @@ export const HeartIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
-export const SettingsIcon: React.FC<IconProps> = ({ className }) => (
+export const ServiceIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg
     className={className}
     xmlns="http://www.w3.org/2000/svg"
@@ -123,10 +123,12 @@ export const SettingsIcon: React.FC<IconProps> = ({ className }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-    <circle cx="12" cy="12" r="3"></circle>
+    {/* Wrench/Service icon */}
+    <path d="M14.7 2.3a1 1 0 0 1 1.4 0l2.6 2.6a1 1 0 0 1 0 1.4l-7.1 7.1a5 5 0 1 1-1.4-1.4l7.1-7.1z"></path>
+    <line x1="12" y1="12" x2="21" y2="21"></line>
   </svg>
 );
+
 
 export const LogoutIcon: React.FC<IconProps> = ({ className }) => (
   <svg
@@ -358,16 +360,15 @@ export const ReviewsIcon: React.FC<IconProps> = ({ className }) => {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      viewBox="0 -960 960 960"  // matches the original path coordinate system
+      viewBox="0 -960 960 960" // matches the original path coordinate system
       width="24"
       height="24"
-      fill="currentColor"       // fill the icon with color
+      fill="currentColor" // fill the icon with color
     >
       <path d="m363-390 117-71 117 71-31-133 104-90-137-11-53-126-53 126-137 11 104 90-31 133ZM80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
     </svg>
   );
 };
-
 
 export const KeyIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return (
@@ -433,10 +434,10 @@ export const SunIcon: React.FC<IconProps> = ({ className = "" }) => (
   >
     {/* Outer glow effect */}
     <circle cx="12" cy="12" r="5" fill="currentColor" opacity="0.2" />
-    
+
     {/* Main sun circle */}
     <circle cx="12" cy="12" r="4" fill="currentColor" />
-    
+
     {/* Sun rays - longer and more prominent */}
     <line x1="12" y1="1" x2="12" y2="4" strokeWidth="2.5" />
     <line x1="12" y1="20" x2="12" y2="23" strokeWidth="2.5" />
@@ -446,12 +447,80 @@ export const SunIcon: React.FC<IconProps> = ({ className = "" }) => (
     <line x1="20" y1="12" x2="23" y2="12" strokeWidth="2.5" />
     <line x1="4.22" y1="19.78" x2="6.34" y2="17.66" strokeWidth="2.5" />
     <line x1="17.66" y1="6.34" x2="19.78" y2="4.22" strokeWidth="2.5" />
-    
+
     {/* Inner rays - shorter alternating rays */}
     <line x1="12" y1="5.5" x2="12" y2="7" strokeWidth="2" opacity="0.6" />
     <line x1="12" y1="17" x2="12" y2="18.5" strokeWidth="2" opacity="0.6" />
     <line x1="5.5" y1="12" x2="7" y2="12" strokeWidth="2" opacity="0.6" />
     <line x1="17" y1="12" x2="18.5" y2="12" strokeWidth="2" opacity="0.6" />
+  </svg>
+);
+
+export const BanknoteIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect width="20" height="12" x="2" y="6" rx="2" />
+    <circle cx="12" cy="12" r="3" />
+    <path d="M6 12h.01" />
+    <path d="M18 12h.01" />
+  </svg>
+);
+
+export const CheckCircleIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="currentColor" // This icon is typically filled for status
+    stroke="none" // No stroke when filled
+  >
+    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.707 8.293a1 1 0 0 0-1.414-1.414L10 12.586l-1.293-1.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z" />
+  </svg>
+);
+
+export const FileTextIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+  </svg>
+);
+
+export const XCircleIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="currentColor" // This icon is typically filled for status
+    stroke="none" // No stroke when filled
+  >
+    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.707 8.293a1 1 0 0 0-1.414-1.414L12 10.586l-2.293-2.293a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 0 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293z" />
   </svg>
 );
 
@@ -469,25 +538,25 @@ export const MoonIcon: React.FC<IconProps> = ({ className = "" }) => (
     className={className}
   >
     {/* Outer glow */}
-    <path 
-      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" 
-      fill="currentColor" 
+    <path
+      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+      fill="currentColor"
       opacity="0.2"
       strokeWidth="0"
     />
-    
+
     {/* Main moon shape - filled */}
-    <path 
-      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" 
+    <path
+      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
       fill="currentColor"
       strokeWidth="1.5"
     />
-    
+
     {/* Craters for detail */}
     <circle cx="10" cy="10" r="1.5" fill="currentColor" opacity="0.3" />
     <circle cx="14" cy="14" r="1" fill="currentColor" opacity="0.3" />
     <circle cx="9" cy="15" r="0.8" fill="currentColor" opacity="0.3" />
-    
+
     {/* Stars around moon */}
     <circle cx="19" cy="6" r="0.5" fill="currentColor" />
     <circle cx="22" cy="10" r="0.5" fill="currentColor" />
