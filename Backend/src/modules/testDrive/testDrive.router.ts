@@ -433,7 +433,7 @@ export const testDriveRouter = (): Router => {
 
   /**
    * @swagger
-   * /test-drive/ratings:
+   * /test-drive/ratings/{id}:
    *   put:
    *     summary: Update an existing test drive rating
    *     description: Updates an existing rating/feedback. This route is functionally identical to POST and could be consolidated. Requires ownership or admin privileges.
@@ -458,8 +458,8 @@ export const testDriveRouter = (): Router => {
    *       '500':
    *         description: Internal server error.
    */
-  router.put("/ratings", validateDto(FeedbackDTO), (req, res) =>
-    controller.createRating(req, res)
+  router.put("/ratings/:id", validateDto(FeedbackDTO), (req, res) =>
+    controller.updateRating(req, res)
   );
 
   /**

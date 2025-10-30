@@ -15,6 +15,7 @@ import { CartPage } from "./CartPage";
 import { MyReviewsPage } from "./MyReviewsPage";
 import { TestDrivesPage } from "./TestDrivePage";
 import { FinancingPage } from "./FinancingPage";
+import { CommunityPage } from "./ComunityPage";
 
 import type {
   UserRole,
@@ -204,6 +205,8 @@ const App: React.FC = () => {
         return <TestDrivesPage />;
       case "reviews":
         return <MyReviewsPage />;
+      case "community":
+        return <CommunityPage />;
       default:
         return <VehicleList vehicles={filteredVehicles} />;
     }

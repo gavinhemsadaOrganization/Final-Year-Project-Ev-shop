@@ -1,5 +1,5 @@
 import { VehicleCard } from "@/components/EvModelCard";
-import type {Vehicle} from "@/types";
+import type { Vehicle } from "@/types";
 /**
  * Props for the VehicleList component.
  */
@@ -15,7 +15,9 @@ type VehicleListProps = {
 export const VehicleList: React.FC<VehicleListProps> = ({ vehicles }) => (
   <div>
     {/* Main title for the vehicle list section. */}
-    <h1 className="text-3xl font-bold mb-8">Explore Our Vehicles</h1>
+    <h1 className="text-3xl font-bold mb-8 dark:text-white">
+      Explore Our Vehicles
+    </h1>
     {/* Conditional rendering: Check if the vehicles array is not empty. */}
     {vehicles.length > 0 ? (
       // If there are vehicles, render them in a responsive grid.
@@ -33,11 +35,13 @@ export const VehicleList: React.FC<VehicleListProps> = ({ vehicles }) => (
       </div>
     ) : (
       // If there are no vehicles, display a "not found" message.
-      <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-        <h2 className="text-2xl font-semibold text-gray-700">
+      <div className="text-center py-16 bg-white rounded-lg shadow-sm dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
+        <h2 className="text-2xl font-semibold text-gray-700 dark:text-white">
           No Vehicles Found
         </h2>
-        <p className="text-gray-500 mt-2">Try adjusting your search term.</p>
+        <p className="text-gray-500 mt-2 dark:text-gray-400">
+          Try adjusting your search term.
+        </p>
       </div>
     )}
   </div>

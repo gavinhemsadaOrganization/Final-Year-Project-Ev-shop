@@ -7,14 +7,14 @@ interface EvModelCardProps {
   // Required props
   name: string;
   image: string;
-  
+
   // Optional props
   logo?: string;
   price?: string;
-  specs?: string; 
+  specs?: string;
   range?: string;
   acceleration?: string;
-  showLink?: boolean; 
+  showLink?: boolean;
   linkTo?: string; // <-- New optional prop for the link
 }
 
@@ -38,10 +38,9 @@ export const EvModelCard = ({
   showLink = true,
   linkTo, // <-- Destructured linkTo prop
 }: EvModelCardProps) => {
-  
   // Generate a fallback URL slug if no `linkTo` prop is provided
-  const modelSlug = name.toLowerCase().replace(/ /g, '-');
-  
+  const modelSlug = name.toLowerCase().replace(/ /g, "-");
+
   // Use the provided `linkTo` prop if it exists, otherwise use the generated slug
   const destination = linkTo ? linkTo : `/models/${modelSlug}`;
 
@@ -49,18 +48,18 @@ export const EvModelCard = ({
     <motion.div
       className="bg-slate-800 rounded-lg overflow-hidden shadow-lg group"
       variants={itemVariants} // Assumes itemVariants is imported
-      whileHover={cardHover}   // Assumes cardHover is imported
+      whileHover={cardHover} // Assumes cardHover is imported
     >
       {/* --- Image Section (Required) --- */}
       <div className="relative">
         <img src={image} alt={name} className="w-full h-64 object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-        
+
         {logo && (
-          <img 
-            src={logo} 
-            alt={`${name} logo`} 
-            className="absolute top-4 right-4 h-12 w-auto" 
+          <img
+            src={logo}
+            alt={`${name} logo`}
+            className="absolute top-4 right-4 h-12 w-auto"
           />
         )}
 
@@ -69,25 +68,21 @@ export const EvModelCard = ({
 
       {/* --- Content & Specs Section (All Optional) --- */}
       <div className="p-6">
-        
         {price && (
           <p className="text-lg text-blue-400 font-semibold mb-4">{price}</p>
         )}
 
-        {specs && (
-          <p className="text-gray-400 mb-4">{specs}</p>
-        )}
+        {specs && <p className="text-gray-400 mb-4">{specs}</p>}
 
         {(range || acceleration) && (
           <div className="flex justify-between text-gray-300 mb-6">
-            
             {range && (
               <div className="text-center">
                 <p className="font-bold text-xl">{range}</p>
                 <p className="text-sm text-gray-500">Range</p>
               </div>
             )}
-            
+
             {acceleration && (
               <div className="text-center">
                 <p className="font-bold text-xl">{acceleration}</p>
@@ -117,7 +112,7 @@ export const VehicleCard: React.FC<{
   style?: React.CSSProperties;
 }> = ({ vehicle, className, style }) => (
   <div
-    className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${className}`}
+    className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700 ${className}`}
     style={style}
   >
     <img
@@ -128,31 +123,34 @@ export const VehicleCard: React.FC<{
     <div className="p-6">
       <div className="flex justify-between items-start">
         <div>
-          <div className="uppercase tracking-wide text-sm text-blue-600 font-bold">
+          <div className="uppercase tracking-wide text-sm text-blue-600 font-bold dark:text-blue-400">
             {vehicle.model}
           </div>
           <a
             href="#"
-            className="block mt-1 text-xl leading-tight font-semibold text-gray-900 hover:underline"
+            className="block mt-1 text-xl leading-tight font-semibold text-gray-900 hover:underline dark:text-white"
           >
             {vehicle.name}
           </a>
         </div>
-        <button className="text-gray-400 hover:text-red-500 p-2 -mr-2 -mt-2 transition-colors">
+        <button className="text-gray-400 hover:text-red-500 p-2 -mr-2 -mt-2 transition-colors dark:text-gray-500 dark:hover:text-red-400">
           <HeartIcon className="h-6 w-6" />
         </button>
       </div>
-      <p className="mt-2 text-2xl font-light text-gray-800">{vehicle.price}</p>
-      <div className="mt-4 flex justify-between text-sm text-gray-600">
+      <p className="mt-2 text-2xl font-light text-gray-800 dark:text-gray-200">
+        {vehicle.price}
+      </p>
+      <div className="mt-4 flex justify-between text-sm text-gray-600 dark:text-gray-400">
         <span>
           <strong>Range:</strong> {vehicle.range}
         </span>
         <span>
-          <strong>Top Speed:</strong> {vehicle.topSpeed}
+          <strong className="dark:text-gray-300">Top Speed:</strong>{" "}
+          {vehicle.topSpeed}
         </span>
       </div>
       <div className="mt-6">
-        <button className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <button className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600">
           Book a Test Drive
         </button>
       </div>

@@ -114,6 +114,16 @@ export interface ITestDriveRepository {
    */
   createRating(data: FeedbackDTO): Promise<ITestDriveBooking | null>;
   /**
+   * Updates an existing feedback/rating.
+   * @param id - The ID of the booking to update.
+   * @param data - The partial data to update the rating with.
+   * @returns A promise that resolves to the updated rating or null.
+   */
+  updateRating(
+    id: string,
+    data: Partial<FeedbackDTO>
+  ): Promise<ITestDriveBooking | null>;
+  /**
    * Deletes the feedback for a specific booking.
    * @param id - The ID of the booking whose feedback should be deleted.
    * @returns A promise that resolves to true if deletion was successful, otherwise false.
@@ -217,7 +227,20 @@ export const TestDriveRepository: ITestDriveRepository = {
     booking.feedback_comment = data.comment;
     return await booking.save();
   }),
-
+  /** Finds a booking by ID and updates the rating and/or comment. */
+  updateRating: withErrorHandling(async (id, data) => {
+    const booking = await TestDriveBooking.findById(id);
+    if (!booking) {
+      throw new Error("Booking not found");
+    }
+    if (data.rating) {
+      booking.feedback_rating = data.rating;
+    }
+    if (data.comment) {
+      booking.feedback_comment = data.comment;
+    }
+    return await booking.save();
+  }),
   /** Finds a booking by ID and removes the feedback rating and comment. */
   deleteRating: withErrorHandling(async (id) => {
     const booking = await TestDriveBooking.findById(id);

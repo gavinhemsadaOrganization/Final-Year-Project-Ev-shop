@@ -121,6 +121,16 @@ export interface ITestDriveService {
     data: FeedbackDTO
   ): Promise<{ success: boolean; booking?: any; error?: string }>;
   /**
+   * Updates an existing feedback/rating.
+   * @param id - The ID of the rating to update.
+   * @param data - The partial data to update the rating with.
+   * @returns A promise that resolves to an object containing the updated rating or an error.
+   */
+  updateRating(
+    id: string,
+    data: Partial<FeedbackDTO>
+  ): Promise<{ success: boolean; bookingrate?: any; error?: string }>;  
+  /**
    * Deletes a feedback/rating by its unique ID.
    * @param id - The ID of the rating to delete.
    * @returns A promise that resolves to an object indicating success or failure.
@@ -471,6 +481,17 @@ export function testDriveService(
         return { success: true, bookingrate };
       } catch (err) {
         return { success: false, error: "Failed to create rating" };
+      }
+    },
+    /**
+     * Updates an existing feedback/rating.
+     */
+    updateRating: async (id, data) => {
+      try {
+        const bookingrate = await testDriveRepo.updateRating(id, data);
+        return { success: true, bookingrate };
+      } catch (err) {
+        return { success: false, error: "Failed to update rating" };
       }
     },
     /**

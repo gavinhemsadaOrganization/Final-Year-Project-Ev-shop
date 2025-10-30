@@ -4,6 +4,7 @@ import {
   HeartIcon,
   ServiceIcon,
   ReviewsIcon,
+  CommunityIcon, // Import the new UsersIcon
   KeyIcon,
   BanknoteIcon,
 } from "@/assets/icons/icons";
@@ -114,6 +115,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon={<ReviewsIcon />}
           active={activeTab === "reviews"}
           onClick={() => setActiveTab("reviews")}
+          isExpanded={isExpanded}
+        />
+        <SidebarLink
+          text="Community"
+          icon={<CommunityIcon className="h-5 w-5" />} // Use the new CommunityIcon
+          active={activeTab === "community"}
+          onClick={() => setActiveTab("community")}
           isExpanded={isExpanded}
         />
       </nav>

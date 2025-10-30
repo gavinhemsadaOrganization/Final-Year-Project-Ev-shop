@@ -91,6 +91,12 @@ export interface ITestDriveController {
    */
   createRating(req: Request, res: Response): Promise<Response>;
   /**
+   * Handles the HTTP request to update an existing rating.
+   * @param req - The Express request object, containing the rating ID and update data.
+   * @param res - The Express response object.
+   */
+  updateRating(req: Request, res: Response): Promise<Response>;
+  /**
    * Handles the HTTP request to delete a test drive rating.
    * @param req - The Express request object, containing the rating ID in `req.params`.
    * @param res - The Express response object.
@@ -264,6 +270,17 @@ export function testDriveController(
         return handleResult(res, result, 201);
       } catch (err) {
         return handleError(res, err, "creating rating");
+      }
+    },
+    /**
+     * Updates an existing test drive rating.
+     */
+    updateRating: async (req, res) => {
+      try {
+        const result = await service.updateRating(req.params.id, req.body);
+        return handleResult(res, result);
+      } catch (err) {
+        return handleError(res, err, "updating rating");
       }
     },
     /**

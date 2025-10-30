@@ -191,7 +191,7 @@ export const postRouter = (): Router => {
   /**
    * @swagger
    * /post/post/{id}/views:
-   *   put:
+   *   patch:
    *     summary: Update post view count
    *     description: Updates the view count of a post. Typically called internally when a post is viewed.
    *     tags: [Posts]
@@ -223,14 +223,14 @@ export const postRouter = (): Router => {
    *       '500':
    *         description: Internal server error.
    */
-  router.put("/post/:id/views", (req, res) =>
+  router.patch("/post/:id/views", (req, res) =>
     postController.updatePostViews(req, res)
   );
 
   /**
    * @swagger
    * /post/post/{id}/reply-count:
-   *   put:
+   *   patch:
    *     summary: Update post reply count
    *     description: Updates the reply count of a post. Typically called internally when a reply is added or deleted.
    *     tags: [Posts]
@@ -262,14 +262,14 @@ export const postRouter = (): Router => {
    *       '500':
    *         description: Internal server error.
    */
-  router.put("/post/:id/reply-count", (req, res) =>
+  router.patch("/post/:id/reply-count", (req, res) =>
     postController.updatePostReplyCount(req, res)
   );
 
   /**
    * @swagger
    * /post/post/{id}/last-reply-by:
-   *   put:
+   *   patch:
    *     summary: Update post's last reply author
    *     description: Updates the user who made the last reply on a post. Typically called internally when a reply is added.
    *     tags: [Posts]
@@ -301,7 +301,7 @@ export const postRouter = (): Router => {
    *       '500':
    *         description: Internal server error.
    */
-  router.put("/post/:id/last-reply-by", (req, res) =>
+  router.patch("/post/:id/last-reply-by", (req, res) =>
     postController.updatePostLastReplyBy(req, res)
   );
 
