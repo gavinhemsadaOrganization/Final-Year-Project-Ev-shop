@@ -1,4 +1,4 @@
-import {axiosInstance} from "@/config/config";
+import { axiosInstance } from "@/config/config";
 
 // Get the base URL for the API from environment variables.
 const baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -32,8 +32,8 @@ export const googleLogin = async (state: string) => {
  * @param {string} state - A state parameter, typically 'login' or 'register', to inform the backend of the user's intent.
  */
 export const facebookLogin = async (state: string) => {
-   // Redirect the browser to the Facebook authentication URL.
-   window.location.href = `${baseURL}auth/facebook?state=${state}`;
+  // Redirect the browser to the Facebook authentication URL.
+  window.location.href = `${baseURL}auth/facebook?state=${state}`;
 };
 
 /**
@@ -52,11 +52,15 @@ export const logout = async () => {
  * @param {string} confirmPassword - The password confirmation.
  * @returns {Promise<any>} A promise that resolves with the server's response data.
  */
-export const register = async (email: string, password: string, confirmPassword: string) => {
+export const register = async (
+  email: string,
+  password: string,
+  confirmPassword: string
+) => {
   const response = await axiosInstance.post("/auth/register", {
     email,
     password,
-    confirmPassword
+    confirmPassword,
   });
   return response.data;
 };
@@ -71,7 +75,7 @@ export const forgetPassword = async (email: string) => {
     email,
   });
   return response.data;
-  };
+};
 
 /**
  * Sends the OTP (One-Time Password) to the server for verification.
@@ -80,7 +84,7 @@ export const forgetPassword = async (email: string) => {
  * @returns {Promise<any>} A promise that resolves with the server's response data.
  */
 export const verifyOTP = async (email: string, otp: string) => {
-    const response = await axiosInstance.post("/auth/verifyotp", {
+  const response = await axiosInstance.post("/auth/verifyotp", {
     email,
     otp,
   });

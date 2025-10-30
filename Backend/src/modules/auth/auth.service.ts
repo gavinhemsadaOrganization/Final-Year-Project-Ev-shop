@@ -104,6 +104,7 @@ export function authService(authRepo: IAuthRepository): IAuthService {
   const hashOtp = (otp: string): string => {
     return crypto.createHash("sha256").update(otp).digest("hex");
   };
+
   return {
     /**
      * Handles user registration. Checks if a user with the given email already exists
@@ -273,6 +274,6 @@ export function authService(authRepo: IAuthRepository): IAuthService {
       } catch (err) {
         console.error("Failed to update last login:", err);
       }
-    },
+    }
   };
 }

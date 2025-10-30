@@ -11,7 +11,15 @@ export const axiosInstance = axios.create({
 //  Private axios instance (for protected endpoints)
 export const axiosPrivate = axios.create({
   baseURL,
-  headers: { "Content-Type": "application/json" },
   withCredentials: true, // ensures cookies are sent
 });
 
+axiosPrivate.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // refresh logic here, or redirect to login
+    }
+    return Promise.reject(error);
+  }
+);

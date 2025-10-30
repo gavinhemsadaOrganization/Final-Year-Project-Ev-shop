@@ -46,7 +46,7 @@ import { container } from "../../di/container";
  *           type: string
  *           example: "1234567890"
  *           description: Phone number (optional)
- *     
+ *
  *     LoginDto:
  *       type: object
  *       required:
@@ -61,7 +61,7 @@ import { container } from "../../di/container";
  *           type: string
  *           format: password
  *           example: Password123!
- *     
+ *
  *     ForgetPasswordDto:
  *       type: object
  *       required:
@@ -72,7 +72,7 @@ import { container } from "../../di/container";
  *           format: email
  *           example: john@example.com
  *           description: Email address to send OTP
- *     
+ *
  *     OTPVerifyDto:
  *       type: object
  *       required:
@@ -87,7 +87,7 @@ import { container } from "../../di/container";
  *           type: string
  *           example: "123456"
  *           description: 6-digit OTP code
- *     
+ *
  *     ResetPasswordDto:
  *       type: object
  *       required:
@@ -106,7 +106,7 @@ import { container } from "../../di/container";
  *           type: string
  *           format: password
  *           example: NewPassword123!
- *     
+ *
  *     CheckPasswordDto:
  *       type: object
  *       required:
@@ -116,7 +116,7 @@ import { container } from "../../di/container";
  *           type: string
  *           format: email
  *           example: john@example.com
- *     
+ *
  *     AuthResponse:
  *       type: object
  *       properties:
@@ -147,7 +147,7 @@ import { container } from "../../di/container";
  *             token:
  *               type: string
  *               example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *     
+ *
  *     ErrorResponse:
  *       type: object
  *       properties:
@@ -370,6 +370,39 @@ export const authRouter = (): Router => {
   router.get("/facebook/callback", (req, res, next) =>
     authController.facebookCallback(req, res, next)
   );
+  
+  /**
+   * @swagger
+   * /auth/refresh:
+   *   get:
+   *     summary: Refresh access token
+   *     description: Refreshes the access token using a valid refresh token stored in session
+   *     tags: [Authentication]
+   *     responses:
+   *       200:
+   *         description: Refresh successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     token:
+   *                       type: string
+   *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   *       401:
+   *         description: Unauthorized - Invalid or missing refresh token
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ErrorResponse'
+   */
+  router.get("/refresh", (req, res) => authController.refreshToken(req, res));
 
   /**
    * @swagger

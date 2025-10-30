@@ -85,6 +85,12 @@ export interface IAuthController {
    * @param res - The Express response object.
    */
   logout(req: Request, res: Response): Promise<Response>;
+  /**
+   * Handles the HTTP request to refresh the user's access token.
+   * @param req - The Express request object, containing the refresh token in the body.
+   * @param res - The Express response object.
+   */
+  refreshToken(req: Request, res: Response): Promise<Response>;
 }
 
 const redirect_login_url = process.env.REDIRECT_LOGIN_URL;
@@ -139,14 +145,14 @@ export function authController(authService: IAuthService): IAuthController {
           { userId: result.user.id, role: result.user.role },
           process.env.JWT_SECRET!,
           {
-            expiresIn: "24h",
+            expiresIn: "1h",
           }
         );
         // Generate Refresh Token
         const refreshToken = Jwt.sign(
           { userId: result.user.id, role: result.user.role },
           process.env.JWT_REFRESH_SECRET!,
-          { expiresIn: "7d" }
+          { expiresIn: "24h" }
         );
 
         // Store tokens and user info in session
@@ -211,14 +217,14 @@ export function authController(authService: IAuthService): IAuthController {
               { userId: user._id, role: user.role },
               process.env.JWT_SECRET!,
               {
-                expiresIn: "24h",
+                expiresIn: "1h",
               }
             );
             // Generate Refresh Token
             const refreshToken = Jwt.sign(
               { userId: user._id, role: user.role },
               process.env.JWT_REFRESH_SECRET!,
-              { expiresIn: "7d" }
+              { expiresIn: "24h" }
             );
 
             // Store tokens and user info in session
@@ -279,14 +285,14 @@ export function authController(authService: IAuthService): IAuthController {
               { userId: user.id, role: user.role },
               process.env.JWT_SECRET!,
               {
-                expiresIn: "24h",
+                expiresIn: "1h",
               }
             );
             // Generate Refresh Token
             const refreshToken = Jwt.sign(
               { userId: user.id, role: user.role },
               process.env.JWT_REFRESH_SECRET!,
-              { expiresIn: "7d" }
+              { expiresIn: "24h" }
             );
 
             // Store tokens and user info in session
@@ -300,7 +306,9 @@ export function authController(authService: IAuthService): IAuthController {
               }
             });
             logger.info(`User logged in successfully: ${user.id}`);
-            res.redirect(`${redirect_url}?userid=${user.id}&role=${user.role}&user=${user}`);
+            res.redirect(
+              `${redirect_url}?userid=${user.id}&role=${user.role}&user=${user}`
+            );
           } catch (error: any) {
             logger.error(`Error Facebook logging in user: ${error}`);
             res.redirect(`${redirect_url}?userid=null`);
@@ -401,6 +409,41 @@ export function authController(authService: IAuthService): IAuthController {
       } catch (error) {
         logger.error(`Error logging out user: ${error}`);
         return res.status(500).json({ error: "Logout failed" });
+      }
+    },
+    /**
+     * Refreshes the user's access token using their refresh token.
+     */
+    refreshToken: async (req: Request, res: Response) => {
+      try {
+        const refreshToken = req.session.refreshToken;
+
+        if (!refreshToken) {
+          return res.status(401).json({ message: "No refresh token provided" });
+        }
+
+        // Verify refresh token
+        const decoded = Jwt.verify(
+          refreshToken,
+          process.env.JWT_REFRESH_SECRET!
+        ) as { userId: string; role: string };
+
+        // Issue new access token
+        const newAccessToken = Jwt.sign(
+          { userId: decoded.userId, role: decoded.role },
+          process.env.JWT_SECRET!,
+          { expiresIn: "1h" }
+        );
+
+        // Update session with new token
+        req.session.jwt = newAccessToken;
+        req.session.save();
+
+        return res.status(200).json({ accessToken: newAccessToken });
+      } catch (error: any) {
+        return res
+          .status(403)
+          .json({ message: "Invalid or expired refresh token" });
       }
     },
   };
