@@ -43,21 +43,25 @@ export const Header: React.FC<HeaderProps> = ({
         {!userRole.includes("seller") ? (
           <button
             onClick={() => {}}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full 
-             hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 
+      bg-blue-600 text-white text-sm font-medium rounded-full 
+      hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
+      dark:bg-blue-500 dark:hover:bg-blue-400"
             title="Become a Seller"
           >
             <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
             <span className="hidden md:inline whitespace-nowrap">
-              become a Seller
+              Become a Seller
             </span>
           </button>
         ) : (
           <button
             onClick={() => {}}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full 
-             hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm"
-            title="Become a Seller"
+            className="flex items-center gap-2 px-4 py-2 
+      bg-gray-200 text-gray-900 text-sm font-medium rounded-full 
+      hover:bg-gray-300 active:scale-95 transition-all duration-200 shadow-sm
+      dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            title="Switch to Seller"
           >
             <SwitchIcon className="h-4 w-4 flex-shrink-0" />
             <span className="hidden md:inline whitespace-nowrap">
@@ -69,26 +73,29 @@ export const Header: React.FC<HeaderProps> = ({
         {!userRole.includes("finance") ? (
           <button
             onClick={() => {}}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full 
-             hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 
+      bg-blue-600 text-white text-sm font-medium rounded-full 
+      hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
+      dark:bg-blue-500 dark:hover:bg-blue-400"
             title="Become a Financial Contributor"
           >
             <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
             <span className="hidden md:inline whitespace-nowrap">
-              become a financial contributor
+              Become a Financial Contributor
             </span>
           </button>
         ) : (
           <button
             onClick={() => {}}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full 
-             hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm"
-            title="Become a Seller"
+            className="flex items-center gap-2 px-4 py-2 
+      bg-gray-200 text-gray-900 text-sm font-medium rounded-full 
+      hover:bg-gray-300 active:scale-95 transition-all duration-200 shadow-sm
+      dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            title="Switch to Financial Contributor"
           >
-            <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
+            <SwitchIcon className="h-4 w-4 flex-shrink-0" />
             <span className="hidden md:inline whitespace-nowrap">
-              {" "}
-              Switch to financial contributor
+              Switch to Financial Contributor
             </span>
           </button>
         )}
@@ -98,12 +105,12 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Shopping Cart */}
         <button
-          className="relative rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none transition-colors p-2 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+          className="relative rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none transition-colors p-2 dark:text-gray-400 dark:hover:bg-gray-500 dark:hover:text-gray-200"
           onClick={() => setActiveTab("cart")}
           title="Shopping Cart"
         >
           <ShoppingCartIcon className="h-5 w-5" />
-          <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
+          <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white">
             2
           </span>
         </button>

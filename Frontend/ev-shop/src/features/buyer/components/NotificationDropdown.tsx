@@ -70,7 +70,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       {/* Notification bell icon button that toggles the dropdown's visibility. */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-greay-700 focus:outline-non"
+        className="relative p-2 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-500 dark:hover:text-gray-200"
       >
         <BellIcon className="h-6 w-6" />
 
@@ -84,10 +84,10 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
       {/* The dropdown panel, conditionally rendered based on the `isOpen` state. */}
       {isOpen && (
-        <div className="animate-popIn absolute right-0 mt-2 w-80 max-w-sm bg-white rounded-lg shadow-xl border border-gray-300 z-50">
+        <div className="animate-popIn absolute right-0 mt-2 w-80 max-w-sm bg-white rounded-lg shadow-xl border border-gray-300 z-50 dark:bg-gray-800 dark:border-gray-500">
           {/* Dropdown Header */}
-          <div className="p-4 flex justify-between items-center border-b">
-            <h3 className="font-bold text-lg">Notifications</h3>
+          <div className="p-4 flex justify-between items-center border-b dark:border-gray-700">
+            <h3 className="font-bold text-lg dark:text-white">Notifications</h3>
           </div>
 
           {/* Scrollable list of notifications. */}
@@ -96,14 +96,18 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
             {notifications.map((notif) => (
               <div
                 key={notif.id}
-                className="p-4 border-b hover:bg-gray-50 cursor-pointer"
+                className="p-4 border-b hover:bg-gray-50 cursor-pointer dark:border-gray-700 dark:hover:bg-gray-700"
                 onClick={handleView}
               >
-                <p className="text-sm text-gray-700">{notif.message}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {notif.message}
+                </p>
 
                 {/* Notification metadata and action link. */}
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-blue-600">{notif.time}</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">
+                    {notif.time}
+                  </p>
                   <a
                     onClick={handleView}
                     className="text-sm font-semibold text-blue-600 hover:underline"
@@ -116,17 +120,17 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
             {/* Message displayed when there are no notifications. */}
             {notifications.length === 0 && (
-              <p className="p-4 text-sm text-gray-500 text-center">
+              <p className="p-4 text-sm text-gray-500 text-center dark:text-gray-400">
                 You have no new notifications.
               </p>
             )}
           </div>
 
           {/* Dropdown Footer with a "View all" button. */}
-          <div className="p-2 bg-gray-50 rounded-b-lg">
+          <div className="p-2 bg-gray-50 rounded-b-lg dark:bg-gray-900/50">
             <button
               onClick={handleViewAll}
-              className="w-full py-2 text-sm font-semibold text-blue-600 hover:bg-gray-100 rounded"
+              className="w-full py-2 text-sm font-semibold text-blue-600 hover:bg-gray-100 rounded dark:text-blue-400 dark:hover:bg-gray-700"
             >
               View all notifications
             </button>

@@ -8,9 +8,7 @@ type ChatbotProps = {
 };
 
 // Chatbot functional component definition
-export const Chatbot: React.FC<ChatbotProps> = ({
-  onClose,
-}) => {
+export const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
   // State to manage the input field's value
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -26,23 +24,23 @@ export const Chatbot: React.FC<ChatbotProps> = ({
   // Effect hook to scroll to the bottom whenever the messages array updates
   useEffect(scrollToBottom, [messages]);
 
-   const handleSendMessage = (text: string) => {
-      const newUserMessage: ChatMessage = {
-        id: Date.now(),
-        text,
-        sender: "user",
-      };
-      setMessages((prev) => [...prev, newUserMessage]);
-  
-      setTimeout(() => {
-        const botResponse: ChatMessage = {
-          id: Date.now() + 1,
-          text: "Thanks for your message! A specialist will get back to you shortly.",
-          sender: "bot",
-        };
-        setMessages((prev) => [...prev, botResponse]);
-      }, 1500);
+  const handleSendMessage = (text: string) => {
+    const newUserMessage: ChatMessage = {
+      id: Date.now(),
+      text,
+      sender: "user",
     };
+    setMessages((prev) => [...prev, newUserMessage]);
+
+    setTimeout(() => {
+      const botResponse: ChatMessage = {
+        id: Date.now() + 1,
+        text: "Thanks for your message! A specialist will get back to you shortly.",
+        sender: "bot",
+      };
+      setMessages((prev) => [...prev, botResponse]);
+    }, 1500);
+  };
 
   // Handler for form submission (sending a message)
   const handleSubmit = (e: React.FormEvent) => {
@@ -54,17 +52,16 @@ export const Chatbot: React.FC<ChatbotProps> = ({
     }
   };
 
-
   return (
     // Main container for the chatbot, positioned fixed at the bottom right
-    <div className="fixed bottom-24 right-6 w-80 h-[28rem] bg-white rounded-xl shadow-2xl flex flex-col z-40 animate-slideInUp">
+    <div className="fixed bottom-24 right-6 w-80 h-[28rem] bg-white rounded-xl shadow-2xl flex flex-col z-40 animate-slideInUp dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
       {/* Chatbot header */}
-      <header className="bg-blue-600 text-white p-4 flex justify-between items-center rounded-t-xl">
+      <header className="bg-blue-600 text-white p-4 flex justify-between items-center rounded-t-xl dark:bg-blue-700">
         <h3 className="font-bold text-lg">EV-Shop Assistant</h3>
         {/* Close button for the chatbot */}
         <button
           onClick={onClose}
-          className="hover:bg-blue-700 p-1 rounded-full"
+          className="hover:bg-blue-700 p-1 rounded-full dark:hover:bg-blue-600"
         >
           <CloseIcon className="h-5 w-5" />
         </button>
@@ -92,7 +89,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
                 className={`max-w-[80%] p-3 rounded-2xl animate-popIn ${
                   msg.sender === "user"
                     ? "bg-blue-500 text-white rounded-br-none"
-                    : "bg-gray-200 text-gray-800 rounded-bl-none"
+                    : "bg-gray-200 text-gray-800 rounded-bl-none dark:bg-gray-700 dark:text-gray-200"
                 }`}
               >
                 <p className="text-sm">{msg.text}</p>
@@ -105,19 +102,19 @@ export const Chatbot: React.FC<ChatbotProps> = ({
       </div>
 
       {/* Chat input footer */}
-      <footer className="p-2 border-t border-gray-200">
+      <footer className="p-2 border-t border-gray-200 dark:border-gray-700">
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 w-full px-4 py-2 bg-gray-100 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 w-full px-4 py-2 bg-gray-100 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
           />
           {/* Send message button */}
           <button
             type="submit"
-            className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600"
           >
             <SendIcon className="h-5 w-5" />
           </button>

@@ -61,17 +61,17 @@ export const ProfileDropdown: React.FC<{
           />
           <div className="hidden md:block text-left">
             <p className="font-semibold text-sm truncate max-w-[150px]">
-              {user.name}
+              <span className="dark:text-white">{user.name}</span>
             </p>
             <p className="text-xs text-gray-500 truncate max-w-[150px]">
-              {user.email}
+              <span className="dark:text-gray-400">{user.email}</span>
             </p>
           </div>
         </div>
 
         {/* End of your user snippet */}
         <ChevronDownIcon
-          className={`h-4 w-4 text-gray-800 transition-transform ${
+          className={`h-4 w-4 text-gray-800 transition-transform dark:text-gray-200 ${
             isDropdownOpen ? "rotate-180" : "rotate-0"
           }`}
         />
@@ -79,25 +79,25 @@ export const ProfileDropdown: React.FC<{
 
       {/* --- The Dropdown Menu --- */}
       {isDropdownOpen && (
-        <div className="animate-popIn absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg py-2 z-50 ring-1 ring-gray-300 ring-opacity-5">
+        <div className="animate-popIn absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg py-2 z-50 ring-1 ring-gray-300 ring-opacity-5 dark:bg-gray-800 dark:ring-gray-500">
           <button
             onClick={() => handleDropdownItemClick("profile")}
-            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
+            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3 dark:text-gray-200 dark:hover:bg-gray-700"
           >
-            <UserCircleIcon className="h-5 w-5 text-gray-500" />
+            <UserCircleIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             User Profile
           </button>
           <button
             onClick={() => handleDropdownItemClick("help")}
-            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
+            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3 dark:text-gray-200 dark:hover:bg-gray-700"
           >
-            <QuestionMarkCircleIcon className="h-5 w-5 text-gray-500" />
+            <QuestionMarkCircleIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             Help Center
           </button>
-          <div className="border-t border-gray-100 my-1"></div>
+          <div className="border-t border-gray-100 my-1 dark:border-gray-700"></div>
           <button
             onClick={() => handleDropdownItemClick("logout")}
-            className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"
+            className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 dark:text-red-400 dark:hover:bg-red-900"
           >
             <LogoutIcon className="h-5 w-5" />
             Logout

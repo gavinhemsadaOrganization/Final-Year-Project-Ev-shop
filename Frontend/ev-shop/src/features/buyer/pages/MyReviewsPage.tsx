@@ -4,7 +4,10 @@ import { CalendarIcon, ReviewsIcon } from "@/assets/icons/icons";
 
 // --- Mock Data (replace with API calls) ---
 // This data simulates bookings that have feedback attached.
-const mockBookingsWithReviews: (any & { model_name: string; slot_id: { model_id: string } })[] = [
+const mockBookingsWithReviews: (any & {
+  model_name: string;
+  slot_id: { model_id: string };
+})[] = [
   {
     _id: "booking1",
     customer_id: "user123",
@@ -15,7 +18,8 @@ const mockBookingsWithReviews: (any & { model_name: string; slot_id: { model_id:
     duration_minutes: 60,
     model_name: "Aura EV",
     feedback_rating: 5,
-    feedback_comment: "The Aura EV was incredibly smooth and silent. The interior felt premium and the range was more than enough for my daily commute. The booking process was seamless.",
+    feedback_comment:
+      "The Aura EV was incredibly smooth and silent. The interior felt premium and the range was more than enough for my daily commute. The booking process was seamless.",
   },
   {
     _id: "booking2",
@@ -27,7 +31,8 @@ const mockBookingsWithReviews: (any & { model_name: string; slot_id: { model_id:
     duration_minutes: 60,
     model_name: "Pulse XR",
     feedback_rating: 4,
-    feedback_comment: "A powerful and spacious SUV. It handled surprisingly well for its size. I'm giving it 4 stars because the infotainment system was a bit slow to respond at times.",
+    feedback_comment:
+      "A powerful and spacious SUV. It handled surprisingly well for its size. I'm giving it 4 stars because the infotainment system was a bit slow to respond at times.",
   },
 ];
 
@@ -40,7 +45,11 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
       {[...Array(5)].map((_, index) => (
         <svg
           key={index}
-          className={`h-5 w-5 ${index < rating ? "text-yellow-400" : "text-gray-300"}`}
+          className={`h-5 w-5 ${
+            index < rating
+              ? "text-yellow-400"
+              : "text-gray-300 dark:text-gray-600"
+          }`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -55,7 +64,9 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
  * A page for users to view their submitted reviews.
  */
 export const MyReviewsPage: React.FC = () => {
-  const [reviews, setReviews] = useState<(any & { model_name: string; slot_id: { model_id: string } })[]>([]);
+  const [reviews, setReviews] = useState<
+    (any & { model_name: string; slot_id: { model_id: string } })[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const { getUserID } = useAuth();
 
@@ -88,7 +99,7 @@ export const MyReviewsPage: React.FC = () => {
     console.log(`Deleting review for booking ${bookingId}`);
     alert(`Review for booking ${bookingId} deleted!`);
     // You would then re-fetch reviews or remove it from the state
-    setReviews(prev => prev.filter(r => r._id !== bookingId));
+    setReviews((prev) => prev.filter((r) => r._id !== bookingId));
   };
 
   if (isLoading) {
@@ -97,30 +108,42 @@ export const MyReviewsPage: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">My Reviews</h1>
+      <h1 className="text-3xl font-bold dark:text-white">My Reviews</h1>
 
       {reviews.length > 0 ? (
         <div className="space-y-6">
           {reviews.map((review) => (
-            <div key={review._id} className="bg-white p-6 rounded-xl shadow-md">
+            <div
+              key={review._id}
+              className="bg-white p-6 rounded-xl shadow-md dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700"
+            >
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">{review.slot_id.model_id}</h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                    {review.slot_id.model_id}
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1 dark:text-gray-400">
                     <CalendarIcon className="h-4 w-4" />
-                    <span>Reviewed on {new Date(review.booking_date).toLocaleDateString()}</span>
+                    <span>
+                      Reviewed on{" "}
+                      {new Date(review.booking_date).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
-                {review.feedback_rating && <StarRating rating={review.feedback_rating} />}
+                {review.feedback_rating && (
+                  <StarRating rating={review.feedback_rating} />
+                )}
               </div>
-              <p className="text-gray-600 mt-4">{review.feedback_comment}</p>
+              <p className="text-gray-600 mt-4 dark:text-gray-300">
+                {review.feedback_comment}
+              </p>
               <div className="flex justify-end gap-3 mt-4">
-                <button className="text-sm font-semibold text-gray-500 hover:text-gray-800">
+                <button className="text-sm font-semibold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
                   Edit
                 </button>
-                <button 
+                <button
                   onClick={() => handleDeleteReview(review._id)}
-                  className="text-sm font-semibold text-red-500 hover:text-red-700"
+                  className="text-sm font-semibold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                 >
                   Delete
                 </button>
@@ -129,13 +152,16 @@ export const MyReviewsPage: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 bg-white rounded-xl shadow-md">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100">
+        <div className="text-center py-16 bg-white rounded-xl shadow-md dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/50">
             <ReviewsIcon className="h-6 w-6 text-blue-600" />
           </div>
-          <h2 className="mt-4 text-xl font-semibold text-gray-800">No Reviews Yet</h2>
-          <p className="mt-2 text-gray-500">
-            You haven't submitted any reviews. After a test drive, you can share your feedback.
+          <h2 className="mt-4 text-xl font-semibold text-gray-800 dark:text-white">
+            No Reviews Yet
+          </h2>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">
+            You haven't submitted any reviews. After a test drive, you can share
+            your feedback.
           </p>
         </div>
       )}

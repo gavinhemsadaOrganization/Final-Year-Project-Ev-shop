@@ -113,19 +113,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar Footer section */}
       <div
         className="px-2 md:px-4 py-4 border-t border-gray-200
-                   {/* --- MODIFIED --- */}
                    dark:border-gray-700"
       >
         <SidebarLink
           // --- MODIFIED: Shows the *action* now ---
-          text={theme === "light" ? "Dark Mode" : "Light Mode"}
+          text={theme === "light" ? "Light Mode" : "Dark Mode"}
           icon={
             theme === "light" ? (
-              // Show MoonIcon (action: go to dark mode)
-              <MoonIcon className="h-5 w-5 text-gray-600" />
-            ) : (
               // Show SunIcon (action: go to light mode)
               <SunIcon className="h-5 w-5 text-yellow-400" />
+            ) : (
+              // Show MoonIcon (action: go to dark mode)
+              <MoonIcon className="h-5 w-5 text-gray-200" />
             )
           }
           onClick={toggleTheme}

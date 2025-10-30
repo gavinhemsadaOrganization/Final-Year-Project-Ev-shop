@@ -95,7 +95,9 @@ export const TestDrivesPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center p-8">Loading test drive information...</div>
+      <div className="text-center p-8 dark:text-gray-300">
+        Loading test drive information...
+      </div>
     );
   }
 
@@ -103,28 +105,32 @@ export const TestDrivesPage: React.FC = () => {
     <div className="space-y-12">
       {/* Section for User's Existing Bookings */}
       <div>
-        <h1 className="text-3xl font-bold mb-6">My Test Drives</h1>
-        <div className="bg-white p-6 rounded-xl shadow-md">
+        <h1 className="text-3xl font-bold mb-6 dark:text-white">
+          My Test Drives
+        </h1>
+        <div className="bg-white p-6 rounded-xl shadow-md dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
           {bookings.length > 0 ? (
-            <ul className="divide-y divide-gray-200">
+            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
               {bookings.map((booking) => (
                 <li
                   key={booking._id}
                   className="py-4 flex items-center justify-between"
                 >
                   <div>
-                    <p className="font-semibold text-lg">
+                    <p className="font-semibold text-lg dark:text-white">
                       {booking.model_name}
                     </p>
-                    <p className="text-sm text-gray-600 flex items-center gap-2 mt-1">
+                    <p className="text-sm text-gray-600 flex items-center gap-2 mt-1 dark:text-gray-400">
                       <CalendarIcon className="h-4 w-4" />
                       {new Date(booking.booking_date).toLocaleDateString()}
-                      <span className="text-gray-300">|</span>
+                      <span className="text-gray-300 dark:text-gray-600">
+                        |
+                      </span>
                       <ClockIcon className="h-4 w-4" />
                       {booking.booking_time}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 text-green-600">
+                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                     <CheckIcon className="h-5 w-5" />
                     <span className="font-semibold">{booking.status}</span>
                   </div>
@@ -132,7 +138,7 @@ export const TestDrivesPage: React.FC = () => {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 text-center py-8">
+            <p className="text-gray-500 text-center py-8 dark:text-gray-400">
               You have no upcoming test drives.
             </p>
           )}
@@ -141,45 +147,53 @@ export const TestDrivesPage: React.FC = () => {
 
       {/* Section for Available Slots */}
       <div>
-        <h1 className="text-3xl font-bold mb-6">Available Test Drive Slots</h1>
+        <h1 className="text-3xl font-bold mb-6 dark:text-white">
+          Available Test Drive Slots
+        </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {slots.map((slot) => (
             <div
               key={slot._id}
-              className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-between hover:shadow-lg transition-shadow"
+              className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-between hover:shadow-lg transition-shadow dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700"
             >
               <div>
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-100 rounded-full">
-                    <CarIcon className="h-6 w-6 text-blue-600" />
+                  <div className="p-2 bg-blue-100 rounded-full dark:bg-blue-900/50">
+                    <CarIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="text-xl font-bold">{slot.model_id}</h3>
+                  <h3 className="text-xl font-bold dark:text-white">
+                    {slot.model_id}
+                  </h3>
                 </div>
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-500 mb-1 dark:text-gray-400">
                   With{" "}
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
                     {slot.seller_id}
                   </span>
                 </p>
                 <div className="mt-4 space-y-2 text-sm">
                   <p className="flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">Date:</span>
-                    <span>
+                    <CalendarIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <span className="font-medium dark:text-gray-300">
+                      Date:
+                    </span>
+                    <span className="dark:text-gray-400">
                       {new Date(slot.available_date).toLocaleDateString()}
                     </span>
                   </p>
                   <p className="flex items-center gap-2">
-                    <ClockIcon className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">Time:</span>
-                    <span>{`${slot.start_time} - ${slot.end_time}`}</span>
+                    <ClockIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <span className="font-medium dark:text-gray-300">
+                      Time:
+                    </span>
+                    <span className="dark:text-gray-400">{`${slot.start_time} - ${slot.end_time}`}</span>
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => handleBookSlot(slot._id)}
                 disabled={bookings.some((b) => b.slot_id === slot._id)}
-                className="w-full mt-6 bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full mt-6 bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed dark:bg-blue-700 dark:hover:bg-blue-600 dark:disabled:bg-gray-600"
               >
                 {bookings.some((b) => b.slot_id === slot._id)
                   ? "Booked"
