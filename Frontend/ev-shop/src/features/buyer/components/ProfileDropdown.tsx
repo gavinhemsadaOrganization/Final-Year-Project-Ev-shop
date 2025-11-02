@@ -6,6 +6,7 @@ import {
   LogoutIcon,
 } from "@/assets/icons/icons";
 import type { ActiveTab } from "@/types";
+import { EmptyUserProfileIcon } from "@/assets/icons/icons";
 
 export const ProfileDropdown: React.FC<{
   user: any;
@@ -54,11 +55,15 @@ export const ProfileDropdown: React.FC<{
       >
         {/* This is your user snippet */}
         <div className="flex items-center space-x-2">
+          {user.profile_image ?(
           <img
-            src={user.avatar}
+            src={user.profile_image}
             alt="User Avatar"
             className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover"
           />
+          ) : (
+            <EmptyUserProfileIcon className="h-9 w-9 sm:h-8 sm:w-8 rounded-full bg-gray-200 border-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600" />
+          )}
           <div className="hidden md:block text-left">
             <p className="font-semibold text-sm truncate max-w-[150px]">
               <span className="dark:text-white">{user.name}</span>

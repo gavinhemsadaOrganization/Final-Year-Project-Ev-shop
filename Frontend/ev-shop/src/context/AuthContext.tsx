@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       roles: roles,
       activeRole: roles[0], // Default to the first role
       ids: ids,
-      profile: profile,
+      profile: profile? { ...profile } : undefined,
     };
     setUser(userData);
   };

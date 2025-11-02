@@ -1,77 +1,298 @@
+import React, { useState, useEffect } from "react";
 import type { User } from "@/types";
+import { EmptyUserProfileIcon } from "@/assets/icons/icons";
+import { Camera } from "lucide-react";
 
 /**
  * Props for the UserProfile component.
  */
 type UserProfileProps = {
-  /** The user object containing profile information like name, email, and avatar. */
+  /** The user object containing profile information. */
   user: User;
 };
 
 /**
  * A page component that displays and allows editing of the user's profile information.
- * Note: This component currently uses uncontrolled inputs with `defaultValue`.
- * For a fully functional form, it should be refactored to use state (e.g., `useState`)
- * to manage form data, making them controlled components.
+ * This component uses controlled inputs to manage form state, new fields, and image previews.
  */
-export const UserProfile: React.FC<UserProfileProps> = ({ user }) => (
-  // Main container for the profile page with styling for centering and appearance.
-  <div className="bg-white p-8 rounded-xl shadow-md max-w-2xl mx-auto dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
-    <h1 className="text-3xl font-bold mb-6 dark:text-white">My Profile</h1>
-    {/* Profile header section displaying avatar, name, and email. */}
-    <div className="flex items-center space-x-6">
-      <img
-        src={user.avatar}
-        alt="User Avatar"
-        className="h-24 w-24 rounded-full object-cover"
-      />
-      <div>
-        <h2 className="text-2xl font-semibold dark:text-white">{user.name}</h2>
-        <p className="text-gray-500 dark:text-gray-400">{user.email}</p>
-      </div>
+export const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
+  // --- State for controlled inputs ---
+  const [name, setName] = useState(user?.name);
+  const [email, _setEmail] = useState(user.email);
+
+  // --- NEW: State for new fields ---
+  const [phone, setPhone] = useState(user.phone || "");
+  const [dob, setDob] = useState(user.date_of_birth || ""); // Assuming DOB is a string like "YYYY-MM-DD"
+
+  // --- NEW: State for nested address object ---
+  const [address, setAddress] = useState({
+    street: user.address?.street || "",
+    city: user.address?.city || "",
+    state: user.address?.state || "",
+    zipCode: user.address?.zipCode || "",
+    country: user.address?.country || "",
+  });
+
+  // --- NEW: State for image preview ---
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isChanged, setIsChanged] = useState(false);
+  /**
+   * Handles the file input change event for the profile image.
+   */
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setIsChanged(true);
+    }
+  };
+
+  /**
+   * --- NEW: Handler for nested address state ---
+   */
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setIsChanged(true);
+    setAddress((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleChange =
+    <T,>(setter: React.Dispatch<React.SetStateAction<T>>) =>
+    (value: T) => {
+      setIsChanged(true);
+      setter(value);
+    };
+
+  /**
+   * --- NEW: Cleanup effect for the image preview URL ---
+   */
+  useEffect(() => {
+    // Revoke the object URL to prevent memory leaks
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  /**
+   * --- NEW: Form submission handler ---
+   */
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, you would send this data to your API
+    console.log("Updating profile with:", {
+      name,
+      email,
+      phone,
+      dob,
+      address,
+      avatarFile: selectedFile,
+    });
+    // Add API call logic here
+  };
+
+  return (
+    <div className="bg-white p-8 rounded-xl shadow-md max-w-6xl mx-auto dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
+      <h1 className="text-3xl font-bold mb-6 dark:text-white">My Profile</h1>
+
+      {/* --- NEW: Form element wraps inputs --- */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Profile header section */}
+        <div className="flex items-center space-x-6">
+          <div className="flex flex-col items-center">
+            <div
+              className="relative group h-24 w-24 rounded-full border-2 border-gray-200 shadow-md overflow-hidden cursor-pointer"
+              onClick={() =>
+                document.getElementById("profile-image-upload")?.click()
+              }
+            >
+              {imagePreview || user?.profile_image ? (
+                <img
+                  src={imagePreview || user.profile_image}
+                  alt="User Avatar"
+                  className="h-full w-full object-cover rounded-full"
+                />
+              ) : (
+                <EmptyUserProfileIcon className="h-full w-full rounded-full bg-gray-200 border-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600" />
+              )}
+
+              {/* Hover overlay with icon */}
+              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                <Camera />
+              </div>
+            </div>
+
+            {/* Hidden file input */}
+            <input
+              id="profile-image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold dark:text-white">{name}</h2>
+            <p className="text-gray-500 dark:text-gray-400">{email}</p>
+          </div>
+        </div>
+
+        {/* Form for updating profile information */}
+        <div className="space-y-4">
+          {/* --- NEW: Grid layout for main details --- */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Full Name
+              </label>
+              <input
+                type="text"
+                // --- MODIFIED: Controlled input ---
+                value={name}
+                onChange={(e) => handleChange(setName)(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                disabled
+                readOnly
+                className="mt-1 block w-full px-3 py-2 
+             border border-gray-300 rounded-md shadow-sm 
+             bg-gray-100 text-gray-700 
+             focus:outline-none focus:ring-blue-500 focus:border-blue-500 
+             sm:text-sm 
+             disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-300 
+             dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 
+             dark:disabled:bg-gray-700 dark:disabled:text-gray-400 dark:disabled:border-gray-500"
+              />
+            </div>
+            {/* --- NEW: Phone Number --- */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => handleChange(setPhone)(e.target.value)}
+                placeholder="+94 77 123 4567"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
+            {/* --- NEW: Date of Birth --- */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                value={dob}
+                onChange={(e) => handleChange(setDob)(e.target.value)}
+                className="dark:[&::-webkit-calendar-picker-indicator]:invert mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
+          </div>
+
+          {/* --- NEW: Address Section --- */}
+          <fieldset className="border border-gray-300 dark:border-gray-600 rounded-lg p-4">
+            <legend className="text-sm font-medium text-gray-700 dark:text-gray-300 px-2">
+              Address
+            </legend>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Street
+                </label>
+                <input
+                  type="text"
+                  name="street"
+                  value={address.street}
+                  onChange={handleAddressChange}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={address.city}
+                    onChange={handleAddressChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    State / Province
+                  </label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={address.state}
+                    onChange={handleAddressChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    ZIP / Postal Code
+                  </label>
+                  <input
+                    type="text"
+                    name="zipCode"
+                    value={address.zipCode}
+                    onChange={handleAddressChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Country
+                  </label>
+                  <input
+                    type="text"
+                    name="country"
+                    value={address.country}
+                    onChange={handleAddressChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          {/* Form submission button */}
+          <div className="pt-4">
+            <button
+              type="submit"
+              disabled={!isChanged}
+              className={`w-full font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 transform hover:scale-105
+    ${
+      isChanged
+        ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+        : "bg-gray-400 text-gray-200 cursor-not-allowed dark:bg-gray-600"
+    }`}
+            >
+              Update Profile
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
-    {/* Form for updating user profile information. */}
-    <div className="mt-8 space-y-4">
-      {/* Full Name input field. */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Full Name
-        </label>
-        <input
-          type="text"
-          // `defaultValue` sets the initial value but doesn't update with state changes (uncontrolled).
-          defaultValue={user.name}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-        />
-      </div>
-      {/* Email Address input field. */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Email Address
-        </label>
-        <input
-          type="email"
-          defaultValue={user.email}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-        />
-      </div>
-      {/* Change Password input field. */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Change Password
-        </label>
-        <input
-          type="password"
-          placeholder="New Password"
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-        />
-      </div>
-      {/* Form submission button. */}
-      <div className="pt-4">
-        <button className="w-full bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105 dark:bg-blue-700 dark:hover:bg-blue-600">
-          Update Profile
-        </button>
-      </div>
-    </div>
-  </div>
-);
+  );
+};

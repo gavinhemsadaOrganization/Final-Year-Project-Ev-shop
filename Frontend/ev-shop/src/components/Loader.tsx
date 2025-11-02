@@ -1,5 +1,7 @@
 import React from "react";
 import { PulseLoader } from "react-spinners";
+import { motion } from "framer-motion";
+import { Zap } from "lucide-react";
 
 interface LoaderProps {
   size: number;          // spinner size in pixels
@@ -9,7 +11,7 @@ interface LoaderProps {
   loading?: boolean;      // show/hide control
 }
 
-const Loader: React.FC<LoaderProps> = ({
+export const Loader: React.FC<LoaderProps> = ({
   size ,
   color ,        // default: Tailwind blue-600
   speedMultiplier = 1,
@@ -31,4 +33,16 @@ const Loader: React.FC<LoaderProps> = ({
   );
 };
 
-export default Loader;
+export const PageLoader: React.FC = () => (
+  <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-green-100 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 z-50">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="flex flex-col items-center space-y-4"
+    >
+      {/* Icon */}
+      <Zap className="w-10 h-10 text-blue-500 animate-pulse" />
+    </motion.div>
+  </div>
+);

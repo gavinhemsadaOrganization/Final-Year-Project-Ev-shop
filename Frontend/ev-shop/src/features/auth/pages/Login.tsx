@@ -8,7 +8,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 // Import reusable UI components.
 import Label from "../../../components/Label";
 import Input from "../../../components/inputFiled";
-import Loader from "@/components/Loader";
+import {Loader} from "@/components/Loader";
 
 // Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";

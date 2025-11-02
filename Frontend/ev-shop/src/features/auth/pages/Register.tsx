@@ -9,11 +9,11 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 import Label from "@/components/Label";
 import Input from "@/components/inputFiled";
-import Loader from "@/components/Loader";
+import {Loader} from "@/components/Loader";
 
 // Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
-import type { UserRole } from "@/context/AuthContext";
+import type { UserRole } from "@/types";
 
 // Import authentication service functions for API calls.
 import { register, googleLogin, facebookLogin } from "../authService";

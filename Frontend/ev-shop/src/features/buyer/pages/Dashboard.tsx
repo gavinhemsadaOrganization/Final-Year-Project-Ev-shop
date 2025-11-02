@@ -5,7 +5,7 @@ import { Chatbot } from "../components/ChatBot";
 import { Sidebar } from "../components/SideBar";
 import { Header } from "../components/Header";
 import { VehicleList } from "../components/VehicalList";
-import type { Vehicle } from "@/types";
+import type { User_Profile, Vehicle } from "@/types";
 import { OrderHistory } from "./OrderHistoryPage";
 import { UserProfile } from "./UserProfilePage";
 import { Services } from "./ServicePage";
@@ -16,23 +16,16 @@ import { MyReviewsPage } from "./MyReviewsPage";
 import { TestDrivesPage } from "./TestDrivePage";
 import { FinancingPage } from "./FinancingPage";
 import { CommunityPage } from "./ComunityPage";
+import { PageLoader } from "@/components/Loader";
 
 import type {
   UserRole,
   Notification,
   Order,
-  User,
   Service,
   ActiveTab,
 } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-
-// --- Mock Data ------------
-const user: User = {
-  name: "Kasun Sampath",
-  email: "kasun@example.com",
-  avatar: "https://placehold.co/100x100/E2E8F0/4A5568?text=KS",
-};
 
 const vehicles: Vehicle[] = [
   {
@@ -144,53 +137,66 @@ const notifications: Notification[] = [
 
 const App: React.FC = () => {
   const [userRole, setUserRole] = useState<UserRole[]>([]);
+  const [user, setUser] = useState<User_Profile| null>();
+  const [userid, setUserID] = useState<string>("");
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
-
+  const [loading, setLoading] = useState(true);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const navigate = useNavigate();
   const { getProfile, getUserID, logout, getRoles } = useAuth();
+  const navigate = useNavigate();
+
   useEffect(() => {
-    // Disable back button by pushing state and listening to popstate
-    const state = { page: "dashboard" };
-    window.history.pushState(state, "", window.location.href);
+  const profileData = getProfile();
+  const roles = getRoles();
+  const userID = getUserID();
 
-    const handleBackButton = (event: PopStateEvent) => {
-      // When back is clicked, push the state again to prevent going back
-      window.history.pushState(state, "", window.location.href);
-    };
+  try {
+    if (profileData) {
+      // Clean and parse the profile JSON safely
+      const cleaned = profileData.profile
+        .replace(/ObjectId\('([^']+)'\)/g, '"$1"')
+        .replace(/\bnew\s+/g, "")
+        .replace(/'/g, '"')
+        .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":');
 
-    window.addEventListener("popstate", handleBackButton);
+      const parsed: User_Profile = JSON.parse(cleaned);
+      setUser(parsed);
+    }
 
-    // Cleanup
-    return () => {
-      window.removeEventListener("popstate", handleBackButton);
-    };
-  }, []);
+    if (roles && Array.isArray(roles)) {
+      setUserRole(roles);
+    }
+
+    if (userID) {
+      setUserID(userID);
+    }
+  } catch (error) {
+    console.error("Failed to load user or roles:", error);
+  } finally {
+    setLoading(false);
+  }
+}, []); // Run once when component mounts
+
+
 
   const filteredVehicles = vehicles.filter(
     (vehicle) =>
       vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  console.log(userRole);
-  useEffect(() => {
-    setUserRole(getRoles()!);
-  }, [getRoles]);
-
+  if (loading) {
+    return <PageLoader />;
+  }
   const renderContent = () => {
-    // if (userRole.includes("seller")) {
-    //   return <SellerComingSoon onSwitchBack={handleRoleSwitch} />;
-    // }
-
     switch (activeTab) {
       case "dashboard":
         return <VehicleList vehicles={filteredVehicles} />;
       case "orders":
         return <OrderHistory orders={orders} />;
       case "profile":
-        return <UserProfile user={user} />;
+        return <UserProfile user={user!} />;
       case "services":
         return <Services services={services} />;
       case "financing":
@@ -233,11 +239,6 @@ const App: React.FC = () => {
     navigate("/login"); // Redirect to login or home page
   };
 
-  useEffect(() => {
-    // ... (keep your existing useEffect)
-  }, []);
-  console.log(getProfile());
-  console.log(getUserID());
   return (
     <>
       {/* Removed the inline <style> block that was forcing a light background */}
