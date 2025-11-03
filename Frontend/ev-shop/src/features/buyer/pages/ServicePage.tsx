@@ -1,11 +1,22 @@
 import type { Service } from "@/types";
 
+const services: Service[] = [
+  {
+    name: "Standard Maintenance",
+    desc: "Comprehensive check-up and battery health report.",
+  },
+  { name: "Tire Service", desc: "Rotation, alignment, and replacement." },
+  {
+    name: "Software Update",
+    desc: "Get the latest features and performance improvements.",
+  },
+];
 /**
  * A page component that displays a list of available services.
  * It renders a grid of service cards based on the provided `services` prop,
  * and also includes a static card for a "Charging Station Locator".
  */
-export const Services: React.FC<{ services: Service[] }> = ({ services }) => (
+export const Services: React.FC = () => (
   // Main container for the services page with padding, rounded corners, and a shadow.
   <div className="bg-white p-8 rounded-xl shadow-md dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
     <h1 className="text-3xl font-bold mb-6 dark:text-white">Our Services</h1>

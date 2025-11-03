@@ -1,4 +1,4 @@
-import { axiosInstance } from "@/config/config";
+import { axiosInstance, axiosPrivate } from "@/config/config";
 
 // Get the base URL for the API from environment variables.
 const baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -104,3 +104,8 @@ export const resetPassword = async (email: string, password: string) => {
   });
   return response.data;
 };
+
+export const logOut = async () => {
+  const response = await axiosPrivate.post(`/user/logout`);
+  return response.data;
+}

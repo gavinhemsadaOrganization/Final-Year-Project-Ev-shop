@@ -56,10 +56,13 @@ export const getPaymentByOrderId = async (orderId: string) => {
   return response.data;
 }
 
-
 // ev list operations
 export const getEVList = async () => {
   const response = await axiosPrivate.get(`/ev/listings`);
+  return response.data;
+}
+export const becomeaSeller = async (sellerData: any) => {
+  const response = await axiosPrivate.post(`/ev/seller`, sellerData);
   return response.data;
 }
 
@@ -94,6 +97,11 @@ export const deleteFinancingApplication = async (id: string) => {
   const response = await axiosPrivate.delete(`/financial/applications/${id}`);
   return response.data;
 }
+export const becomeaFinancing = async(financingData: any) => {
+  const response = await axiosPrivate.post(`/financial/institutions`, financingData);
+  return response.data;
+}
+
 
 // services operations
 export const getAvailableServices = async () => {   

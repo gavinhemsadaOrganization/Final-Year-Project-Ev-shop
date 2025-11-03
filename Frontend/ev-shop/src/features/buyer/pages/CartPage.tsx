@@ -1,13 +1,34 @@
-import React from "react";
-import type { Vehicle } from "@/types";
+import React, { useState } from "react";
 import { CloseIcon } from "@/assets/icons/icons"; // Assuming CloseIcon is in icons
+import type { Vehicle } from "@/types";
 
-interface CartPageProps {
-  cart: Vehicle[];
-  onRemove: (id: number) => void;
-}
+// --- Mock Data (replace with actual cart logic, e.g., from context) ---
+const mockCartItems: Vehicle[] = [
+  {
+    id: 1,
+    name: "Aura EV",
+    model: "Sedan",
+    price: "LKR 12,500,000",
+    range: "450 km",
+    image: "https://placehold.co/600x400/3498db/ffffff?text=Aura+EV",
+    topSpeed: "180 km/h",
+  },
+  {
+    id: 6,
+    name: "Velocity S",
+    model: "Sports",
+    price: "LKR 28,500,000",
+    range: "520 km",
+    image: "https://placehold.co/600x400/1abc9c/ffffff?text=Velocity+S",
+    topSpeed: "250 km/h",
+  },
+];
 
-export const CartPage: React.FC<CartPageProps> = ({ cart, onRemove }) => {
+export const CartPage: React.FC = () => {
+  const [cart, setCart] = useState<Vehicle[]>(mockCartItems);
+  const onRemove = (id: number) => {
+    setCart((currentCart) => currentCart.filter((item) => item.id !== id));
+  };
   const totalPrice = cart.reduce((total, vehicle) => {
     // Clean the price string ("LKR 12,500,000" -> 12500000)
     const price = Number(vehicle.price.replace(/[^0-9.-]+/g, ""));

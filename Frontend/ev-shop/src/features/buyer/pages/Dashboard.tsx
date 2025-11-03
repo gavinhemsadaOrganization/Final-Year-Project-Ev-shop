@@ -17,133 +17,29 @@ import { TestDrivesPage } from "./TestDrivePage";
 import { FinancingPage } from "./FinancingPage";
 import { CommunityPage } from "./ComunityPage";
 import { PageLoader } from "@/components/Loader";
-import { getUserProfile } from "../buyerService";
+import {
+  getUserProfile,
+  getUserNotifications,
+  getEVList,
+} from "../buyerService";
 
-import type {
-  UserRole,
-  Notification,
-  Order,
-  Service,
-  ActiveTab,
-} from "@/types";
+import type { UserRole, Notification, ActiveTab } from "@/types";
 import { useAuth } from "@/context/AuthContext";
+import BecomeSellerPage from "./becomeaSellerPage";
+import RegisterFinancialInstitutionPage from "./becomeaFinancingPage";
 
-const vehicles: Vehicle[] = [
-  {
-    id: 1,
-    name: "Aura EV",
-    model: "Sedan",
-    price: "LKR 12,500,000",
-    range: "450 km",
-    image: "https://placehold.co/600x400/3498db/ffffff?text=Aura+EV",
-    topSpeed: "180 km/h",
-  },
-  {
-    id: 2,
-    name: "Pulse XR",
-    model: "SUV",
-    price: "LKR 18,000,000",
-    range: "550 km",
-    image: "https://placehold.co/600x400/2ecc71/ffffff?text=Pulse+XR",
-    topSpeed: "200 km/h",
-  },
-  {
-    id: 3,
-    name: "City Spark",
-    model: "Hatchback",
-    price: "LKR 9,800,000",
-    range: "350 km",
-    image: "https://placehold.co/600x400/e74c3c/ffffff?text=City+Spark",
-    topSpeed: "160 km/h",
-  },
-  {
-    id: 4,
-    name: "Terra Rover",
-    model: "Off-road",
-    price: "LKR 22,000,000",
-    range: "600 km",
-    image: "https://placehold.co/600x400/f39c12/ffffff?text=Terra+Rover",
-    topSpeed: "190 km/h",
-  },
-  {
-    id: 5,
-    name: "Eco Wagon",
-    model: "Van",
-    price: "LKR 15,200,000",
-    range: "480 km",
-    image: "https://placehold.co/600x400/9b59b6/ffffff?text=Eco+Wagon",
-    topSpeed: "170 km/h",
-  },
-  {
-    id: 6,
-    name: "Velocity S",
-    model: "Sports",
-    price: "LKR 28,500,000",
-    range: "520 km",
-    image: "https://placehold.co/600x400/1abc9c/ffffff?text=Velocity+S",
-    topSpeed: "250 km/h",
-  },
-];
-
-const services: Service[] = [
-  {
-    name: "Standard Maintenance",
-    desc: "Comprehensive check-up and battery health report.",
-  },
-  { name: "Tire Service", desc: "Rotation, alignment, and replacement." },
-  {
-    name: "Software Update",
-    desc: "Get the latest features and performance improvements.",
-  },
-];
-
-const orders: Order[] = [
-  {
-    id: "ORD-2025-007",
-    date: "2025-10-05",
-    vehicle: "Pulse XR",
-    status: "Delivered",
-    total: "LKR 18,000,000",
-  },
-  {
-    id: "ORD-2025-008",
-    date: "2025-10-11",
-    vehicle: "Charging Cable",
-    status: "Processing",
-    total: "LKR 25,000",
-  },
-  {
-    id: "ORD-2025-009",
-    date: "2025-09-20",
-    vehicle: "Aura EV",
-    status: "Cancelled",
-    total: "LKR 12,500,000",
-  },
-];
-
-const notifications: Notification[] = [
-  {
-    id: 1,
-    message: "Your test drive for Aura EV is confirmed for Oct 15.",
-    time: "2 hours ago",
-  },
-  {
-    id: 2,
-    message: "New accessory added: All-weather floor mats.",
-    time: "1 day ago",
-  },
-];
-
-// --- Main Dashboard Component ---
 
 const App: React.FC = () => {
   const [userRole, setUserRole] = useState<UserRole[]>([]);
   const [user, setUser] = useState<User_Profile | null>();
-  const [userid, setUserID] = useState<string>("");
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isBecomeSellerModalOpen, setIsBecomeSellerModalOpen] = useState(false);
+  const [isBecomFinancer, setIsBecomeFinancer] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const { getUserID, logout, getRoles } = useAuth();
   const navigate = useNavigate();
@@ -152,17 +48,19 @@ const App: React.FC = () => {
     const fetchData = async () => {
       try {
         const roles = getRoles();
-        const userID = getUserID();
+        const userID = getUserID()!;
 
         if (userID) {
           const user = await getUserProfile(userID);
           setUser(user);
-          setUserID(userID);
         }
 
         if (roles && Array.isArray(roles)) {
           setUserRole(roles);
         }
+
+        await getNotification(userID);
+        await getVehicals();
       } catch (error) {
         console.error("Failed to load user or roles:", error);
       } finally {
@@ -171,7 +69,33 @@ const App: React.FC = () => {
     };
 
     fetchData();
-  }, [getRoles, getUserID]); // Run once when component mounts
+  }, [getRoles, getUserID]);
+
+  const getNotification = async (userID: string) => {
+    try {
+      const response = await getUserNotifications(userID);
+      if (!response.ok) {
+        throw new Error("Failed to load notifications");
+      }
+      const data = await response.json();
+      setNotifications(data.notifications);
+    } catch (error) {
+      console.error("Failed to load notifications:", error);
+    }
+  };
+
+  const getVehicals = async () => {
+    try {
+      const result = await getEVList();
+      if (!result.ok) {
+        throw new Error("Failed to load vehicles");
+      }
+      const data = await result.json();
+      setVehicles(data.vehicles);
+    } catch (error) {
+      console.error("Failed to load vehicles:", error);
+    }
+  };
 
   const filteredVehicles = vehicles.filter(
     (vehicle) =>
@@ -186,11 +110,11 @@ const App: React.FC = () => {
       case "dashboard":
         return <VehicleList vehicles={filteredVehicles} />;
       case "orders":
-        return <OrderHistory orders={orders} />;
+        return <OrderHistory />;
       case "profile":
         return <UserProfile user={user!} />;
       case "services":
-        return <Services services={services} />;
+        return <Services />;
       case "financing":
         return <FinancingPage />;
       case "saved":
@@ -198,7 +122,7 @@ const App: React.FC = () => {
       case "notification":
         return <NotificationPage notifications={notifications} />;
       case "cart":
-        return <CartPage cart={[]} onRemove={() => {}} />;
+        return <CartPage />;
       case "test-drives":
         return <TestDrivesPage />;
       case "reviews":
@@ -226,9 +150,9 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     if (logout) {
-      logout(); // Call the logout function from your auth context
+      logout();
     }
-    navigate("/login"); // Redirect to login or home page
+    navigate("/auth/login"); // Redirect to login or home page
   };
 
   return (
@@ -263,6 +187,8 @@ const App: React.FC = () => {
             notifications={notifications}
             onLogout={handleLogout}
             setActiveTab={setActiveTab}
+            onBecomeSellerClick={() => setIsBecomeSellerModalOpen(true)}
+            onBecomeFinancerClick={() => setIsBecomeFinancer(true)}
           />
 
           <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-100 dark:bg-gray-900">
@@ -314,6 +240,19 @@ const App: React.FC = () => {
       </div>
 
       {isChatOpen && <Chatbot onClose={() => setIsChatOpen(false)} />}
+
+      {/* --- NEW: Become a Seller Modal --- */}
+      {isBecomeSellerModalOpen && (
+        <BecomeSellerPage
+          onClose={() => setIsBecomeSellerModalOpen(false)}
+        />
+      )}
+
+      {isBecomFinancer && (
+        <RegisterFinancialInstitutionPage
+          onClose={() => setIsBecomeFinancer(false)}
+        />
+      )}
     </>
   );
 };

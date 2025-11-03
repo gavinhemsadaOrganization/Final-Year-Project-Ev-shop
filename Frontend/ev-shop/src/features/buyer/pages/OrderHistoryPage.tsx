@@ -13,11 +13,31 @@ const getStatusChip = (status: Order["status"]): string => {
   }
 };
 
-type OrderHistoryProps = {
-  orders: Order[];
-};
+const orders: Order[] = [
+  {
+    id: "ORD-2025-007",
+    date: "2025-10-05",
+    vehicle: "Pulse XR",
+    status: "Delivered",
+    total: "LKR 18,000,000",
+  },
+  {
+    id: "ORD-2025-008",
+    date: "2025-10-11",
+    vehicle: "Charging Cable",
+    status: "Processing",
+    total: "LKR 25,000",
+  },
+  {
+    id: "ORD-2025-009",
+    date: "2025-09-20",
+    vehicle: "Aura EV",
+    status: "Cancelled",
+    total: "LKR 12,500,000",
+  },
+];
 
-export const OrderHistory: React.FC<OrderHistoryProps> = ({ orders }) => (
+export const OrderHistory: React.FC = () => (
   <div className="bg-white p-8 rounded-xl shadow-md dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
     <h1 className="text-3xl font-bold mb-6 dark:text-white">My Orders</h1>
     <div className="overflow-x-auto">

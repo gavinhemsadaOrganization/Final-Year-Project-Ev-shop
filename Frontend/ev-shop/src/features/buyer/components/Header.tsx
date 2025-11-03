@@ -12,6 +12,8 @@ type HeaderProps = {
   notifications: any[];
   setActiveTab: (tab: ActiveTab) => void;
   onLogout: () => void;
+  onBecomeSellerClick: () => void;
+  onBecomeFinancerClick: () => void;
 };
 
 export const Header: React.FC<HeaderProps> = ({
@@ -22,6 +24,8 @@ export const Header: React.FC<HeaderProps> = ({
   notifications,
   setActiveTab,
   onLogout,
+  onBecomeSellerClick,
+  onBecomeFinancerClick,
 }) => {
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 dark:bg-gray-800 dark:border-gray-700">
@@ -42,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Show "become" buttons only if user doesn't have that role */}
         {!userRole.includes("seller") ? (
           <button
-            onClick={() => {}}
+            onClick={onBecomeSellerClick}
             className="flex items-center gap-2 px-4 py-2 
       bg-blue-600 text-white text-sm font-medium rounded-full 
       hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
@@ -72,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {!userRole.includes("finance") ? (
           <button
-            onClick={() => {}}
+            onClick={onBecomeFinancerClick}
             className="flex items-center gap-2 px-4 py-2 
       bg-blue-600 text-white text-sm font-medium rounded-full 
       hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
