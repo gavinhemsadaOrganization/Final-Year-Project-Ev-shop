@@ -17,6 +17,7 @@ import { TestDrivesPage } from "./TestDrivePage";
 import { FinancingPage } from "./FinancingPage";
 import { CommunityPage } from "./ComunityPage";
 import { PageLoader } from "@/components/Loader";
+import { getUserProfile } from "../buyerService";
 
 import type {
   UserRole,
@@ -137,49 +138,40 @@ const notifications: Notification[] = [
 
 const App: React.FC = () => {
   const [userRole, setUserRole] = useState<UserRole[]>([]);
-  const [user, setUser] = useState<User_Profile| null>();
+  const [user, setUser] = useState<User_Profile | null>();
   const [userid, setUserID] = useState<string>("");
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const { getProfile, getUserID, logout, getRoles } = useAuth();
+  const { getUserID, logout, getRoles } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-  const profileData = getProfile();
-  const roles = getRoles();
-  const userID = getUserID();
+    const fetchData = async () => {
+      try {
+        const roles = getRoles();
+        const userID = getUserID();
 
-  try {
-    if (profileData) {
-      // Clean and parse the profile JSON safely
-      const cleaned = profileData.profile
-        .replace(/ObjectId\('([^']+)'\)/g, '"$1"')
-        .replace(/\bnew\s+/g, "")
-        .replace(/'/g, '"')
-        .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":');
+        if (userID) {
+          const user = await getUserProfile(userID);
+          setUser(user);
+          setUserID(userID);
+        }
 
-      const parsed: User_Profile = JSON.parse(cleaned);
-      setUser(parsed);
-    }
+        if (roles && Array.isArray(roles)) {
+          setUserRole(roles);
+        }
+      } catch (error) {
+        console.error("Failed to load user or roles:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (roles && Array.isArray(roles)) {
-      setUserRole(roles);
-    }
-
-    if (userID) {
-      setUserID(userID);
-    }
-  } catch (error) {
-    console.error("Failed to load user or roles:", error);
-  } finally {
-    setLoading(false);
-  }
-}, []); // Run once when component mounts
-
-
+    fetchData();
+  }, [getRoles, getUserID]); // Run once when component mounts
 
   const filteredVehicles = vehicles.filter(
     (vehicle) =>

@@ -94,9 +94,10 @@ app.use(
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
+        imgSrc: ["'self'", "data:", "https:","http://localhost:5173","http://localhost:5000", "http://localhost:3000"],
       },
     },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
@@ -205,21 +206,26 @@ initializeMonitoring(app);
 app.use("/api/v1", apiV1Router);
 
 // Serve images from the uploads directory
-// app.use("/images/public", express.static(path.join(process.cwd(), "uploads/public")));
-app.get("/images/:filename", (req, res) => {
-  const filename = req.params.filename;
-  const filepath = path.join(__dirname, "uploads", filename);
-  // Construct the full path to the image file
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "../uploads"), {
+    setHeaders: (res, path, stat) => {
+      res.setHeader("Cache-Control", "no-store");       // prevent 304 / caching issues
+    },
+  })
+);
 
-  // Check if the file exists at the specified path
-  if (fs.existsSync(filepath)) {
-    // If it exists, send the file as a response
-    res.sendFile(filepath);
-  } else {
-    // If not found, send a 404 Not Found response
-    res.status(404).json({ error: "Image not found" });
-  }
-});
+
+// app.get("/uploads/:folder/:filename", (req, res) => {
+//   const { folder, filename } = req.params;
+//   const filepath = path.join(__dirname, "../uploads", folder, filename);
+//   console.log("Looking for:", filepath);
+//   if (fs.existsSync(filepath)) {
+//     res.sendFile(filepath);
+//   } else {
+//     res.status(404).json({ error: "Image not found" });
+//   }
+// });
 
 // Swagger Documentation Route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {

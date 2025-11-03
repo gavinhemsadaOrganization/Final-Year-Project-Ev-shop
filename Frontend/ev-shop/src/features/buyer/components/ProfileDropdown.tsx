@@ -8,6 +8,8 @@ import {
 import type { ActiveTab } from "@/types";
 import { EmptyUserProfileIcon } from "@/assets/icons/icons";
 
+const apiURL = import.meta.env.VITE_API_URL;
+
 export const ProfileDropdown: React.FC<{
   user: any;
   onLogout: () => void;
@@ -56,8 +58,9 @@ export const ProfileDropdown: React.FC<{
         {/* This is your user snippet */}
         <div className="flex items-center space-x-2">
           {user.profile_image ?(
+            console.log(user.profile_image),
           <img
-            src={user.profile_image}
+            src={`${apiURL}${user.profile_image}`}
             alt="User Avatar"
             className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover"
           />

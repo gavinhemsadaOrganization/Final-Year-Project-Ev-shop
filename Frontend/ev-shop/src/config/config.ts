@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
-const apiURL = import.meta.env.VITE_API_URL;
 
 //  Public axios instance (for login/register)
 export const axiosInstance = axios.create({
@@ -13,11 +12,6 @@ export const axiosInstance = axios.create({
 export const axiosPrivate = axios.create({
   baseURL,
   withCredentials: true, // ensures cookies are sent
-});
-
-export const apiAxios = axios.create({
-  baseURL: apiURL,
-  withCredentials: true,
 });
 
 
@@ -45,8 +39,3 @@ axiosPrivate.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-export const imageread = async (fileName: string) => {
-  const result = await apiAxios.get(`/images/${fileName}`);
-  return result.data;
-}
