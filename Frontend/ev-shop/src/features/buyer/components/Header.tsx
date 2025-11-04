@@ -3,6 +3,8 @@ import { ShoppingCartIcon, SearchIcon, SwitchIcon } from "@/assets/icons/icons";
 import { NotificationDropdown } from "./NotificationDropdown";
 import type { UserRole, ActiveTab } from "@/types";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type HeaderProps = {
   searchTerm: string;
@@ -27,6 +29,10 @@ export const Header: React.FC<HeaderProps> = ({
   onBecomeSellerClick,
   onBecomeFinancerClick,
 }) => {
+  console.log(userRole);
+  const { setActiveRole } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 dark:bg-gray-800 dark:border-gray-700">
       {/* Search Bar */}
@@ -44,8 +50,9 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Actions */}
       <div className="flex items-center flex-shrink-0 space-x-3 ml-3">
         {/* Show "become" buttons only if user doesn't have that role */}
-        {!userRole.includes("seller") ? (
-          <button
+        {userRole.includes("user") && !userRole.includes("seller") && !userRole.includes("finance") && 
+        <>
+           <button
             onClick={onBecomeSellerClick}
             className="flex items-center gap-2 px-4 py-2 
       bg-blue-600 text-white text-sm font-medium rounded-full 
@@ -58,9 +65,29 @@ export const Header: React.FC<HeaderProps> = ({
               Become a Seller
             </span>
           </button>
-        ) : (
+
+        <button
+            onClick={onBecomeFinancerClick}
+            className="flex items-center gap-2 px-4 py-2 
+      bg-blue-600 text-white text-sm font-medium rounded-full 
+      hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
+      dark:bg-blue-500 dark:hover:bg-blue-400"
+            title="Become a Financial Contributor"
+          >
+            <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden md:inline whitespace-nowrap">
+              Become a Financial Contributor
+            </span>
+          </button>
+          </>
+        }
+        {userRole.includes("seller") && userRole.includes("user") &&
+         (
           <button
-            onClick={() => {}}
+            onClick={() => {
+              setActiveRole("seller");
+              navigate("/seller/dashboard");
+            }}
             className="flex items-center gap-2 px-4 py-2 
       bg-gray-200 text-gray-900 text-sm font-medium rounded-full 
       hover:bg-gray-300 active:scale-95 transition-all duration-200 shadow-sm
@@ -74,23 +101,12 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        {!userRole.includes("finance") ? (
-          <button
-            onClick={onBecomeFinancerClick}
-            className="flex items-center gap-2 px-4 py-2 
-      bg-blue-600 text-white text-sm font-medium rounded-full 
-      hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
-      dark:bg-blue-500 dark:hover:bg-blue-400"
-            title="Become a Financial Contributor"
-          >
-            <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
-            <span className="hidden md:inline whitespace-nowrap">
-              Become a Financial Contributor
-            </span>
-          </button>
-        ) : (
-          <button
-            onClick={() => {}}
+        {userRole.includes("finance") && userRole.includes("user") &&(
+         <button
+            onClick={() => {
+              setActiveRole("finance");
+              navigate("/finance/dashboard");
+            }}
             className="flex items-center gap-2 px-4 py-2 
       bg-gray-200 text-gray-900 text-sm font-medium rounded-full 
       hover:bg-gray-300 active:scale-95 transition-all duration-200 shadow-sm

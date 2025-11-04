@@ -49,7 +49,7 @@ const App: React.FC = () => {
       try {
         const roles = getRoles();
         const userID = getUserID()!;
-
+        console.log(roles)
         if (userID) {
           const user = await getUserProfile(userID);
           setUser(user);

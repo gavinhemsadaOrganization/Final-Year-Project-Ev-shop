@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import type { User } from "@/types";
 import { EmptyUserProfileIcon } from "@/assets/icons/icons";
 import { Camera } from "lucide-react";
-import { PageLoader } from "@/components/Loader";
 import { updateUserProfile } from "../buyerService";
 import { useAuth } from "@/context/AuthContext";
+import { Loader } from "@/components/Loader";
 
 const apiURL = import.meta.env.VITE_API_URL;
 /**
@@ -160,9 +160,7 @@ export const UserProfile: React.FC<{ user: User }> = ({ user }) => {
       setIsLoading(false); // --- Ensure loading is always turned off
     }
   };
-  if (isLoading) {
-    return <PageLoader />;
-  }
+
   return (
     <div className="bg-white p-8 rounded-xl shadow-md max-w-6xl mx-auto dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
       <h1 className="text-3xl font-bold mb-6 dark:text-white">My Profile</h1>
@@ -384,7 +382,7 @@ export const UserProfile: React.FC<{ user: User }> = ({ user }) => {
                   : "bg-gray-400 text-gray-200 cursor-not-allowed dark:bg-gray-600"
               }`}
             >
-              Update Profile
+              {isLoading ? <Loader size={10} color="#4f46e5" /> : "Update Profile"}
             </button>
           </div>
         </div>

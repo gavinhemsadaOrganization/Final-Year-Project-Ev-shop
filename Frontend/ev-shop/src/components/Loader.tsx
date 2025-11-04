@@ -1,21 +1,19 @@
 import React from "react";
 import { PulseLoader } from "react-spinners";
-import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
 
 interface LoaderProps {
-  size: number;          // spinner size in pixels
-  color?: string;         // spinner color
+  size: number; // spinner size in pixels
+  color?: string; // spinner color
   speedMultiplier?: number; // speed factor
-  className?: string;     // optional wrapper class
-  loading?: boolean;      // show/hide control
+  className?: string; // optional wrapper class
+  loading?: boolean; // show/hide control
 }
 
 export const Loader: React.FC<LoaderProps> = ({
-  size ,
-  color ,        // default: Tailwind blue-600
+  size,
+  color,
   speedMultiplier = 1,
-  className ,
+  className,
   loading = true,
 }) => {
   return (
@@ -34,15 +32,25 @@ export const Loader: React.FC<LoaderProps> = ({
 };
 
 export const PageLoader: React.FC = () => (
-  <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-green-100 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 z-50">
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="flex flex-col items-center space-y-4"
-    >
-      {/* Icon */}
-      <Zap className="w-10 h-10 text-blue-500 animate-pulse" />
-    </motion.div>
-  </div>
+  <div className="flex items-center justify-center min-h-screen">
+      <div className="relative w-20 h-20">
+        {/* Outer rotating circle */}
+        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-green-500 border-r-green-500 animate-spin"></div>
+        
+        {/* Inner circle segments */}
+        <div className="absolute inset-2 rounded-full border-4 border-transparent border-t-green-500 border-r-green-500 opacity-60 animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+        
+        {/* Center lightning bolt icon */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <svg 
+            className="w-12 h-12 text-gray-700 dark:text-white" 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="currentColor"
+          >
+            <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
+          </svg>
+        </div>
+      </div>
+    </div>
 );

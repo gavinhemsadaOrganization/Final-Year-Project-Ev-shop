@@ -8,7 +8,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 // Import reusable UI components.
 import Label from "../../../components/Label";
 import Input from "../../../components/inputFiled";
-import {Loader} from "@/components/Loader";
+import { Loader } from "@/components/Loader";
 
 // Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
@@ -67,14 +67,17 @@ const LoginPage = () => {
   // This function handles the OAuth callback after a user is redirected from Google/Facebook.
   // It parses user data from the URL, sets the user state, and navigates to the dashboard.
   const handleOAuthCallback = () => {
-    const params = new URLSearchParams(window.location.search);
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
     const userId = params.get("userid");
-    const user = params.get("user");
-    const role = params.get("role") as UserRole;
+    const role = params.getAll("role") as UserRole[];
+    const roleList = role
+      .flatMap((r) => r.split(","))
+      .map((r) => r.trim()) as UserRole[];
     const error = params.get("error");
     // Clean the URL by removing the query parameters.
-    window.history.replaceState({}, document.title, window.location.pathname);
-
+    window.history.replaceState({}, document.title, url.pathname);
+    console.log(role);
     if (error) {
       showMessage(error, "error");
       return;
@@ -82,7 +85,7 @@ const LoginPage = () => {
 
     if (userId) {
       // If authentication is successful, set user data and redirect.
-      setUserData(userId, [role], { userid: userId }, { profile: user });
+      setUserData(userId, roleList, { userid: userId });
       showMessage("OAuth authentication successful!", "success");
       setTimeout(() => {
         nav("/user/dashboard", { replace: true });
@@ -144,8 +147,11 @@ const LoginPage = () => {
       // Call the login API service.
       const respons = await login(email, password);
       console.log(respons);
+      const roleList = respons.role
+        .flatMap((r:any) => r.split(","))
+        .map((r:any) => r.trim()) as UserRole[];
       // On success, set user data in the context.
-      setUserData(respons.user, respons.role, { userid: respons.userid }, {profile: respons.user});
+      setUserData(respons.user, roleList, { userid: respons.userid });
       showMessage(respons.message, "success");
       // Redirect to the user dashboard after a short delay.
       setTimeout(() => {

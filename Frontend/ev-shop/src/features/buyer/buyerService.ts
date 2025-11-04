@@ -62,7 +62,7 @@ export const getEVList = async () => {
   return response.data;
 }
 export const becomeaSeller = async (sellerData: any) => {
-  const response = await axiosPrivate.post(`/ev/seller`, sellerData);
+  const response = await axiosPrivate.post(`/seller`, sellerData);
   return response.data;
 }
 

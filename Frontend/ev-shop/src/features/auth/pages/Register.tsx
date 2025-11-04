@@ -66,13 +66,14 @@ const RegisterPage = () => {
   // This function handles the OAuth callback after a user is redirected from Google/Facebook.
   // It parses user data from the URL, sets the user state, and shows a message.
   const handleOAuthCallback = () => {
-    const params = new URLSearchParams(window.location.search);
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
     const userId = params.get("userid");
     const role = params.get("role") as UserRole;
     const error = params.get("error");
 
     // Clean the URL by removing the query parameters.
-    window.history.replaceState({}, document.title, window.location.pathname);
+    window.history.replaceState({}, document.title, url.pathname);
 
     if (error) {
       showMessage(error, "error");
