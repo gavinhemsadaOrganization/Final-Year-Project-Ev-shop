@@ -10,3 +10,13 @@ export type ActiveTab =
   | "reviews"
   | "financing"
   | "community";
+
+  export type SellerActiveTab =
+  | "dashboard"
+  | "orders"
+  | "profile"
+  | "saved"
+  | "reviews"
+  | "community"
+  | "test-drives"
+  | "notification";

@@ -30,6 +30,7 @@ import RegisterFinancialInstitutionPage from "./becomeaFinancingPage";
 
 
 const App: React.FC = () => {
+
   const [userRole, setUserRole] = useState<UserRole[]>([]);
   const [user, setUser] = useState<User_Profile | null>();
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
@@ -134,11 +135,9 @@ const App: React.FC = () => {
     }
   };
 
-  // --- NEW ---
   // 1. Helper function to capitalize tab names for breadcrumbs
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-  // --- NEW ---
   // 2. Wrapper function to "disable" profile link from sidebar
   const handleSidebarTabClick = (tab: ActiveTab) => {
     if (tab === "profile") {
