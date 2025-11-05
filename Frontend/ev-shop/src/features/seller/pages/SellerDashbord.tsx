@@ -1,5 +1,5 @@
-import React from "react";
-import type { SellerActiveTab } from "@/types";
+import React, { useEffect } from "react";
+import type { SellerActiveTab, UserRole } from "@/types";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -235,10 +235,16 @@ const notifications: Notification[] = [
 
 const SellerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SellerActiveTab>("dashboard");
+  const [useRole, setUseRole ] = useState<UserRole[]>();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const { getUserID, logout, getRoles } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const userRole = getRoles();
+    setUseRole(userRole);
+    const userID = getUserID();
+  })
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
@@ -304,7 +310,7 @@ const SellerDashboard: React.FC = () => {
             setActiveTab={setActiveTab}
           />
           <main className="flex-1 overflow-y-auto p-8 animate-fadeIn">
-            {activeTab !== "dashboard" && (
+            {activeTab !== "dashboard" && useRole?.includes("seller") && (
               <nav
                 className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn"
                 aria-label="Breadcrumb"

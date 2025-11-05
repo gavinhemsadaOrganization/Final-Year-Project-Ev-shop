@@ -12,7 +12,7 @@ export default function ProtectedRoute({
   children,
   allowedRoles,
 }: ProtectedRouteProps) {
-  const { user } = useAuth();
+  const { user, getActiveRole } = useAuth();
 
   // Not logged in → redirect to login
   if (!user) {
@@ -20,11 +20,18 @@ export default function ProtectedRoute({
   }
 
   // Check if user has at least one allowed role
-  const hasAccess = user.roles.filter((r) => allowedRoles.includes(r));
+  // const hasAccess = user.roles.filter((r) => allowedRoles.includes(r));
+  const role = getActiveRole();
+  const hasAccess = allowedRoles.includes(role!);
+  console.log(getActiveRole());
   console.log(hasAccess);
-  if (hasAccess.length === 0) {
+  // if (hasAccess.length === 0) {
+  //   return <Navigate to="/unauthorized" replace />;
+  // }
+  if (!hasAccess) {
     return <Navigate to="/unauthorized" replace />;
   }
+
 
   return children;
 }

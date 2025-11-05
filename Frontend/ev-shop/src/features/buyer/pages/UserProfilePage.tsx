@@ -17,7 +17,11 @@ export const UserProfile: React.FC<{ user: User }> = ({ user }) => {
 
   // --- NEW: State for new fields ---
   const [phone, setPhone] = useState(user.phone || "");
-  const [dob, setDob] = useState(user.date_of_birth || "");
+  const [dob, setDob] = useState(() => {
+    const iso = user.date_of_birth;
+    if (!iso) return "";
+    return iso.split("T")[0]; // ✅ extract only "YYYY-MM-DD"
+  });
 
   // --- NEW: State for nested address object ---
   const [address, setAddress] = useState({

@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { logOut } from "@/features/auth/authService";
 import type { UserRole } from "@/types";
 
-
 // Define the structure of the User object.
 interface User {
   userid: string; // The primary, unique identifier for the user.
@@ -32,7 +31,8 @@ interface AuthContextType {
     }
   ) => void;
   getUserID: () => string | null; // Function to get the primary user ID.
-  setActiveRole: (role: UserRole) => void; // Function to switch the user's active role.
+  setActiveRole: (role: UserRole) => Promise<boolean>; // Function to switch the user's active role (now async).
+  getActiveRole: () => UserRole | null; // Function to get the currently active role.
   getActiveRoleId: () => string | null; // Function to get the ID associated with the current active role.
   logout: () => void; // Function to log the user out and clear their session.
   getRoles: () => UserRole[] | undefined; // Function to get the user's roles.
@@ -88,18 +88,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(userData);
   };
 
-  // Allows the user to switch between their assigned roles.
-  const setActiveRole = (role: UserRole) => {
-    // Only update the active role if the user object exists and the requested role is in their assigned roles.
-    if (user && user.roles.includes(role)) {
-      setUser({ ...user, activeRole: role });
-    }
+  // Allows the user to switch between their assigned roles (now async).
+  const setActiveRole = async (role: UserRole): Promise<boolean> => {
+    return new Promise((resolve) => {
+      // Only update the active role if the user object exists and the requested role is in their assigned roles.
+      if (user && user.roles.includes(role)) {
+        setUser({ ...user, activeRole: role });
+        // Wait for next tick to ensure state has updated
+        setTimeout(() => resolve(true), 0);
+      } else {
+        resolve(false);
+      }
+    });
   };
+
+  // Retrieves the currently active role.
+  const getActiveRole = (): UserRole | null => {
+    if (!user) return null;
+    return user.activeRole;
+  };
+
   // A simple getter function to retrieve the primary user ID.
   const getUserID = (): string | null => {
     if (!user) return null;
     return user.userid;
   };
+
   // Retrieves the specific ID associated with the user's currently active role.
   const getActiveRoleId = (): string | null => {
     // Return null if no user is logged in.
@@ -123,17 +137,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return undefined;
     return user.roles;
   };
+
   // Clears the user state and removes the user data from localStorage to end the session.
   const logout = async() => {
     await logOut();
     setUser(null);
     localStorage.removeItem("user");
   };
+
   const addnewRole = (role: UserRole) => {
     if (user) {
       setUser({ ...user, roles: [...user.roles, role] });
     }
   };
+
   return (
     // Provide the authentication state and functions to all child components.
     <AuthContext.Provider
@@ -141,6 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         setUserData,
         setActiveRole,
+        getActiveRole,
         getUserID,
         getActiveRoleId,
         getRoles,

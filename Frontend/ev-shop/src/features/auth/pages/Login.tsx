@@ -41,7 +41,7 @@ const LoginPage = () => {
     type: string;
   } | null>(null);
   // Access the setUserData function from the authentication context.
-  const { setUserData } = useAuth();
+  const { setUserData, setActiveRole } = useAuth();
   // Hook for programmatic navigation.
   const nav = useNavigate();
 
@@ -86,6 +86,7 @@ const LoginPage = () => {
     if (userId) {
       // If authentication is successful, set user data and redirect.
       setUserData(userId, roleList, { userid: userId });
+      setActiveRole(roleList[0]);
       showMessage("OAuth authentication successful!", "success");
       setTimeout(() => {
         nav("/user/dashboard", { replace: true });
@@ -152,6 +153,7 @@ const LoginPage = () => {
         .map((r:any) => r.trim()) as UserRole[];
       // On success, set user data in the context.
       setUserData(respons.user, roleList, { userid: respons.userid });
+      setActiveRole(roleList[0]);
       showMessage(respons.message, "success");
       // Redirect to the user dashboard after a short delay.
       setTimeout(() => {

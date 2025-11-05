@@ -5,6 +5,8 @@ import type { UserRole, ActiveTab } from "@/types";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { PageLoader } from "@/components/Loader";
+import { useState } from "react";
 
 type HeaderProps = {
   searchTerm: string;
@@ -31,8 +33,25 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   console.log(userRole);
   const { setActiveRole } = useAuth();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const switchRoleAndNavigate = async(role: UserRole, path: string) => {
+    setLoading(true);
+    try {
+      const result = await setActiveRole(role);
+      if(result){
+        navigate(path)
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (loading) {
+    return <PageLoader />;
+  }
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 dark:bg-gray-800 dark:border-gray-700">
       {/* Search Bar */}
@@ -50,44 +69,44 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Actions */}
       <div className="flex items-center flex-shrink-0 space-x-3 ml-3">
         {/* Show "become" buttons only if user doesn't have that role */}
-        {userRole.includes("user") && !userRole.includes("seller") && !userRole.includes("finance") && 
-        <>
-           <button
-            onClick={onBecomeSellerClick}
-            className="flex items-center gap-2 px-4 py-2 
+        {userRole.includes("user") &&
+          !userRole.includes("seller") &&
+          !userRole.includes("finance") && (
+            <>
+              <button
+                onClick={onBecomeSellerClick}
+                className="flex items-center gap-2 px-4 py-2 
       bg-blue-600 text-white text-sm font-medium rounded-full 
       hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
       dark:bg-blue-500 dark:hover:bg-blue-400"
-            title="Become a Seller"
-          >
-            <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
-            <span className="hidden md:inline whitespace-nowrap">
-              Become a Seller
-            </span>
-          </button>
+                title="Become a Seller"
+              >
+                <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
+                <span className="hidden md:inline whitespace-nowrap">
+                  Become a Seller
+                </span>
+              </button>
 
-        <button
-            onClick={onBecomeFinancerClick}
-            className="flex items-center gap-2 px-4 py-2 
+              <button
+                onClick={onBecomeFinancerClick}
+                className="flex items-center gap-2 px-4 py-2 
       bg-blue-600 text-white text-sm font-medium rounded-full 
       hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
       dark:bg-blue-500 dark:hover:bg-blue-400"
-            title="Become a Financial Contributor"
-          >
-            <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
-            <span className="hidden md:inline whitespace-nowrap">
-              Become a Financial Contributor
-            </span>
-          </button>
-          </>
-        }
-        {userRole.includes("seller") && userRole.includes("user") &&
-         (
+                title="Become a Financial Contributor"
+              >
+                <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
+                <span className="hidden md:inline whitespace-nowrap">
+                  Become a Financial Contributor
+                </span>
+              </button>
+            </>
+          )}
+        {userRole.includes("seller") && userRole.includes("user") && (
           <button
-            onClick={() => {
-              setActiveRole("seller");
-              navigate("/seller/dashboard");
-            }}
+            onClick={async () =>
+              switchRoleAndNavigate("seller", "/seller/dashboard")
+            }
             className="flex items-center gap-2 px-4 py-2 
       bg-gray-200 text-gray-900 text-sm font-medium rounded-full 
       hover:bg-gray-300 active:scale-95 transition-all duration-200 shadow-sm
@@ -101,12 +120,11 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        {userRole.includes("finance") && userRole.includes("user") &&(
-         <button
-            onClick={() => {
-              setActiveRole("finance");
-              navigate("/finance/dashboard");
-            }}
+        {userRole.includes("finance") && userRole.includes("user") && (
+          <button
+            onClick={() =>
+              switchRoleAndNavigate("finance", "/finance/dashboard")
+            }
             className="flex items-center gap-2 px-4 py-2 
       bg-gray-200 text-gray-900 text-sm font-medium rounded-full 
       hover:bg-gray-300 active:scale-95 transition-all duration-200 shadow-sm
