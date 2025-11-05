@@ -582,23 +582,3 @@ export const MoonIcon: React.FC<IconProps> = ({ className = "" }) => (
     <circle cx="18" cy="19" r="0.5" fill="currentColor" />
   </svg>
 );
-
-export const EmptyUserProfileIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    {/* Head */}
-    <circle cx="12" cy="8" r="4" />
-    {/* Shoulders */}
-    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-  </svg>
-);

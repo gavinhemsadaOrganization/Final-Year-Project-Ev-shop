@@ -6,7 +6,6 @@ import {
   LogoutIcon,
 } from "@/assets/icons/icons";
 import type { ActiveTab } from "@/types";
-import { EmptyUserProfileIcon } from "@/assets/icons/icons";
 
 const apiURL = import.meta.env.VITE_API_URL;
 
@@ -57,15 +56,25 @@ export const ProfileDropdown: React.FC<{
       >
         {/* This is your user snippet */}
         <div className="flex items-center space-x-2">
-          {user.profile_image ?(
-            console.log(user.profile_image),
-          <img
-            src={`${apiURL}${user.profile_image}`}
-            alt="User Avatar"
-            className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover"
-          />
+          {user.profile_image ? (
+            (console.log(user.profile_image),
+            (
+              <img
+                src={`${apiURL}${user.profile_image}`}
+                alt="User Avatar"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover"
+              />
+            ))
           ) : (
-            <EmptyUserProfileIcon className="h-9 w-9 sm:h-8 sm:w-8 rounded-full bg-gray-200 border-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600" />
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 font-semibold">
+              {user.name
+                ? user.name
+                    .split(" ")
+                    .map((n: any) => n[0]?.toUpperCase())
+                    .slice(0, 2)
+                    .join("")
+                : "?"}
+            </div>
           )}
           <div className="hidden md:block text-left">
             <p className="font-semibold text-sm truncate max-w-[150px]">

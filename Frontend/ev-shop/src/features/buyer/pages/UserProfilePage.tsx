@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import type { User } from "@/types";
-import { EmptyUserProfileIcon } from "@/assets/icons/icons";
 import { Camera } from "lucide-react";
 import { updateUserProfile } from "../buyerService";
 import { useAuth } from "@/context/AuthContext";
@@ -178,17 +177,25 @@ export const UserProfile: React.FC<{ user: User }> = ({ user }) => {
             >
               {imagePreview || user.profile_image ? (
                 <img
-                  src={imagePreview ||` ${apiURL}${user.profile_image}`}
+                  src={imagePreview || ` ${apiURL}${user.profile_image}`}
                   alt="User Avatar"
                   className="h-full w-full object-cover rounded-full"
                 />
               ) : (
-                <EmptyUserProfileIcon className="h-full w-full rounded-full bg-gray-200 border-2 border-gray-200 dark:bg-gray-700 dark:border-gray-600" />
+                <div className="h-9 w-9 sm:h-24 sm:w-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-400 font-semibold text-4xl">
+                  {user.name
+                    ? user.name
+                        .split(" ")
+                        .map((n: any) => n[0]?.toUpperCase())
+                        .slice(0, 2)
+                        .join("")
+                    : "?"}
+                </div>
               )}
 
               {/* Hover overlay with icon */}
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
-                <Camera className="text-gray-200"/>
+                <Camera className="text-gray-200" />
               </div>
             </div>
 
@@ -382,7 +389,11 @@ export const UserProfile: React.FC<{ user: User }> = ({ user }) => {
                   : "bg-gray-400 text-gray-200 cursor-not-allowed dark:bg-gray-600"
               }`}
             >
-              {isLoading ? <Loader size={10} color="#4f46e5" /> : "Update Profile"}
+              {isLoading ? (
+                <Loader size={10} color="#4f46e5" />
+              ) : (
+                "Update Profile"
+              )}
             </button>
           </div>
         </div>
