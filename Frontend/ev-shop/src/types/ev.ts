@@ -11,10 +11,13 @@ export type Vehicle = {
 export interface Brand {
   id: string;
   name: string;
+  description: string;
 }
 
 
-export interface Model {
+export interface categorie {
   id: string;
   name: string;
+  description: string;
+
 }

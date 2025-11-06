@@ -4,7 +4,7 @@ import React, {
   type ChangeEvent,
   type FormEvent,
 } from "react";
-import type { Brand, Model } from "@/types";
+import type { Brand, categorie } from "@/types";
 import { sellerService } from "../sellerService";
 
 interface FormData {
@@ -28,26 +28,12 @@ interface FormData {
   images: string[];
 }
 
-const mockModels: Record<string, Model[]> = {
-  "65e8a1b1": [
-    { id: "65e8a2b1", name: "Model 3" },
-    { id: "65e8a2c2", name: "Model Y" },
-    { id: "65e8a2d3", name: "Model S" },
-  ],
-  "65e8a1c2": [
-    { id: "65e8a3b1", name: "Leaf" },
-    { id: "65e8a3c2", name: "Ariya" },
-  ],
-  "65e8a1d3": [
-    { id: "65e8a4b1", name: "R1S" },
-    { id: "65e8a4c2", name: "R1T" },
-  ],
-};
-
 // --- Component ---
 export default function EvListingStepper() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [evBrands, setEvBrands] = useState<Brand[]>([]);
+  const [evCatogorys, setEvCatogorys] = useState<categorie[]>([]);
+
 
   useEffect(() => {
     const fetchBrands = async () => {
@@ -63,6 +49,20 @@ export default function EvListingStepper() {
         console.error("Error fetching brands:", error);
       }
     };
+    const fetchModels = async () => {
+      try {
+        const result = await sellerService.getAllEvCateogry();
+        const formatted = result.map((catogory: any) => ({
+          id: catogory._id, 
+          name: catogory.category_name, 
+        }));
+        setEvCatogorys(formatted);
+        console.log("Models:", result);
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    };
+    fetchModels();
     fetchBrands();
   }, []);
 
@@ -120,7 +120,6 @@ export default function EvListingStepper() {
     console.log("Final DTO to send to API:", finalListingDTO);
   };
 
-  const availableModels = mockModels[formData.brand_id] || [];
 
   // --- Render Steps ---
   const renderStepContent = () => {
@@ -141,7 +140,7 @@ export default function EvListingStepper() {
               value={formData.model_id}
               onChange={handleChange}
               disabled={!formData.brand_id}
-              options={[{ id: "", name: "Select a model" }, ...availableModels]}
+              options={[{ id: "", name: "Select a model" }, ...evCatogorys]}
             />
           </StepContainer>
         );
