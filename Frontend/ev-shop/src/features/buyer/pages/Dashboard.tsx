@@ -64,7 +64,7 @@ const App: React.FC = () => {
     };
 
     fetchData();
-  }, [getRoles, getUserID]);
+  }, []);
 
   const getNotification = async (userID: string) => {
     try {

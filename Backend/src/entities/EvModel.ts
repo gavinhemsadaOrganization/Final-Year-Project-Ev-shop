@@ -31,8 +31,6 @@ export interface IEvModel extends Document {
   specifications?: Record<string, any>;
   /** An array of strings describing the key features of the model. This field is optional. */
   features?: string[];
-  /** An array of URLs for images of the model. This field is optional. */
-  images?: string[];
 }
 
 /**
@@ -67,9 +65,7 @@ const EvModelSchema = new Schema<IEvModel>(
     /** A flexible map to store various technical specifications. */
     specifications: { type: Map, of: Schema.Types.Mixed },
     /** A list of feature strings. */
-    features: [{ type: String }],
-    /** A list of image URLs. */
-    images: [{ type: String }],
+    features: [{ type: String }]
   },
   { timestamps: true }
 );

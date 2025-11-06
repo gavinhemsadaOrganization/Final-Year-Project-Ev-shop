@@ -114,7 +114,6 @@ export interface IEvService {
    */
   createModel(
     data: EvModelDTO,
-    file: Express.Multer.File[]
   ): Promise<{ success: boolean; model?: any; error?: string }>;
   /**
    * Retrieves all EV models.
@@ -139,7 +138,6 @@ export interface IEvService {
   updateModel(
     id: string,
     data: Partial<EvModelDTO>,
-    file?: Express.Multer.File[]
   ): Promise<{ success: boolean; model?: any; error?: string }>;
   /**
    * Deletes an EV model by its unique ID.
@@ -479,7 +477,7 @@ export function evService(
     /**
      * Creates a new EV model, uploads its images, and invalidates the models list cache.
      */
-    createModel: async (data, file) => {
+    createModel: async (data) => {
       try {
         // Validate associated brand and category.
         const existingBrand = await repo.findBrandById(data.brand_id);
@@ -487,14 +485,8 @@ export function evService(
         const existingCategory = await repo.findCategoryById(data.category_id);
         if (!existingCategory)
           return { success: false, error: "Category not found" };
-        let url: string[] = [];
-        // Handle image uploads.
-        if (file) url = addImages(file, modelFolder);
-        const modelData = {
-          ...data,
-          images: url,
-        };
-        const model = await repo.createModel(modelData);
+        
+        const model = await repo.createModel(data);
 
         // Invalidate the cache for the list of all models
         await CacheService.delete("models");
@@ -554,21 +546,11 @@ export function evService(
      * Updates an EV model's information and/or images.
      * Invalidates all caches related to this model.
      */
-    updateModel: async (id, data, file) => {
+    updateModel: async (id, data) => {
       try {
         const existing = await repo.findModelById?.(id);
         if (!existing) return { success: false, error: "Model not found" };
-        let url: string[] = [];
-        // Handle image replacement.
-        if (file) {
-          if (existing.images) deleteImages(existing.images);
-          url = addImages(file, modelFolder);
-        }
-        const updateData = {
-          ...data,
-          images: url,
-        };
-        const model = await repo.updateModel(id, updateData);
+        const model = await repo.updateModel(id, data);
         if (!model) return { success: false, error: "Failed to update model" };
 
         // Invalidate relevant caches
@@ -590,8 +572,6 @@ export function evService(
       try {
         const existing = await repo.findModelById?.(id);
         if (!existing) return { success: false, error: "Model not found" };
-        // Delete associated image files.
-        if (existing.images) deleteImages(existing.images);
         const success = await repo.deleteModel(id);
         if (!success)
           return { success: false, error: "Failed to delete model" };

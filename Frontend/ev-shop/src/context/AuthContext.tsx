@@ -8,7 +8,8 @@ interface User {
   userid: string; // The primary, unique identifier for the user.
   roles: UserRole[]; // An array of roles assigned to the user.
   activeRole: UserRole; // The currently selected role the user is acting as.
-  ids: { // A map of role-specific IDs.
+  ids: {
+    // A map of role-specific IDs.
     userid?: string;
     sellerid?: string;
     financeid?: string;
@@ -31,12 +32,15 @@ interface AuthContextType {
     }
   ) => void;
   getUserID: () => string | null; // Function to get the primary user ID.
+  setSellerId: (sellerid: string) => void; // Function to set the seller ID.
+  setFinanceId: (financeid: string) => void; // Function to set the finance ID.
+  setAdminId: (adminid: string) => void; // Function to set the admin ID.
   setActiveRole: (role: UserRole) => Promise<boolean>; // Function to switch the user's active role (now async).
   getActiveRole: () => UserRole | null; // Function to get the currently active role.
   getActiveRoleId: () => string | null; // Function to get the ID associated with the current active role.
   logout: () => void; // Function to log the user out and clear their session.
   getRoles: () => UserRole[] | undefined; // Function to get the user's roles.
-  addnewRole: (role: UserRole) => void; // Function to add a new role to the user's roles. 
+  addnewRole: (role: UserRole) => void; // Function to add a new role to the user's roles.
 }
 
 // Create the React Context for authentication. It's initialized as undefined.
@@ -77,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sellerid?: string;
       financeid?: string;
       adminid?: string;
-    },
+    }
   ) => {
     const userData: User = {
       userid: userid, // The main user ID
@@ -100,6 +104,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         resolve(false);
       }
     });
+  };
+
+  const setSellerId = (sellerid: string) => {
+    if (user) {
+      setUser({ ...user, ids: { ...user.ids, sellerid } });
+    }
+  };
+
+  const setFinanceId = (financeid: string) => {
+    if (user) {
+      setUser({ ...user, ids: { ...user.ids, financeid } });
+    }
+  };
+
+  const setAdminId = (adminid: string) => {
+    if (user) {
+      setUser({ ...user, ids: { ...user.ids, adminid } });
+    }
   };
 
   // Retrieves the currently active role.
@@ -139,7 +161,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Clears the user state and removes the user data from localStorage to end the session.
-  const logout = async() => {
+  const logout = async () => {
     await authService.logOut();
     setUser(null);
     localStorage.removeItem("user");
@@ -157,13 +179,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         setUserData,
+        setSellerId,
+        setFinanceId,
+        setAdminId,
         setActiveRole,
         getActiveRole,
         getUserID,
         getActiveRoleId,
         getRoles,
         logout,
-        addnewRole
+        addnewRole,
       }}
     >
       {children}

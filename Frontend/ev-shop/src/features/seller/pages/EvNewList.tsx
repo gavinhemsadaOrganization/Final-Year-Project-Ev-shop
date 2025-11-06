@@ -1,15 +1,5 @@
 import React, { useState, type ChangeEvent, type FormEvent } from "react";
-
-// --- Types ---
-interface Brand {
-  id: string;
-  name: string;
-}
-
-interface Model {
-  id: string;
-  name: string;
-}
+import type { Brand, Model } from "@/types";
 
 interface FormData {
   // Step 1

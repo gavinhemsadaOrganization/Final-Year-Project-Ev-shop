@@ -390,7 +390,6 @@ export const evRouter = (): Router => {
    */
   router.post(
     "/models",
-    upload.array("images", 5),
     validateDto(EvModelDTO),
     (req, res) => controller.createModel(req, res)
   );
@@ -477,7 +476,6 @@ export const evRouter = (): Router => {
    */
   router.put(
     "/models/:id",
-    upload.array("images", 5),
     validateDto(EvModelDTO),
     (req, res) => controller.updateModel(req, res)
   );

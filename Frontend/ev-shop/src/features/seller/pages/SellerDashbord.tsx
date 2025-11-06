@@ -21,6 +21,9 @@ import {
   TrashIcon,
 } from "@/assets/icons/icons";
 import EvListingStepper from "./EvNewList";
+import { StatCard } from "../components/StatsCards";
+import { sellerService } from "../sellerService";
+
 
 // --- Type Definitions ---
 type Listing = {
@@ -93,15 +96,26 @@ const SellerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SellerActiveTab>("dashboard");
   const [userRole, setUserRole] = useState<UserRole[]>([]);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const { getUserID, logout, getRoles } = useAuth();
+  const { getUserID, logout, getRoles, setSellerId, getActiveRoleId } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const roles = getRoles();
     if (roles) setUserRole(roles);
     const userID = getUserID();
-    console.log("User ID:", userID);
-  }, [getRoles, getUserID]);
+    const fetchSellerData = async (userID: string) => {
+      try {
+      const result = await sellerService.getSellerProfile(userID!);
+      setSellerId(result._id);
+      console.log("Seller Data:", getActiveRoleId());
+      } catch (error) {
+        console.error("Error fetching seller data:", error);
+      }
+    };
+    if (userID) {
+      fetchSellerData(userID);
+    }
+  }, []);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -233,21 +247,6 @@ const StatsCards: React.FC = () => (
       icon={<UserIcon className="h-6 w-6 text-yellow-600" />}
       bgColor="bg-yellow-100"
     />
-  </div>
-);
-
-const StatCard: React.FC<{
-  title: string;
-  value: string;
-  icon: React.ReactNode;
-  bgColor: string;
-}> = ({ title, value, icon, bgColor }) => (
-  <div className="bg-white p-5 rounded-xl shadow-sm flex items-center gap-5 hover:-translate-y-1 transition-transform">
-    <div className={`p-3 rounded-full ${bgColor}`}>{icon}</div>
-    <div>
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-2xl font-bold">{value}</p>
-    </div>
   </div>
 );
 

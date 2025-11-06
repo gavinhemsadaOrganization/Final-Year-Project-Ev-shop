@@ -273,8 +273,7 @@ export function evController(service: IEvService): IEvController {
      */
     createModel: async (req, res) => {
       try {
-        const file = req.files as Express.Multer.File[];
-        const r = await service.createModel(req.body, file);
+        const r = await service.createModel(req.body);
         return handleResult(res, r, 201);
       } catch (e) {
         return handleError(res, e, "createModel");
@@ -307,8 +306,7 @@ export function evController(service: IEvService): IEvController {
      */
     updateModel: async (req, res) => {
       try {
-        const file = req.files as Express.Multer.File[];
-        const r = await service.updateModel(req.params.id, req.body, file);
+        const r = await service.updateModel(req.params.id, req.body);
         return handleResult(res, r);
       } catch (e) {
         return handleError(res, e, "updateModel");
