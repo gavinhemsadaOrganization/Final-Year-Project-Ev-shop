@@ -67,22 +67,22 @@ export const ProfileDropdown: React.FC<{
             ))
           ) : (
             <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 font-semibold">
-              {seller.name
+              {seller.business_name
                 ? seller.name
-                    .split(" ")
-                    .map((n: any) => n[0]?.toUpperCase())
-                    .slice(0, 2)
-                    .join("")
+                    // .split(" ")
+                    // .map((n: any) => n[0]?.toUpperCase())
+                    // .slice(0, 2)
+                    // .join("")
                 : "?"}
             </div>
           )}
           <div className="hidden md:block text-left">
             <p className="font-semibold text-sm truncate max-w-[150px]">
-              <span className="dark:text-white">{seller.name}</span>
+              <span className="dark:text-white">{seller.business_name}</span>
             </p>
-            <p className="text-xs text-gray-500 truncate max-w-[150px]">
+            {/* <p className="text-xs text-gray-500 truncate max-w-[150px]">
               <span className="dark:text-gray-400">{seller.email}</span>
-            </p>
+            </p> */}
           </div>
         </div>
 
