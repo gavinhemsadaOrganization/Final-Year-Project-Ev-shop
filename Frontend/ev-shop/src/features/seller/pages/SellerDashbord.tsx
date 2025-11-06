@@ -37,11 +37,6 @@ type Listing = {
   image: string;
 };
 
-// --- Mock Data ---
-const seller = {
-  name: "Kasun Sampath",
-  avatar: "https://placehold.co/100x100/E2E8F0/4A5568?text=KS",
-};
 
 const listings: Listing[] = [
   {
@@ -94,6 +89,7 @@ const notifications: Notification[] = [
 // --- Main Seller Dashboard Component ---
 const SellerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SellerActiveTab>("dashboard");
+  const [seller, setSeller] = useState<any>({});
   const [userRole, setUserRole] = useState<UserRole[]>([]);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const { getUserID, logout, getRoles, setSellerId, getActiveRoleId } = useAuth();
@@ -107,6 +103,7 @@ const SellerDashboard: React.FC = () => {
       try {
       const result = await sellerService.getSellerProfile(userID!);
       setSellerId(result._id);
+      setSeller(result);
       console.log("Seller Data:", getActiveRoleId());
       } catch (error) {
         console.error("Error fetching seller data:", error);
