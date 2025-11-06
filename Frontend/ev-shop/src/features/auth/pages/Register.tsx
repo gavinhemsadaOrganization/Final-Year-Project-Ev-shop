@@ -16,7 +16,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { UserRole } from "@/types";
 
 // Import authentication service functions for API calls.
-import { register, googleLogin, facebookLogin } from "../authService";
+import { authService } from "../authService";
 
 // The main component for the registration page.
 const RegisterPage = () => {
@@ -127,9 +127,9 @@ const RegisterPage = () => {
     setLoading(true);
     try {
       if (provider === "google") {
-        await googleLogin("register");
+        await authService.googleLogin("register");
       } else if (provider === "facebook") {
-        await facebookLogin("register");
+        await authService.facebookLogin("register");
       }
     } catch (error) {
       console.log(error);
@@ -152,7 +152,7 @@ const RegisterPage = () => {
     setErrors({});
     setLoading(true);
     try {
-      const response = await register(email, password, confirmPassword);
+      const response = await authService.register(email, password, confirmPassword);
       showMessage(response.message, "success");
       // Redirect to the login page after a successful registration.
       setTimeout(() => {

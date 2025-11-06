@@ -1,6 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
-import { logOut } from "@/features/auth/authService";
+import { authService } from "@/features/auth/authService";
 import type { UserRole } from "@/types";
 
 // Define the structure of the User object.
@@ -140,7 +140,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Clears the user state and removes the user data from localStorage to end the session.
   const logout = async() => {
-    await logOut();
+    await authService.logOut();
     setUser(null);
     localStorage.removeItem("user");
   };

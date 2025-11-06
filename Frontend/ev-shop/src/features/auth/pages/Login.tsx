@@ -19,7 +19,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Import authentication service functions for API calls.
-import { login, googleLogin, facebookLogin } from "../authService";
+import { authService } from "../authService";
 
 // The main component for the login page.
 const LoginPage = () => {
@@ -120,9 +120,9 @@ const LoginPage = () => {
     setLoading(true);
     try {
       if (provider === "google") {
-        await googleLogin("login");
+        await authService.googleLogin("login");
       } else if (provider === "facebook") {
-        await facebookLogin("login");
+        await authService.facebookLogin("login");
       }
     } catch (error) {
       console.log(error);
@@ -146,7 +146,7 @@ const LoginPage = () => {
     setLoading(true);
     try {
       // Call the login API service.
-      const respons = await login(email, password);
+      const respons = await authService.login(email, password);
       console.log(respons);
       const roleList = respons.role
         .flatMap((r:any) => r.split(","))

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { CloseIcon } from "@/assets/icons/icons";
-import { becomeaSeller } from "../buyerService";
+import { buyerService } from "../buyerService";
 import { Loader } from "@/components/Loader";
 import { useNavigate } from "react-router-dom";
 
@@ -79,7 +79,7 @@ const BecomeSellerPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     console.log("Submitting seller application:", sellerData);
 
     try {
-      await becomeaSeller(sellerData);
+      await buyerService.becomeaSeller(sellerData);
       addnewRole("seller");
       setActiveRole("seller");
       setSuccessMessage("Application submitted successfully!");

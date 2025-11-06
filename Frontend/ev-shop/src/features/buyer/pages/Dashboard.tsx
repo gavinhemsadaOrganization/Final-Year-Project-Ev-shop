@@ -17,20 +17,14 @@ import { TestDrivesPage } from "./TestDrivePage";
 import { FinancingPage } from "./FinancingPage";
 import { CommunityPage } from "./ComunityPage";
 import { PageLoader } from "@/components/Loader";
-import {
-  getUserProfile,
-  getUserNotifications,
-  getEVList,
-} from "../buyerService";
+import { buyerService } from "../buyerService";
 
 import type { UserRole, Notification, ActiveTab } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import BecomeSellerPage from "./becomeaSellerPage";
 import RegisterFinancialInstitutionPage from "./becomeaFinancingPage";
 
-
 const App: React.FC = () => {
-
   const [userRole, setUserRole] = useState<UserRole[]>([]);
   const [user, setUser] = useState<User_Profile | null>();
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
@@ -50,9 +44,9 @@ const App: React.FC = () => {
       try {
         const roles = getRoles();
         const userID = getUserID()!;
-        console.log(roles)
+        console.log(roles);
         if (userID) {
-          const user = await getUserProfile(userID);
+          const user = await buyerService.getUserProfile(userID);
           setUser(user);
         }
 
@@ -74,7 +68,7 @@ const App: React.FC = () => {
 
   const getNotification = async (userID: string) => {
     try {
-      const response = await getUserNotifications(userID);
+      const response = await buyerService.getUserNotifications(userID);
       if (!response.ok) {
         throw new Error("Failed to load notifications");
       }
@@ -87,7 +81,7 @@ const App: React.FC = () => {
 
   const getVehicals = async () => {
     try {
-      const result = await getEVList();
+      const result = await buyerService.getEVList();
       if (!result.ok) {
         throw new Error("Failed to load vehicles");
       }
@@ -242,9 +236,7 @@ const App: React.FC = () => {
 
       {/* --- NEW: Become a Seller Modal --- */}
       {isBecomeSellerModalOpen && (
-        <BecomeSellerPage
-          onClose={() => setIsBecomeSellerModalOpen(false)}
-        />
+        <BecomeSellerPage onClose={() => setIsBecomeSellerModalOpen(false)} />
       )}
 
       {isBecomFinancer && (

@@ -11,7 +11,7 @@ import bgImage from "@/assets/bg_img2.png";
 import Logo from "@/assets/logo_no-bg.png";
 
 // Import authentication service functions for API calls.
-import { forgetPassword, verifyOTP, resetPassword } from "../authService";
+import { authService } from "../authService";
 
 /**
  * ForgotPasswordPage Component
@@ -151,7 +151,7 @@ const ForgotPasswordPage = () => {
     setMessage(undefined);
     setLoading(true);
     try {
-      await forgetPassword(email);
+      await authService.forgetPassword(email);
       setStep("enter-otp");
       showMessage(`An OTP has been sent to ${maskEmail(email)}.`, "success");
       setResendCooldown(60); // Start 60s cooldown for the resend button.
@@ -188,7 +188,7 @@ const ForgotPasswordPage = () => {
     setMessage(undefined);
     setLoading(true);
     try {
-      await verifyOTP(email, enteredOtp);
+      await authService.verifyOTP(email, enteredOtp);
       showMessage("OTP verified successfully!", "success");
       setStep("reset-password");
     } catch (err: any) {
@@ -206,7 +206,7 @@ const ForgotPasswordPage = () => {
     setMessage(undefined);
     setErrors({});
     try {
-      await forgetPassword(email);
+      await authService.forgetPassword(email);
       showMessage(`OTP has been sent to ${maskEmail(email)} again.`, "success");
       setResendCooldown(60); // Restart cooldown
     } catch (err: any) {
@@ -238,7 +238,7 @@ const ForgotPasswordPage = () => {
     setLoading(true);
     setMessage(undefined);
     try {
-      await resetPassword(email, newPassword);
+      await authService.resetPassword(email, newPassword);
       setStep("success"); // Final success step
     } catch (err: any) {
       showMessage("Failed to reset password.", "error");

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { CloseIcon } from "@/assets/icons/icons";
-import { becomeaFinancing } from "../buyerService";
+import { buyerService } from "../buyerService";
 import { Loader } from "@/components/Loader";
 import { useNavigate } from "react-router-dom";
 
@@ -107,7 +107,7 @@ const RegisterFinancialInstitutionPage: React.FC<{ onClose: () => void }> = ({
     };
 
     try {
-      await becomeaFinancing(institutionData);
+      await buyerService.becomeaFinancing(institutionData);
       // Clear the form on success
       setFormData({
         name: "",

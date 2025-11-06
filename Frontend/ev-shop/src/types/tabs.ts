@@ -15,6 +15,7 @@ export type ActiveTab =
   | "dashboard"
   | "orders"
   | "profile"
+  | "evList"
   | "saved"
   | "reviews"
   | "community"

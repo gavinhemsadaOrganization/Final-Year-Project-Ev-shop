@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { CloseIcon, SendIcon } from "@/assets/icons/icons";
 import type { ChatMessage } from "@/types";
-import { sendMessageToChatbot } from "../buyerService";
+import { buyerService } from "../buyerService";
 
 // Define the props interface for the Chatbot component
 type ChatbotProps = {
@@ -35,7 +35,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
     setMessages((prev) => [...prev, newUserMessage]);
 
     setTimeout(async() => {
-      const respons = await sendMessageToChatbot(text);
+      const respons = await buyerService.sendMessageToChatbot(text);
       console.log(respons);
       const botResponse: ChatMessage = {
         id: Date.now() + 1,

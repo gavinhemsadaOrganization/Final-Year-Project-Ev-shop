@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import type { User } from "@/types";
 import { Camera } from "lucide-react";
-import { updateUserProfile } from "../buyerService";
+import { buyerService } from "../buyerService";
 import { useAuth } from "@/context/AuthContext";
 import { Loader } from "@/components/Loader";
 
@@ -153,7 +153,7 @@ export const UserProfile: React.FC<{ user: User }> = ({ user }) => {
         formData.append("profile_image", selectedFile);
       }
 
-      await updateUserProfile(userID!, formData);
+      await buyerService.updateUserProfile(userID!, formData);
       alert("Profile update submitted!");
       setIsChanged(false); // --- NEW: Reset change tracking to disable the button ---
     } catch (error) {

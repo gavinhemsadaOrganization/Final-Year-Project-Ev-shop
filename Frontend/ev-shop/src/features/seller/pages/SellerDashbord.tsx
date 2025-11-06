@@ -1,21 +1,28 @@
-import React, { useEffect } from "react";
-import type { SellerActiveTab, UserRole } from "@/types";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import type { SellerActiveTab, UserRole, Notification } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "../components/Sidebar";
 import { Header } from "../components/Header";
-import type { Notification } from "@/types";
 import { NotificationPage } from "./NotificationPage";
 import { TestDrivesPage } from "./TestDrivePage";
 import { MyReviewsPage } from "./MyReviewsPage";
 import { CommunityPage } from "./ComunityPage";
 import { SavedVehicles } from "./SavedVehicalsPage";
 import { OrderHistory } from "./OrderHistoryPage";
+import {
+  BarChartIcon,
+  CarIcon,
+  UserIcon,
+  ShoppingCartIcon,
+  DollarSignIcon,
+  PlusCircleIcon,
+  EditIcon,
+  TrashIcon,
+} from "@/assets/icons/icons";
+import EvListingStepper from "./EvNewList";
 
 // --- Type Definitions ---
-type IconProps = { className?: string };
-
 type Listing = {
   id: number;
   name: string;
@@ -26,157 +33,6 @@ type Listing = {
   dateListed: string;
   image: string;
 };
-
-// --- Helper Components & Icons ---
-
-const CarIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M14 16.5V14a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2.5"></path>
-    <path d="M20 10h-2V7.5a2.5 2.5 0 0 0-5 0V10H4V7.5a2.5 2.5 0 0 1 5 0V10h6V7.5a2.5 2.5 0 0 0-5 0V10"></path>
-    <path d="M3 16.5h18"></path>
-    <path d="M5 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm14 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"></path>
-  </svg>
-);
-
-const UserIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-);
-
-const ShoppingCartIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="9" cy="21" r="1"></circle>
-    <circle cx="20" cy="21" r="1"></circle>
-    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-  </svg>
-);
-
-const BarChartIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="12" y1="20" x2="12" y2="10"></line>
-    <line x1="18" y1="20" x2="18" y2="4"></line>
-    <line x1="6" y1="20" x2="6" y2="16"></line>
-  </svg>
-);
-
-const DollarSignIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="12" y1="1" x2="12" y2="23"></line>
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-  </svg>
-);
-
-const PlusCircleIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="8" x2="12" y2="16"></line>
-    <line x1="8" y1="12" x2="16" y2="12"></line>
-  </svg>
-);
-
-const EditIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-  </svg>
-);
-
-const TrashIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    className={className}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="3 6 5 6 21 6"></polyline>
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-  </svg>
-);
 
 // --- Mock Data ---
 const seller = {
@@ -231,28 +87,30 @@ const notifications: Notification[] = [
   { id: 1, message: "Aura EV", time: "Sedan" },
   { id: 2, message: "Pulse XR", time: "SUV" },
 ];
-// --- Main Seller Dashboard Component ---
 
+// --- Main Seller Dashboard Component ---
 const SellerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SellerActiveTab>("dashboard");
-  const [useRole, setUseRole ] = useState<UserRole[]>();
+  const [userRole, setUserRole] = useState<UserRole[]>([]);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const { getUserID, logout, getRoles } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userRole = getRoles();
-    setUseRole(userRole);
+    const roles = getRoles();
+    if (roles) setUserRole(roles);
     const userID = getUserID();
-  })
+    console.log("User ID:", userID);
+  }, [getRoles, getUserID]);
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <SellerDashbordPage />;
+        return <SellerDashboardPage setActiveTab={setActiveTab} />;
       case "orders":
         return <OrderHistory />;
-      //   case "profile":
-      //     return <UserProfile user={seller!} />;
+      case "evList":
+        return <EvListingStepper />;
       case "saved":
         return <SavedVehicles />;
       case "notification":
@@ -264,38 +122,28 @@ const SellerDashboard: React.FC = () => {
       case "community":
         return <CommunityPage />;
       default:
-        return <SellerDashbordPage />;
+        return <SellerDashboardPage setActiveTab={setActiveTab} />;
     }
-  };
-   // 1. Helper function to capitalize tab names for breadcrumbs
-  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
-  const handleSidebarTabClick = (tab: SellerActiveTab) => {
-    if (tab === "profile") {
-      // Do nothing if the sidebar tries to set the tab to "profile"
-      return;
-    }
-    setActiveTab(tab);
   };
 
   const handleLogout = () => {
-    if (logout) {
-      logout();
-    }
-    navigate("/auth/login"); // Redirect to login or home page
+    if (logout) logout();
+    navigate("/auth/login");
   };
+
   return (
     <>
       <style>{`
-                body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-                .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-            `}</style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+      `}</style>
+
       <div className="flex h-screen bg-gray-50 text-gray-800">
         {/* Sidebar */}
         <Sidebar
           activeTab={activeTab}
-          setActiveTab={handleSidebarTabClick}
+          setActiveTab={setActiveTab}
           isExpanded={isSidebarExpanded}
           onExpand={() => setIsSidebarExpanded(true)}
           onCollapse={() => setIsSidebarExpanded(false)}
@@ -309,8 +157,9 @@ const SellerDashboard: React.FC = () => {
             onLogout={handleLogout}
             setActiveTab={setActiveTab}
           />
+
           <main className="flex-1 overflow-y-auto p-8 animate-fadeIn">
-            {activeTab !== "dashboard" && useRole?.includes("seller") && (
+            {activeTab !== "dashboard" && userRole?.includes("seller") && (
               <nav
                 className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn"
                 aria-label="Breadcrumb"
@@ -319,15 +168,15 @@ const SellerDashboard: React.FC = () => {
                   <li className="flex items-center">
                     <button
                       onClick={() => setActiveTab("dashboard")}
-                      className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+                      className="hover:text-blue-600 hover:underline"
                     >
                       Dashboard
                     </button>
                   </li>
                   <li className="flex items-center">
-                    <span className="mx-2 dark:text-gray-500">/</span>
+                    <span className="mx-2">/</span>
                     <span className="text-gray-700 font-semibold">
-                      {capitalize(activeTab)}
+                      {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                     </span>
                   </li>
                 </ol>
@@ -344,27 +193,20 @@ const SellerDashboard: React.FC = () => {
 };
 
 // --- Sub Components ---
-
-const SellerDashbordPage: React.FC = () => (
-    <>
-  <StatsCards />;
-
-  {
-    /* Listings Table */
-  }
-  <div className="mt-10 bg-white p-6 rounded-xl shadow-md">
-    <ListingsTable />
-  </div>;
-
-  {
-    /* Analytics Placeholder */
-  }
-  <div className="mt-10 bg-white p-6 rounded-xl shadow-md">
-    <AnalyticsChart />
-  </div>;
+const SellerDashboardPage: React.FC<{ setActiveTab: (tab: SellerActiveTab) => void }> = ({
+  setActiveTab,
+}) => (
+  <>
+    <StatsCards />
+    <div className="mt-10 bg-white p-6 rounded-xl shadow-md">
+      <ListingsTable setActiveTab={setActiveTab} />
+    </div>
+    <div className="mt-10 bg-white p-6 rounded-xl shadow-md">
+      <AnalyticsChart />
+    </div>
   </>
-
 );
+
 const StatsCards: React.FC = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <StatCard
@@ -394,15 +236,13 @@ const StatsCards: React.FC = () => (
   </div>
 );
 
-type StatCardProps = {
+const StatCard: React.FC<{
   title: string;
   value: string;
   icon: React.ReactNode;
   bgColor: string;
-};
-
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, bgColor }) => (
-  <div className="bg-white p-5 rounded-xl shadow-sm flex items-center gap-5 transition-transform transform hover:-translate-y-1">
+}> = ({ title, value, icon, bgColor }) => (
+  <div className="bg-white p-5 rounded-xl shadow-sm flex items-center gap-5 hover:-translate-y-1 transition-transform">
     <div className={`p-3 rounded-full ${bgColor}`}>{icon}</div>
     <div>
       <p className="text-sm text-gray-500">{title}</p>
@@ -422,15 +262,21 @@ const getStatusChip = (status: Listing["status"]) => {
   }
 };
 
-const ListingsTable: React.FC = () => (
+const ListingsTable: React.FC<{ setActiveTab: (tab: SellerActiveTab) => void }> = ({
+  setActiveTab,
+}) => (
   <>
     <div className="flex justify-between items-center mb-6">
       <h2 className="text-xl font-bold">My Vehicle Listings</h2>
-      <button className="flex items-center gap-2 bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
+      <button
+        onClick={() => setActiveTab("evList")}
+        className="flex items-center gap-2 bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+      >
         <PlusCircleIcon className="h-5 w-5" />
         Add New Listing
       </button>
     </div>
+
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
@@ -452,24 +298,21 @@ const ListingsTable: React.FC = () => (
             </th>
           </tr>
         </thead>
+
         <tbody className="bg-white divide-y divide-gray-200">
           {listings.map((listing) => (
             <tr key={listing.id} className="hover:bg-gray-50 transition-colors">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 h-10 w-10">
-                    <img
-                      className="h-10 w-10 rounded-full object-cover"
-                      src={listing.image}
-                      alt={listing.name}
-                    />
+              <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                <img
+                  className="h-10 w-10 rounded-full object-cover"
+                  src={listing.image}
+                  alt={listing.name}
+                />
+                <div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {listing.name}
                   </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">
-                      {listing.name}
-                    </div>
-                    <div className="text-sm text-gray-500">{listing.model}</div>
-                  </div>
+                  <div className="text-sm text-gray-500">{listing.model}</div>
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -481,13 +324,13 @@ const ListingsTable: React.FC = () => (
                   {listing.status}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              <td className="px-6 py-4 text-sm text-gray-600">
                 {listing.price}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              <td className="px-6 py-4 text-sm text-gray-600">
                 {listing.views.toLocaleString()}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+              <td className="px-6 py-4 text-right text-sm font-medium space-x-3">
                 <button className="text-indigo-600 hover:text-indigo-900 p-1">
                   <EditIcon className="h-5 w-5" />
                 </button>
