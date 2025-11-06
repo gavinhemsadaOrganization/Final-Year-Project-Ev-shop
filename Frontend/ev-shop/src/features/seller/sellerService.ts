@@ -13,8 +13,8 @@ export const sellerService = {
         const response = await axiosPrivate.get('/ev/categories');
         return response.data;
     },
-    getAllEvBrand: async (barngdata: any) => {
-        const response = await axiosPrivate.get('/ev/brands', barngdata);
+    getAllEvBrand: async () => {
+        const response = await axiosPrivate.get('/ev/brands');
         return response.data;
     },
     createnewModel: async (modelData: any) => {

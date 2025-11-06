@@ -1,5 +1,11 @@
-import React, { useState, type ChangeEvent, type FormEvent } from "react";
+import React, {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import type { Brand, Model } from "@/types";
+import { sellerService } from "../sellerService";
 
 interface FormData {
   // Step 1
@@ -22,13 +28,6 @@ interface FormData {
   images: string[];
 }
 
-// --- Mock Data ---
-const mockBrands: Brand[] = [
-  { id: "65e8a1b1", name: "Tesla" },
-  { id: "65e8a1c2", name: "Nissan" },
-  { id: "65e8a1d3", name: "Rivian" },
-];
-
 const mockModels: Record<string, Model[]> = {
   "65e8a1b1": [
     { id: "65e8a2b1", name: "Model 3" },
@@ -48,6 +47,24 @@ const mockModels: Record<string, Model[]> = {
 // --- Component ---
 export default function EvListingStepper() {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [evBrands, setEvBrands] = useState<Brand[]>([]);
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const result = await sellerService.getAllEvBrand();
+        const formatted = result.map((brand: any) => ({
+          id: brand._id, 
+          name: brand.brand_name, 
+        }));
+        setEvBrands(formatted);
+        console.log("Brands:", result);
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    };
+    fetchBrands();
+  }, []);
 
   const [formData, setFormData] = useState<FormData>({
     brand_id: "",
@@ -71,7 +88,9 @@ export default function EvListingStepper() {
   ];
 
   // --- Handlers ---
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -114,7 +133,7 @@ export default function EvListingStepper() {
               name="brand_id"
               value={formData.brand_id}
               onChange={handleChange}
-              options={[{ id: "", name: "Select a brand" }, ...mockBrands]}
+              options={[{ id: "", name: "Select a brand" }, ...evBrands]}
             />
             <FormSelect
               label="Model"
@@ -270,9 +289,7 @@ export default function EvListingStepper() {
                   ) : (
                     <span
                       className={`font-medium ${
-                        currentStep >= step.id
-                          ? "text-white"
-                          : "text-gray-500"
+                        currentStep >= step.id ? "text-white" : "text-gray-500"
                       }`}
                     >
                       {step.id}
@@ -337,8 +354,7 @@ const StepContainer: React.FC<{ title: string; children: React.ReactNode }> = ({
   </div>
 );
 
-interface FormInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   name: string;
 }
