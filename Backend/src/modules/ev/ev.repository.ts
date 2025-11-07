@@ -256,8 +256,8 @@ export const EvRepository: IEvRepository = {
       .populate({
         path: "model_id",
         populate: [
-          { path: "brand_id", select: "brand_name brand_logo" },
-          { path: "category_id", select: "category_name" },
+          { path: "brand_id" },
+          { path: "category_id"},
         ],
       })
       .populate("seller_id", "business_name")
@@ -272,8 +272,8 @@ export const EvRepository: IEvRepository = {
       .populate({
         path: "model_id",
         populate: [
-          { path: "brand_id", select: "brand_name brand_logo" },
-          { path: "category_id", select: "category_name" },
+          { path: "brand_id", select: "brand_name brand_logo description" },
+          { path: "category_id", select: "category_name description" },
         ],
       })
       .populate("seller_id", "business_name user_id");
@@ -283,7 +283,13 @@ export const EvRepository: IEvRepository = {
     return await VehicleListing.find({
       seller_id: new Types.ObjectId(sellerId),
     })
-      .populate("model_id")
+    .populate({
+        path: "model_id",
+        populate: [
+          { path: "brand_id", select: "brand_name brand_logo description" },
+          { path: "category_id", select: "category_name" },
+        ],
+      })
       .sort({ createdAt: -1 });
   }),
   /** Finds a vehicle listing by ID and updates it with new data. */

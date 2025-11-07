@@ -103,6 +103,41 @@ export class EvModelDTO {
   @IsOptional()
   @IsString()
   motor_type?: string;
+
+  /**
+   * The number of seats in the vehicle. This field is optional.
+   */
+  @IsOptional()
+  @IsNumber()
+  seating_capacity?: number;
+
+  /**
+   * A human-readable price range for this model. Useful for listing approximate
+   * retail ranges (for example: "$30k - $40k", "30000-40000"). This should
+   * be provided as a string when exact pricing varies by trim or option.
+   */
+  @IsOptional()
+  @IsString()
+  price_range?: string;
+
+  /**
+   * An object containing arbitrary technical specifications for the model.
+   * Keys are specification names and values can be numbers or strings. Example:
+   * { "motor_power_kw": "150", "battery_cells": "2170" }
+   */
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  specifications?: string[];
+
+  /**
+   * A list of notable features available on this model (e.g. "Heated Seats",
+   * "Adaptive Cruise", "Autopilot"). Each entry should be a short string.
+   */
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  features?: string[];
 }
 
 // --- Vehicle Listing DTOs ---

@@ -28,7 +28,7 @@ export interface IEvModel extends Document {
   /** A string representing the price range (e.g., "$40,000 - $55,000"). This field is optional. */
   price_range?: string;
   /** An object for storing detailed technical specifications as key-value pairs. This field is optional. */
-  specifications?: Record<string, any>;
+  specifications?: string[];
   /** An array of strings describing the key features of the model. This field is optional. */
   features?: string[];
 }
@@ -63,7 +63,7 @@ const EvModelSchema = new Schema<IEvModel>(
     /** A string representation of the price range. */
     price_range: { type: String },
     /** A flexible map to store various technical specifications. */
-    specifications: { type: Map, of: Schema.Types.Mixed },
+    specifications: [{ type: String }],
     /** A list of feature strings. */
     features: [{ type: String }]
   },
