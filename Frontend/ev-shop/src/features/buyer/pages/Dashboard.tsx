@@ -72,8 +72,7 @@ const App: React.FC = () => {
       if (!response.ok) {
         throw new Error("Failed to load notifications");
       }
-      const data = await response.json();
-      setNotifications(data.notifications);
+      setNotifications(response);
     } catch (error) {
       console.error("Failed to load notifications:", error);
     }
@@ -82,11 +81,8 @@ const App: React.FC = () => {
   const getVehicals = async () => {
     try {
       const result = await buyerService.getEVList();
-      if (!result.ok) {
-        throw new Error("Failed to load vehicles");
-      }
-      const data = await result.json();
-      setVehicles(data.vehicles);
+      console.log(result);
+      setVehicles(result);
     } catch (error) {
       console.error("Failed to load vehicles:", error);
     }
@@ -94,8 +90,8 @@ const App: React.FC = () => {
 
   const filteredVehicles = vehicles.filter(
     (vehicle) =>
-      vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
+      vehicle.model_id.model_name.toLowerCase().includes(searchTerm.toLowerCase()) 
+      // vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
   );
   if (loading) {
     return <PageLoader />;

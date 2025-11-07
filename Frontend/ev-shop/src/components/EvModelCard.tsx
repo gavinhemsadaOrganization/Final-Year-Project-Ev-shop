@@ -3,6 +3,11 @@ import { Link } from "react-router-dom";
 import { itemVariants, cardHover } from "./animations/variants"; // Adjust path as needed
 import { HeartIcon } from "@/assets/icons/icons";
 import type { Vehicle } from "@/types";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay, Pagination } from "swiper/modules";
+
+const apiURL = import.meta.env.VITE_API_URL;
+
 interface EvModelCardProps {
   // Required props
   name: string;
@@ -115,16 +120,32 @@ export const VehicleCard: React.FC<{
     className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700 ${className}`}
     style={style}
   >
-    <img
-      className="h-56 w-full object-cover"
-      src={vehicle.image}
-      alt={vehicle.name}
-    />
+    {/* 🔹 Image Slider */}
+    <Swiper
+      modules={[Navigation, Autoplay, Pagination]}
+      navigation
+      pagination={{ clickable: true }}
+      autoplay={{ delay: 3000, disableOnInteraction: false }}
+      loop
+      className="h-56 w-full"
+    >
+      {vehicle.images?.map((img, i) => (
+        <SwiperSlide key={i}>
+          <img
+            className="h-56 w-full object-cover"
+            src={`${apiURL}${img}`}
+            alt={`${vehicle.model_id.model_name} image ${i + 1}`}
+          />
+        </SwiperSlide>
+      ))}
+    </Swiper>
+
+    {/* 🔹 Card Body */}
     <div className="p-6">
       <div className="flex justify-between items-start">
         <div>
           <div className="uppercase tracking-wide text-sm text-blue-600 font-bold dark:text-blue-400">
-            {vehicle.model}
+            {vehicle.model_id.model_name}
           </div>
           <a
             href="#"
@@ -137,18 +158,21 @@ export const VehicleCard: React.FC<{
           <HeartIcon className="h-6 w-6" />
         </button>
       </div>
+
       <p className="mt-2 text-2xl font-light text-gray-800 dark:text-gray-200">
         {vehicle.price}
       </p>
+
       <div className="mt-4 flex justify-between text-sm text-gray-600 dark:text-gray-400">
         <span>
-          <strong>Range:</strong> {vehicle.range}
+          <strong>Range:</strong> {vehicle.model_id.range_km}
         </span>
         <span>
           <strong className="dark:text-gray-300">Top Speed:</strong>{" "}
           {vehicle.topSpeed}
         </span>
       </div>
+
       <div className="mt-6">
         <button className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600">
           Book a Test Drive

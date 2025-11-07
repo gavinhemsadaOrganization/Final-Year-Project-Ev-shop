@@ -16,14 +16,57 @@ export type Listing = {
 };
 
 export type Vehicle = {
-  id: number;
-  name: string;
-  model: string;
-  price: string;
-  range: string;
-  image: string;
-  topSpeed: string;
+  _id: string;
+  listing_type: string; 
+  condition: string; 
+  status: string; 
+  color: string;
+  price: number;
+  number_of_ev: number;
+  registration_year: number;
+  battery_health: number;
+  specifications: string[];
+  features: string[];
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
+
+  // Nested references
+  seller_id: {
+    _id: string;
+    business_name: string;
+  };
+
+  model_id: {
+    _id: string;
+    model_name: string;
+    year: number;
+    range_km: number;
+    price_range: string;
+    battery_capacity_kwh: number;
+    charging_time_hours: number;
+    motor_type: string;
+    seating_capacity: number;
+
+    // Populated references
+    brand_id: {
+      _id: string;
+      brand_name: string;
+      brand_logo: string;
+      description: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+    category_id: {
+      _id: string;
+      category_name: string;
+      description: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  };
 };
+
 
 export interface Brand {
   id: string;

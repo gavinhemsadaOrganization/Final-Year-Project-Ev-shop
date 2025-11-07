@@ -25,7 +25,7 @@ export const VehicleList: React.FC<VehicleListProps> = ({ vehicles }) => (
         {/* Map over the vehicles array to render a VehicleCard for each one. */}
         {vehicles.map((v, index) => (
           <VehicleCard
-            key={v.id}
+            key={v._id}
             vehicle={v}
             // Stagger the animation delay for each card for a nice visual effect.
             style={{ animationDelay: `${index * 80}ms` }}
