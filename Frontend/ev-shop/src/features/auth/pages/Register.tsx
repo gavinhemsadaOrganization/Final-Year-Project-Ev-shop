@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 import GoogleIcon from "@/assets/icons/google-icon.svg";
 import FacebookIcon from "@/assets/icons/facebook-icon.svg";
 import SignUp from "@/assets/auth_images/sign_up_img.png";
@@ -9,7 +9,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 import Label from "@/components/Label";
 import Input from "@/components/inputFiled";
-import {Loader} from "@/components/Loader";
+import { Loader, PageLoader } from "@/components/Loader";
 
 // Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
@@ -18,20 +18,38 @@ import type { UserRole } from "@/types";
 // Import authentication service functions for API calls.
 import { authService } from "../authService";
 
+// Import from validation
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+const registerSchema = yup
+  .object({
+    email: yup
+      .string()
+      .required("Email is required")
+      .email("Invalid email format"),
+
+    password: yup
+      .string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/,
+        "Password must contain uppercase, lowercase, number, and special character"
+      ),
+
+    confirmPassword: yup
+      .string()
+      .required("Please confirm your password")
+      .oneOf([yup.ref("password"), ""], "Passwords must match"),
+  })
+  .required();
+
 // The main component for the registration page.
 const RegisterPage = () => {
-  // State for form inputs.
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  // State to hold validation errors for the form fields.
-  const [errors, setErrors] = useState<{
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-  }>({});
   // State to manage the loading status during async operations (e.g., API calls).
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   // State to toggle password visibility.
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -43,7 +61,30 @@ const RegisterPage = () => {
   } | null>(null);
 
   // Access the setUserData function from the authentication context.
-  const { setUserData } = useAuth();
+  const { setUserData, setActiveRole } = useAuth();
+
+  // Hook for programmatic navigation.
+  const nav = useNavigate();
+
+  useEffect(() => {
+    const handlePageLoad = () => setLoading(false);
+
+    if (document.readyState === "complete") {
+      setLoading(false);
+    } else {
+      window.addEventListener("load", handlePageLoad);
+    }
+
+    return () => window.removeEventListener("load", handlePageLoad);
+  }, []);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: yupResolver(registerSchema),
+  });
 
   useEffect(() => {
     handleOAuthCallback();
@@ -69,7 +110,10 @@ const RegisterPage = () => {
     const url = new URL(window.location.href);
     const params = url.searchParams;
     const userId = params.get("userid");
-    const role = params.get("role") as UserRole;
+    const role = params.getAll("role") as UserRole[];
+    const roleList = role
+      .flatMap((r) => r.split(","))
+      .map((r) => r.trim()) as UserRole[];
     const error = params.get("error");
 
     // Clean the URL by removing the query parameters.
@@ -81,45 +125,13 @@ const RegisterPage = () => {
     }
 
     if (userId) {
-      setUserData(userId, [role], { userid: userId });
+      setUserData(userId, roleList, { userid: userId });
+      setActiveRole(roleList[0]);
       showMessage("OAuth authentication successful!", "success");
+      setTimeout(() => {
+        nav("/user/dashboard", { replace: true });
+      }, 2000);
     }
-  };
-
-  // Validates the email, password, and confirm password fields.
-  const validate = (email: string, password: string) => {
-    const newErrors: {
-      email?: string;
-      password?: string;
-      confirmPassword?: string;
-    } = {};
-
-    // Email validation.
-    if (!email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Invalid email format.";
-    }
-
-    // Password validation (checks for complexity).
-    if (!password.trim()) {
-      newErrors.password = "Password is required.";
-    } else if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-        password
-      )
-    ) {
-      newErrors.password =
-        "Password must contain uppercase, lowercase, number, and special character.";
-    }
-    // Confirm password validation.
-    if (!confirmPassword.trim()) {
-      newErrors.confirmPassword = "Confirm Password is required.";
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match.";
-    }
-
-    return newErrors;
   };
 
   // Initiates the OAuth flow for the specified provider (Google or Facebook).
@@ -140,19 +152,17 @@ const RegisterPage = () => {
   };
 
   // Handles the form submission for standard email/password registration.
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validate(email, password);
-    if (Object.keys(validationErrors).length > 0) {
-      // If there are validation errors, display them and stop submission.
-      setErrors(validationErrors);
-      return;
-    }
-
-    setErrors({});
-    setLoading(true);
+  const onSubmit = async (data: {
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }) => {
     try {
-      const response = await authService.register(email, password, confirmPassword);
+      const response = await authService.register(
+        data.email,
+        data.password,
+        data.confirmPassword
+      );
       showMessage(response.message, "success");
       // Redirect to the login page after a successful registration.
       setTimeout(() => {
@@ -167,10 +177,12 @@ const RegisterPage = () => {
       } else if (err.request) {
         showMessage("No response from server", "error");
       }
-    } finally {
-      setLoading(false);
     }
   };
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <div className="relative flex flex-col md:flex-row h-screen w-full bg-gray-100 md:bg-black font-sans overflow-hidden">
@@ -232,25 +244,25 @@ const RegisterPage = () => {
           </div>
 
           {/* Register Form */}
-          <form onSubmit={handleSubmit} className="space-y-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
             <div>
               {/* Email Input Field */}
               <Label htmlFor="email">Email address</Label>
               <Input
                 id="email"
-                name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register("email")}
                 placeholder="you@example.com"
-                disabled={loading}
+                disabled={isSubmitting}
                 className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "email-error" : undefined}
                 autoComplete="email"
               />
               {errors.email && (
-                <p className="text-red-500 mt-1 text-xs">{errors.email}</p>
+                <p className="text-red-500 mt-1 text-xs">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -260,12 +272,10 @@ const RegisterPage = () => {
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
-                name="password"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password")}
                 placeholder="••••••••"
-                disabled={loading}
+                disabled={isSubmitting}
                 className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 aria-invalid={!!errors.password}
                 aria-describedby={
@@ -286,7 +296,9 @@ const RegisterPage = () => {
                 )}
               </button>
               {errors.password && (
-                <p className="text-red-500 mt-1 text-xs">{errors.password}</p>
+                <p className="text-red-500 mt-1 text-xs">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
@@ -296,12 +308,10 @@ const RegisterPage = () => {
               <Label htmlFor="confirm-password">Confirm Password</Label>
               <Input
                 id="confirm-password"
-                name="confirm-password"
                 type={showConfirmPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                {...register("confirmPassword")}
                 placeholder="••••••••"
-                disabled={loading}
+                disabled={isSubmitting}
                 className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 aria-invalid={!!errors.confirmPassword}
                 aria-describedby={
@@ -323,7 +333,7 @@ const RegisterPage = () => {
               </button>
               {errors.confirmPassword && (
                 <p className="text-red-500 mt-1 text-xs">
-                  {errors.confirmPassword}
+                  {errors.confirmPassword.message}
                 </p>
               )}
             </div>
@@ -331,15 +341,15 @@ const RegisterPage = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isSubmitting}
                 className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium transition-all
                 ${
-                  loading
+                  isSubmitting
                     ? "bg-transparent cursor-default"
                     : "bg-indigo-600 hover:bg-indigo-700 text-white"
                 }`}
               >
-                {loading ? (
+                {isSubmitting ? (
                   <Loader size={10} color="#4f46e5" />
                 ) : (
                   "Create Account"
