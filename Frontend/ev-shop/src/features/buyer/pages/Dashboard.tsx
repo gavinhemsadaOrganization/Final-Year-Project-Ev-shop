@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense, useCallback } from "react";
+import "../style/buyer.css";
 import { useNavigate } from "react-router-dom";
 import { CloseIcon, ChatBubbleIcon } from "@/assets/icons/icons";
 import { Chatbot } from "../components/ChatBot";
@@ -6,23 +7,27 @@ import { Sidebar } from "../components/SideBar";
 import { Header } from "../components/Header";
 import { VehicleList } from "../components/VehicalList";
 import type { User_Profile, Vehicle } from "@/types";
-import { OrderHistory } from "./OrderHistoryPage";
-import { UserProfile } from "./UserProfilePage";
-import { Services } from "./ServicePage";
-import { SavedVehicles } from "./SavedVehicalsPage";
-import { NotificationPage } from "./NotificationPage";
-import { CartPage } from "./CartPage";
-import { MyReviewsPage } from "./MyReviewsPage";
-import { TestDrivesPage } from "./TestDrivePage";
-import { FinancingPage } from "./FinancingPage";
-import { CommunityPage } from "./ComunityPage";
+
+const OrderHistory = lazy(() => import("./OrderHistoryPage"));
+const UserProfile = lazy(() => import("./UserProfilePage"));
+const Services = lazy(() => import("./ServicePage"));
+const SavedVehicles = lazy(() => import("./SavedVehicalsPage"));
+const NotificationPage = lazy(() => import("./NotificationPage"));
+const CartPage = lazy(() => import("./CartPage"));
+const MyReviewsPage = lazy(() => import("./MyReviewsPage"));
+const TestDrivesPage = lazy(() => import("./TestDrivePage"));
+const FinancingPage = lazy(() => import("./FinancingPage"));
+const BecomeSellerPage = lazy(() => import("./becomeaSellerPage"));
+const RegisterFinancialInstitutionPage = lazy(
+  () => import("./becomeaFinancingPage")
+);
+const CommunityPage = lazy(() => import("./ComunityPage"));
+
 import { PageLoader } from "@/components/Loader";
 import { buyerService } from "../buyerService";
 
 import type { UserRole, Notification, ActiveTab } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-import BecomeSellerPage from "./becomeaSellerPage";
-import RegisterFinancialInstitutionPage from "./becomeaFinancingPage";
 
 const App: React.FC = () => {
   const [userRole, setUserRole] = useState<UserRole[]>([]);
@@ -40,22 +45,38 @@ const App: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const handlePageLoad = () => setLoading(false);
+
+    if (document.readyState === "complete") {
+      setLoading(false);
+    } else {
+      window.addEventListener("load", handlePageLoad);
+    }
+
+    return () => window.removeEventListener("load", handlePageLoad);
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const roles = getRoles();
         const userID = getUserID()!;
         console.log(roles);
         if (userID) {
-          const user = await buyerService.getUserProfile(userID);
+          const [user, notifications, vehicles] = await Promise.all([
+            buyerService.getUserProfile(userID),
+            buyerService.getUserNotifications(userID),
+            buyerService.getEVList(),
+          ]);
           setUser(user);
+          setNotifications(notifications);
+          setVehicles(vehicles);
         }
 
         if (roles && Array.isArray(roles)) {
           setUserRole(roles);
         }
-
-        await getNotification(userID);
-        await getVehicals();
       } catch (error) {
         console.error("Failed to load user or roles:", error);
       } finally {
@@ -66,33 +87,25 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  const getNotification = async (userID: string) => {
-    try {
-      const response = await buyerService.getUserNotifications(userID);
-      if (!response.ok) {
-        throw new Error("Failed to load notifications");
-      }
-      setNotifications(response);
-    } catch (error) {
-      console.error("Failed to load notifications:", error);
-    }
-  };
+  const filteredVehicles = React.useMemo(() => {
+    return vehicles.filter((vehicle) =>
+      vehicle.model_id.model_name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
+  }, [vehicles, searchTerm]);
 
-  const getVehicals = async () => {
-    try {
-      const result = await buyerService.getEVList();
-      console.log(result);
-      setVehicles(result);
-    } catch (error) {
-      console.error("Failed to load vehicles:", error);
-    }
-  };
+  const toggleChat = useCallback(() => {
+    setIsChatOpen((prev) => !prev);
+  }, []);
 
-  const filteredVehicles = vehicles.filter(
-    (vehicle) =>
-      vehicle.model_id.model_name.toLowerCase().includes(searchTerm.toLowerCase()) 
-      // vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const becomeSelleClick = useCallback(() => {
+    setIsBecomeSellerModalOpen(true);
+  }, []);
+
+  const becomeFinancerClick = useCallback(() => {
+    setIsBecomeFinancer(true);
+  }, []);
   if (loading) {
     return <PageLoader />;
   }
@@ -147,17 +160,6 @@ const App: React.FC = () => {
   return (
     <>
       {/* Removed the inline <style> block that was forcing a light background */}
-      <style>{`
-                  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-                  .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-                  
-                  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-                  .animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
-                  @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-                  .animate-slideInUp { animation: slideInUp 0.3s ease-out forwards; }
-                  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                  .animate-popIn { animation: popIn 0.3s ease-out forwards; }
-                `}</style>
       <div className="flex h-screen bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
         <Sidebar
           activeTab={activeTab}
@@ -209,7 +211,7 @@ const App: React.FC = () => {
             {/* --- END NEW --- */}
 
             <div key={activeTab + userRole} className="animate-fadeIn">
-              {renderContent()}
+              <Suspense fallback={<PageLoader />}>{renderContent()}</Suspense>
             </div>
           </main>
         </div>
@@ -217,7 +219,7 @@ const App: React.FC = () => {
 
       <div className="fixed bottom-6 right-6 z-50">
         <button
-          onClick={() => setIsChatOpen(!isChatOpen)}
+          onClick={toggleChat}
           className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900"
         >
           {isChatOpen ? (
@@ -228,17 +230,15 @@ const App: React.FC = () => {
         </button>
       </div>
 
-      {isChatOpen && <Chatbot onClose={() => setIsChatOpen(false)} />}
+      {isChatOpen && <Chatbot onClose={toggleChat} />}
 
       {/* --- NEW: Become a Seller Modal --- */}
       {isBecomeSellerModalOpen && (
-        <BecomeSellerPage onClose={() => setIsBecomeSellerModalOpen(false)} />
+        <BecomeSellerPage onClose={becomeSelleClick} />
       )}
 
       {isBecomFinancer && (
-        <RegisterFinancialInstitutionPage
-          onClose={() => setIsBecomeFinancer(false)}
-        />
+        <RegisterFinancialInstitutionPage onClose={becomeFinancerClick} />
       )}
     </>
   );

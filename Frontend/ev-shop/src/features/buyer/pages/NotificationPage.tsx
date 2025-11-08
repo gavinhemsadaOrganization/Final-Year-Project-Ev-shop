@@ -3,7 +3,7 @@ import type { Notification } from "@/types";
 
 // --- End Mock Data ---
 
-export const NotificationPage: React.FC<{ notifications: Notification[] }> = ({
+const NotificationPage: React.FC<{ notifications: Notification[] }> = ({
   notifications,
 }) => {
   return (
@@ -41,3 +41,5 @@ export const NotificationPage: React.FC<{ notifications: Notification[] }> = ({
     </div>
   );
 };
+
+export default NotificationPage;

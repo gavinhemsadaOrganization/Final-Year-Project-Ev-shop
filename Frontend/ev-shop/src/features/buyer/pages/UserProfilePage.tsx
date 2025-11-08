@@ -10,7 +10,7 @@ const apiURL = import.meta.env.VITE_API_URL;
  * A page component that displays and allows editing of the user's profile information.
  * This component uses controlled inputs to manage form state, new fields, and image previews.
  */
-export const UserProfile: React.FC<{ user: User }> = ({ user }) => {
+const UserProfile: React.FC<{ user: User }> = ({ user }) => {
   // --- State for controlled inputs ---
   const [name, setName] = useState(user?.name);
   const [email, _setEmail] = useState(user.email);
@@ -405,3 +405,5 @@ export const UserProfile: React.FC<{ user: User }> = ({ user }) => {
     </div>
   );
 };
+
+export default UserProfile;

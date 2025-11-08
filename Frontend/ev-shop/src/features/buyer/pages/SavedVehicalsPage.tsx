@@ -1,6 +1,6 @@
 import { HeartIcon } from "@/assets/icons/icons";
 
-export const SavedVehicles: React.FC = () => (
+const SavedVehicles: React.FC = () => (
   <div className="bg-white p-8 rounded-xl shadow-md dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
     <h1 className="text-3xl font-bold mb-6 dark:text-white">Saved Vehicles</h1>
     <div className="text-center py-16 dark:bg-gray-800">
@@ -14,3 +14,5 @@ export const SavedVehicles: React.FC = () => (
     </div>
   </div>
 );
+
+export default SavedVehicles;

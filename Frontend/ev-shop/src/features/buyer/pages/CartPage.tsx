@@ -24,7 +24,7 @@ const mockCartItems: Vehicle[] = [
   },
 ];
 
-export const CartPage: React.FC = () => {
+const CartPage: React.FC = () => {
   const [cart, setCart] = useState<Vehicle[]>(mockCartItems);
   const onRemove = (id: number) => {
     setCart((currentCart) => currentCart.filter((item) => item.id !== id));
@@ -104,3 +104,5 @@ export const CartPage: React.FC = () => {
     </div>
   );
 };
+
+export default CartPage;

@@ -16,7 +16,7 @@ const services: Service[] = [
  * It renders a grid of service cards based on the provided `services` prop,
  * and also includes a static card for a "Charging Station Locator".
  */
-export const Services: React.FC = () => (
+const Services: React.FC = () => (
   // Main container for the services page with padding, rounded corners, and a shadow.
   <div className="bg-white p-8 rounded-xl shadow-md dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
     <h1 className="text-3xl font-bold mb-6 dark:text-white">Our Services</h1>
@@ -59,3 +59,5 @@ export const Services: React.FC = () => (
     </div>
   </div>
 );
+
+export default Services;
