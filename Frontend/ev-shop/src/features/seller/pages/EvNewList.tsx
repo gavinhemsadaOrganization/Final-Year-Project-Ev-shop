@@ -14,6 +14,7 @@ export default function EvListingStepper() {
   const { getActiveRoleId } = useAuth();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [evBrands, setEvBrands] = useState<Brand[]>([]);
+  const [errors, setErrors] = useState<Partial<EvListingFormData>>({});
   const [evCatogorys, setEvCatogorys] = useState<categorie[]>([]);
   const [formData, setFormData] = useState<EvListingFormData>({
     brand_id: "",
@@ -69,6 +70,64 @@ export default function EvListingStepper() {
     fetchBrands();
   }, []);
 
+  const validateField = (name: keyof EvListingFormData, value: any) => {
+    let error = "";
+    switch (name) {
+      case "brand_id":
+        if (!value) error = "Brand is required.";
+        break;
+      case "category_id":
+        if (!value) error = "Category is required.";
+        break;
+      case "model_name":
+        if (!value) error = "Model name is required.";
+        break;
+      case "year":
+        if (!value || +value > new Date().getFullYear() + 1)
+          error = "Please enter a valid year.";
+        break;
+      case "battery_capacity_kwh":
+        if (!value || +value <= 0)
+          error = "Enter a valid battery capacity.";
+        break;
+      case "range_km":
+        if (!value || +value <= 0) error = "Enter a valid range.";
+        break;
+      case "charging_time_hours":
+        if (!value || +value <= 0) error = "Enter a valid charging time.";
+        break;
+      case "motor_type":
+        if (!value) error = "Motor type is required.";
+        break;
+      case "seating_capacity":
+        if (!value || +value <= 0) error = "Enter a valid seating capacity.";
+        break;
+      case "listing_type":
+        if (!value) error = "Listing type is required.";
+        break;
+      case "condition":
+        if (!value) error = "Condition is required.";
+        break;
+      case "price":
+        if (!value || +value <= 0) error = "Please enter a valid price.";
+        break;
+      case "battery_health":
+        if (!value || +value < 0 || +value > 100)
+          error = "Enter a valid battery health (0-100).";
+        break;
+      case "color":
+        if (!value) error = "Color is required.";
+        break;
+      case "registration_year":
+        if (!value || +value > new Date().getFullYear())
+          error = "Please enter a valid registration year.";
+        break;
+      default:
+        break;
+    }
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
   const steps = [
     { id: 1, name: "Vehicle" },
     { id: 2, name: "Model Details" },
@@ -82,22 +141,79 @@ export default function EvListingStepper() {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    // Set form data first
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Then validate the field
+    validateField(name as keyof EvListingFormData, value);
   };
 
-  // const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     const fileArray = Array.from(e.target.files).map((file) => file.name);
-  //     setFormData((prev) => ({ ...prev, images: fileArray }));
-  //   }
-  // };
+  const validateStep = () => {
+    const newErrors: Partial<EvListingFormData> = {};
+    switch (currentStep) {
+      case 1:
+        if (!formData.brand_id) newErrors.brand_id = "Brand is required.";
+        if (!formData.category_id)
+          newErrors.category_id = "Category is required.";
+        break;
+      case 2:
+        if (!formData.model_name)
+          newErrors.model_name = "Model name is required.";
+        if (!formData.year || +formData.year > new Date().getFullYear() + 1)
+          newErrors.year = "Please enter a valid year.";
+        if (
+          !formData.battery_capacity_kwh ||
+          +formData.battery_capacity_kwh <= 0
+        )
+          newErrors.battery_capacity_kwh = "Enter a valid battery capacity.";
+        if (!formData.range_km || +formData.range_km <= 0)
+          newErrors.range_km = "Enter a valid range.";
+        if (!formData.charging_time_hours || +formData.charging_time_hours <= 0)
+          newErrors.charging_time_hours = "Enter a valid charging time.";
+        if (!formData.motor_type)
+          newErrors.motor_type = "Motor type is required.";
+        if (!formData.seating_capacity || +formData.seating_capacity <= 0)
+          newErrors.seating_capacity = "Enter a valid seating capacity.";
+        break;
+      case 3:
+        if (!formData.listing_type)
+          newErrors.listing_type = "Listing type is required." as any;
+        if (!formData.condition) newErrors.condition = "Condition is required." as any;
+        if (!formData.price || +formData.price <= 0)
+          newErrors.price = "Please enter a valid price.";
+        if (
+          !formData.battery_health ||
+          +formData.battery_health < 0 ||
+          +formData.battery_health > 100
+        )
+          newErrors.battery_health = "Enter a valid battery health (0-100).";
+        if (!formData.color) newErrors.color = "Color is required.";
+        if (
+          !formData.registration_year ||
+          +formData.registration_year > new Date().getFullYear()
+        )
+          newErrors.registration_year =
+            "Please enter a valid registration year.";
+        if (!formData.number_of_ev || +formData.number_of_ev <= 0)
+          newErrors.number_of_ev = "Please enter a valid number of units.";
+        break;
+      case 4:
+        if (formData.images.length === 0)
+          (newErrors as any).images = "At least one image is required.";
+        break;
+      default:
+        break;
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  // const nextStep = () => {
-  //   if (currentStep < steps.length) setCurrentStep(currentStep + 1);
-  // };
   const nextStep = (e?: React.MouseEvent<HTMLButtonElement>) => {
     if (e) e.preventDefault();
+    if (!validateStep()) {
+      return;
+    }
     if (currentStep < steps.length) {
+      setErrors({}); // Clear errors when moving to the next step
       setCurrentStep((prev) => prev + 1);
     }
   };
@@ -186,6 +302,7 @@ export default function EvListingStepper() {
                 value={formData.brand_id}
                 onChange={handleChange}
                 options={[{ id: "", name: "Select a brand" }, ...evBrands]}
+                error={errors.brand_id}
               />
 
               <FormSelectField
@@ -199,6 +316,7 @@ export default function EvListingStepper() {
                     ? [{ id: "", name: "Select a category" }, ...evCatogorys]
                     : [{ id: "", name: "Select a brand first" }]
                 }
+                error={errors.category_id}
               />
             </div>
           </StepContainer>
@@ -215,6 +333,7 @@ export default function EvListingStepper() {
                 placeholder="e.g., Tesla Model 3"
                 value={formData.model_name}
                 onChange={handleChange}
+                error={errors.model_name}
               />
 
               {/* Year */}
@@ -225,6 +344,7 @@ export default function EvListingStepper() {
                 placeholder="e.g., 2024"
                 value={formData.year}
                 onChange={handleChange}
+                error={errors.year}
               />
 
               {/* Battery Capacity */}
@@ -235,6 +355,7 @@ export default function EvListingStepper() {
                 placeholder="e.g., 75"
                 value={formData.battery_capacity_kwh}
                 onChange={handleChange}
+                error={errors.battery_capacity_kwh}
               />
 
               {/* Range */}
@@ -245,6 +366,7 @@ export default function EvListingStepper() {
                 placeholder="e.g., 400"
                 value={formData.range_km}
                 onChange={handleChange}
+                error={errors.range_km}
               />
 
               {/* Charging Time */}
@@ -255,6 +377,7 @@ export default function EvListingStepper() {
                 placeholder="e.g., 8"
                 value={formData.charging_time_hours}
                 onChange={handleChange}
+                error={errors.charging_time_hours}
               />
 
               {/* Motor Type */}
@@ -265,6 +388,7 @@ export default function EvListingStepper() {
                 placeholder="e.g., Dual Motor"
                 value={formData.motor_type}
                 onChange={handleChange}
+                error={errors.motor_type}
               />
 
               {/* Seating Capacity */}
@@ -275,6 +399,7 @@ export default function EvListingStepper() {
                 placeholder="e.g., 5"
                 value={formData.seating_capacity}
                 onChange={handleChange}
+                error={errors.seating_capacity}
               />
 
               {/* Price Range */}
@@ -285,6 +410,7 @@ export default function EvListingStepper() {
                 placeholder="e.g., $40,000 - $60,000"
                 value={formData.price_range}
                 onChange={handleChange}
+                error={errors.price_range}
               />
 
               {/* Condition */}
@@ -325,12 +451,13 @@ export default function EvListingStepper() {
               value={formData.listing_type}
               onChange={handleChange}
               options={[
-                { id: "", name: "Select Listing Type" }, 
+                { id: "", name: "Select Listing Type" },
                 ...Object.values(ListingType).map((status) => ({
-                id: status,
-                name: status.charAt(0).toUpperCase() + status.slice(1),
-              }))
-            ]}
+                  id: status,
+                  name: status.charAt(0).toUpperCase() + status.slice(1),
+                })),
+              ]}
+              error={errors.listing_type}
             />
 
             {/* Condition */}
@@ -340,12 +467,13 @@ export default function EvListingStepper() {
               value={formData.condition}
               onChange={handleChange}
               options={[
-                { id: "", name: "Select Condition" }, 
+                { id: "", name: "Select Condition" },
                 ...Object.values(VehicleCondition).map((condition) => ({
-                id: condition,
-                name: condition.charAt(0).toUpperCase() + condition.slice(1),
-              }))
-            ]}
+                  id: condition,
+                  name: condition.charAt(0).toUpperCase() + condition.slice(1),
+                })),
+              ]}
+              error={errors.condition}
             />
 
             {/* Price */}
@@ -357,6 +485,7 @@ export default function EvListingStepper() {
               placeholder="e.g., 35000"
               value={formData.price === 0 ? "" : formData.price}
               onChange={handleChange}
+              error={errors.price}
             />
 
             {/* Battery Health */}
@@ -371,6 +500,7 @@ export default function EvListingStepper() {
                 formData.battery_health === 0 ? "" : formData.battery_health
               }
               onChange={handleChange}
+              error={errors.battery_health}
             />
 
             {/* Color */}
@@ -381,6 +511,7 @@ export default function EvListingStepper() {
               placeholder="e.g., Pearl White"
               value={formData.color}
               onChange={handleChange}
+              error={errors.color}
             />
 
             {/* Registration Year */}
@@ -391,6 +522,7 @@ export default function EvListingStepper() {
               placeholder="e.g., 2022"
               value={formData.registration_year}
               onChange={handleChange}
+              error={errors.registration_year}
             />
 
             {/* Number of EVs */}
@@ -402,6 +534,7 @@ export default function EvListingStepper() {
               placeholder="e.g., 2"
               value={formData.number_of_ev === 0 ? "" : formData.number_of_ev}
               onChange={handleChange}
+              error={errors.number_of_ev}
             />
           </StepContainer>
         );
@@ -436,6 +569,11 @@ export default function EvListingStepper() {
         file:bg-blue-50 file:text-blue-700
         hover:file:bg-blue-100"
               />
+              {(errors as any).images && (
+                <p className="mt-2 text-sm text-red-600">
+                  {(errors as any).images}
+                </p>
+              )}
 
               {/* ✅ Preview Section */}
               {formData.images.length > 0 && (
