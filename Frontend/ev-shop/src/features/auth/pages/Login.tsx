@@ -8,7 +8,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 // Import reusable UI components.
 import Label from "../../../components/Label";
 import Input from "../../../components/inputFiled";
-import { Loader } from "@/components/Loader";
+import { Loader, PageLoader } from "@/components/Loader";
 
 // Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
@@ -21,17 +21,28 @@ import { useNavigate } from "react-router-dom";
 // Import authentication service functions for API calls.
 import { authService } from "../authService";
 
+// Import from validation
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+const loginSchema = yup
+  .object({
+    email: yup
+      .string()
+      .required("Email is required")
+      .email("Invalid email format"),
+    password: yup
+      .string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters"),
+  })
+  .required();
+
 // The main component for the login page.
 const LoginPage = () => {
-  // State for form inputs.
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  // State to hold validation errors for the form fields.
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
-  );
   // State to manage the loading status during async operations (e.g., API calls).
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   // State to toggle password visibility.
   const [showPassword, setShowPassword] = useState(false);
   // State for displaying feedback messages (e.g., success or error alerts).
@@ -44,6 +55,26 @@ const LoginPage = () => {
   const { setUserData, setActiveRole } = useAuth();
   // Hook for programmatic navigation.
   const nav = useNavigate();
+
+  useEffect(() => {
+    const handlePageLoad = () => setLoading(false);
+
+    if (document.readyState === "complete") {
+      setLoading(false);
+    } else {
+      window.addEventListener("load", handlePageLoad);
+    }
+
+    return () => window.removeEventListener("load", handlePageLoad);
+  }, []);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: yupResolver(loginSchema),
+  });
 
   // On component mount, check for and handle any OAuth callback parameters in the URL.
   useEffect(() => {
@@ -94,26 +125,9 @@ const LoginPage = () => {
     }
   };
 
-  // Validates the email and password fields.
-  const validate = (email: string, password: string) => {
-    const newErrors: { email?: string; password?: string } = {};
-
-    // Email validation
-    if (!email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Invalid email format.";
-    }
-
-    // Password validation
-    if (!password.trim()) {
-      newErrors.password = "Password is required.";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters long.";
-    }
-
-    return newErrors;
-  };
+  if (loading) {
+    return <PageLoader />;
+  }
 
   // Initiates the OAuth flow for the specified provider (Google or Facebook).
   const handleOAuth = async (provider: string) => {
@@ -133,24 +147,14 @@ const LoginPage = () => {
   };
 
   // Handles the form submission for standard email/password login.
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validate(email, password);
-
-    // If there are errors, show them
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    setErrors({});
-    setLoading(true);
+  const onSubmit = async (data: { email: string; password: string }) => {
     try {
       // Call the login API service.
-      const respons = await authService.login(email, password);
+      const respons = await authService.login(data.email, data.password);
       console.log(respons);
       const roleList = respons.role
-        .flatMap((r:any) => r.split(","))
-        .map((r:any) => r.trim()) as UserRole[];
+        .flatMap((r: any) => r.split(","))
+        .map((r: any) => r.trim()) as UserRole[];
       // On success, set user data in the context.
       setUserData(respons.user, roleList, { userid: respons.userid });
       setActiveRole(roleList[0]);
@@ -166,8 +170,6 @@ const LoginPage = () => {
       } else if (err.request) {
         showMessage("No response from server", "error");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -239,7 +241,10 @@ const LoginPage = () => {
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-5 sm:space-y-6"
+          >
             {/* Email Input Field */}
             <div>
               <Label
@@ -250,19 +255,19 @@ const LoginPage = () => {
               </Label>
               <Input
                 id="email"
-                name="email"
                 type="email"
                 autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register("email")}
                 placeholder="you@example.com"
-                disabled={loading}
+                disabled={isSubmitting}
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? "email-error" : undefined}
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               />
               {errors.email && (
-                <p className="text-red-500 mt-1 text-xs">{errors.email}</p>
+                <p className="text-red-500 mt-1 text-xs">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -287,13 +292,11 @@ const LoginPage = () => {
                 {/* Password Input */}
                 <Input
                   id="password"
-                  name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password")}
                   placeholder="••••••••"
-                  disabled={loading}
+                  disabled={isSubmitting}
                   aria-invalid={!!errors.password}
                   aria-describedby={
                     errors.password ? "password-error" : undefined
@@ -303,7 +306,7 @@ const LoginPage = () => {
                 {/* Password visibility toggle button */}
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={isSubmitting}
                   className="absolute inset-y-0 right-0 top-1 flex items-center pr-3 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -315,7 +318,9 @@ const LoginPage = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-500 mt-1 text-xs">{errors.password}</p>
+                <p className="text-red-500 mt-1 text-xs">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
@@ -323,15 +328,19 @@ const LoginPage = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isSubmitting}
                 className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium transition-all
                 ${
-                  loading
+                  isSubmitting
                     ? "bg-transparent cursor-default"
                     : "bg-indigo-600 hover:bg-indigo-700 text-white"
                 }`}
               >
-                {loading ? <Loader size={10} color="#4f46e5" /> : "Sign In"}
+                {isSubmitting ? (
+                  <Loader size={10} color="#4f46e5" />
+                ) : (
+                  "Sign In"
+                )}
               </button>
             </div>
           </form>
