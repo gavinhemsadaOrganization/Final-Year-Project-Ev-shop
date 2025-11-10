@@ -47,7 +47,7 @@ const App: React.FC = () => {
   const [isBecomeSellerModalOpen, setIsBecomeSellerModalOpen] = useState(false);
   const [isBecomFinancer, setIsBecomeFinancer] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  
+
   const { getUserID, logout, getRoles } = useAuth();
   const navigate = useNavigate();
 
@@ -75,27 +75,41 @@ const App: React.FC = () => {
     queryKey: queryKeys.userProfile(userID!),
     queryFn: () => buyerService.getUserProfile(userID!),
     enabled: !!userID,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   // Fetch notifications
-  const { 
-    data: notifications = [], 
-    isLoading: isNotifLoading, 
-    // isError: isNotifError 
+  const {
+    data: notifications = [],
+    isLoading: isNotifLoading,
+    // isError: isNotifError
   } = useQuery<Notification[]>({
     queryKey: queryKeys.notifications(userID!),
     queryFn: () => buyerService.getUserNotifications(userID!),
     enabled: !!userID,
+    staleTime: 10 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   // Fetch vehicles
-  const { 
-    data: vehicles = [], 
-    isLoading: isVehiclesLoading, 
-    // isError: isVehiclesError 
+  const {
+    data: vehicles = [],
+    isLoading: isVehiclesLoading,
+    // isError: isVehiclesError
   } = useQuery<Vehicle[]>({
     queryKey: queryKeys.evlist,
     queryFn: () => buyerService.getEVList(),
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const filteredVehicles = useMemo(() => {
@@ -134,11 +148,15 @@ const App: React.FC = () => {
     setActiveTab(tab);
   }, []);
 
-  const handleLogout = useCallback(() => {
-    if (logout) {
-      logout();
+  const handleLogout = useCallback(async () => {
+    try {
+      if (logout) {
+        await logout();
+      }
+      navigate("/auth/login");
+    } catch (error) {
+      console.log(error);
     }
-    navigate("/auth/login");
   }, [logout, navigate]);
 
   const handleSearchTermChange = useCallback((term: string) => {
@@ -236,7 +254,10 @@ const App: React.FC = () => {
               </nav>
             )}
 
-            <div key={activeTab + userRole.join(',')} className="animate-fadeIn">
+            <div
+              key={activeTab + userRole.join(",")}
+              className="animate-fadeIn"
+            >
               <Suspense fallback={<PageLoader />}>{renderContent()}</Suspense>
             </div>
           </main>

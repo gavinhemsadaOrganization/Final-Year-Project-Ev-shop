@@ -84,6 +84,7 @@ const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
     },
   });
   const queryClient = useQueryClient();
+  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -113,7 +114,7 @@ const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
     },
   });
 
-  // ✅ Submit form data
+  // Submit form data
   const onSubmit = async (data: ProfileFormData) => {
     if (!userID) throw new Error("User ID not found");
 
@@ -132,7 +133,7 @@ const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
     setIsChanged(false);
   };
 
-  // ✅ Watch any form value change to enable button
+  // Watch any form value change to enable button
   useEffect(() => {
     const subscription = watch(() => setIsChanged(true));
     return () => subscription.unsubscribe();
@@ -156,6 +157,7 @@ const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
                 <img
                   src={imagePreview || `${apiURL}${user.profile_image}`}
                   alt="User Avatar"
+                  loading="lazy"
                   className="h-full w-full object-cover rounded-full"
                 />
               ) : (

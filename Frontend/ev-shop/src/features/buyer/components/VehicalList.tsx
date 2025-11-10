@@ -1,5 +1,6 @@
 import { VehicleCard } from "@/components/EvModelCard";
 import type { Vehicle } from "@/types";
+import React from "react";
 /**
  * Props for the VehicleList component.
  */
@@ -12,7 +13,8 @@ type VehicleListProps = {
  * A component that displays a list of vehicles in a responsive grid.
  * It shows a message if no vehicles are available.
  */
-export const VehicleList: React.FC<VehicleListProps> = ({ vehicles }) => (
+export const VehicleList: React.FC<VehicleListProps> = React.memo(({ vehicles }) => {
+  return (
   <div>
     {/* Main title for the vehicle list section. */}
     <h1 className="text-3xl font-bold mb-8 dark:text-white">
@@ -45,4 +47,5 @@ export const VehicleList: React.FC<VehicleListProps> = ({ vehicles }) => (
       </div>
     )}
   </div>
-);
+  )
+});

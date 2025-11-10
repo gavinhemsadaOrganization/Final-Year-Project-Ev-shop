@@ -5,6 +5,7 @@ import { HeartIcon } from "@/assets/icons/icons";
 import type { Vehicle } from "@/types";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, Pagination } from "swiper/modules";
+import React ,{useMemo} from "react";
 
 const apiURL = import.meta.env.VITE_API_URL;
 
@@ -32,152 +33,174 @@ interface EvModelCardProps {
  *
  * @param {EvModelCardProps} props - The properties for the model card.
  */
-export const EvModelCard = ({
-  name,
-  image,
-  logo,
-  price,
-  specs,
-  range,
-  acceleration,
-  showLink = true,
-  linkTo, // <-- Destructured linkTo prop
-}: EvModelCardProps) => {
-  // Generate a fallback URL slug if no `linkTo` prop is provided
-  const modelSlug = name.toLowerCase().replace(/ /g, "-");
+export const EvModelCard = React.memo(
+  ({
+    name,
+    image,
+    logo,
+    price,
+    specs,
+    range,
+    acceleration,
+    showLink = true,
+    linkTo, // <-- Destructured linkTo prop
+  }: EvModelCardProps) => {
+    // Generate a fallback URL slug if no `linkTo` prop is provided
+    const modelSlug = name.toLowerCase().replace(/ /g, "-");
 
-  // Use the provided `linkTo` prop if it exists, otherwise use the generated slug
-  const destination = linkTo ? linkTo : `/models/${modelSlug}`;
+    // Use the provided `linkTo` prop if it exists, otherwise use the generated slug
+    const destination = linkTo ? linkTo : `/models/${modelSlug}`;
 
-  return (
-    <motion.div
-      className="bg-slate-800 rounded-lg overflow-hidden shadow-lg group"
-      variants={itemVariants} // Assumes itemVariants is imported
-      whileHover={cardHover} // Assumes cardHover is imported
-    >
-      {/* --- Image Section (Required) --- */}
-      <div className="relative">
-        <img src={image} alt={name} className="w-full h-64 object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+    return (
+      <motion.div
+        className="bg-slate-800 rounded-lg overflow-hidden shadow-lg group"
+        variants={itemVariants} // Assumes itemVariants is imported
+        whileHover={cardHover} // Assumes cardHover is imported
+      >
+        {/* --- Image Section (Required) --- */}
+        <div className="relative">
+          <img src={image} alt={name} className="w-full h-64 object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
 
-        {logo && (
-          <img
-            src={logo}
-            alt={`${name} logo`}
-            className="absolute top-4 right-4 h-12 w-auto"
-          />
-        )}
+          {logo && (
+            <img
+              src={logo}
+              alt={`${name} logo`}
+              loading="lazy"
+              className="absolute top-4 right-4 h-12 w-auto"
+            />
+          )}
 
-        <h2 className="absolute bottom-4 left-4 text-3xl font-bold">{name}</h2>
-      </div>
+          <h2 className="absolute bottom-4 left-4 text-3xl font-bold">
+            {name}
+          </h2>
+        </div>
 
-      {/* --- Content & Specs Section (All Optional) --- */}
-      <div className="p-6">
-        {price && (
-          <p className="text-lg text-blue-400 font-semibold mb-4">{price}</p>
-        )}
+        {/* --- Content & Specs Section (All Optional) --- */}
+        <div className="p-6">
+          {price && (
+            <p className="text-lg text-blue-400 font-semibold mb-4">{price}</p>
+          )}
 
-        {specs && <p className="text-gray-400 mb-4">{specs}</p>}
+          {specs && <p className="text-gray-400 mb-4">{specs}</p>}
 
-        {(range || acceleration) && (
-          <div className="flex justify-between text-gray-300 mb-6">
-            {range && (
-              <div className="text-center">
-                <p className="font-bold text-xl">{range}</p>
-                <p className="text-sm text-gray-500">Range</p>
-              </div>
-            )}
+          {(range || acceleration) && (
+            <div className="flex justify-between text-gray-300 mb-6">
+              {range && (
+                <div className="text-center">
+                  <p className="font-bold text-xl">{range}</p>
+                  <p className="text-sm text-gray-500">Range</p>
+                </div>
+              )}
 
-            {acceleration && (
-              <div className="text-center">
-                <p className="font-bold text-xl">{acceleration}</p>
-                <p className="text-sm text-gray-500">0-100 km/h</p>
-              </div>
-            )}
-          </div>
-        )}
+              {acceleration && (
+                <div className="text-center">
+                  <p className="font-bold text-xl">{acceleration}</p>
+                  <p className="text-sm text-gray-500">0-100 km/h</p>
+                </div>
+              )}
+            </div>
+          )}
 
-        {/* --- Conditionally Rendered Link Button --- */}
-        {showLink && (
-          <Link
-            to={destination} // <-- Uses the dynamic destination URL
-            className="block w-full text-center bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-300 transform group-hover:scale-105"
-          >
-            Learn More
-          </Link>
-        )}
-      </div>
-    </motion.div>
-  );
-};
+          {/* --- Conditionally Rendered Link Button --- */}
+          {showLink && (
+            <Link
+              to={destination} // <-- Uses the dynamic destination URL
+              className="block w-full text-center bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-300 transform group-hover:scale-105"
+            >
+              Learn More
+            </Link>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
+);
 
 export const VehicleCard: React.FC<{
   vehicle: Vehicle;
   className?: string;
   style?: React.CSSProperties;
-}> = ({ vehicle, className, style }) => (
-  <div
-    className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700 ${className}`}
-    style={style}
-  >
-    {/* 🔹 Image Slider */}
-    <Swiper
-      modules={[Navigation, Autoplay, Pagination]}
-      navigation
-      pagination={{ clickable: true }}
-      autoplay={{ delay: 3000, disableOnInteraction: false }}
-      loop
-      className="h-56 w-full"
+}> = React.memo(({ vehicle, className, style }) => {
+  const { model_id, images } = vehicle;
+  // Memoize image URLs to prevent recreation on every render
+    const imageUrls = useMemo(
+      () => images?.map((img) => `${apiURL}${img}`) || [],
+      [images]
+    );
+
+    // Memoize image slides
+    const imageSlides = useMemo(
+      () =>
+        imageUrls.map((url, i) => (
+          <SwiperSlide key={url}>
+            <img
+              className="h-56 w-full object-cover"
+              src={url}
+              alt={`${model_id.model_name} image ${i + 1}`}
+              loading="lazy"
+              decoding="async"
+            />
+          </SwiperSlide>
+        )),
+      [imageUrls, model_id.model_name]
+    );
+  return (
+    <div
+      className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700 ${className}`}
+      style={style}
     >
-      {vehicle.images?.map((img, i) => (
-        <SwiperSlide key={i}>
-          <img
-            className="h-56 w-full object-cover"
-            src={`${apiURL}${img}`}
-            alt={`${vehicle.model_id.model_name} image ${i + 1}`}
-          />
-        </SwiperSlide>
-      ))}
-    </Swiper>
+      {/* 🔹 Image Slider */}
+      <Swiper
+        modules={[Navigation, Autoplay, Pagination]}
+        navigation
+        pagination={{ clickable: true }}
+        autoplay={{ delay: 3000, disableOnInteraction: false }}
+        loop
+        className="h-56 w-full"
+      >
+       {imageSlides}
+      </Swiper>
 
-    {/* 🔹 Card Body */}
-    <div className="p-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="uppercase tracking-wide text-sm text-blue-600 font-bold dark:text-blue-400">
-            {vehicle.model_id.model_name}
+      {/* 🔹 Card Body */}
+      <div className="p-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="uppercase tracking-wide text-sm text-blue-600 font-bold dark:text-blue-400">
+              {vehicle.model_id.model_name}
+            </div>
+            <a
+              href="#"
+              className="block mt-1 text-xl leading-tight font-semibold text-gray-900 hover:underline dark:text-white"
+            >
+              {vehicle.name}
+            </a>
           </div>
-          <a
-            href="#"
-            className="block mt-1 text-xl leading-tight font-semibold text-gray-900 hover:underline dark:text-white"
-          >
-            {vehicle.name}
-          </a>
+          <button className="text-gray-400 hover:text-red-500 p-2 -mr-2 -mt-2 transition-colors dark:text-gray-500 dark:hover:text-red-400">
+            <HeartIcon className="h-6 w-6" />
+          </button>
         </div>
-        <button className="text-gray-400 hover:text-red-500 p-2 -mr-2 -mt-2 transition-colors dark:text-gray-500 dark:hover:text-red-400">
-          <HeartIcon className="h-6 w-6" />
-        </button>
-      </div>
 
-      <p className="mt-2 text-2xl font-light text-gray-800 dark:text-gray-200">
-        {vehicle.price}
-      </p>
+        <p className="mt-2 text-2xl font-light text-gray-800 dark:text-gray-200">
+          {vehicle.price}
+        </p>
 
-      <div className="mt-4 flex justify-between text-sm text-gray-600 dark:text-gray-400">
-        <span>
-          <strong>Range:</strong> {vehicle.model_id.range_km}
-        </span>
-        <span>
-          <strong className="dark:text-gray-300">Top Speed:</strong>{" "}
-          {vehicle.topSpeed}
-        </span>
-      </div>
+        <div className="mt-4 flex justify-between text-sm text-gray-600 dark:text-gray-400">
+          <span>
+            <strong>Range:</strong> {vehicle.model_id.range_km}
+          </span>
+          <span>
+            <strong className="dark:text-gray-300">Top Speed:</strong>{" "}
+            {vehicle.topSpeed}
+          </span>
+        </div>
 
-      <div className="mt-6">
-        <button className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600">
-          Book a Test Drive
-        </button>
+        <div className="mt-6">
+          <button className="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600">
+            Book a Test Drive
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+});

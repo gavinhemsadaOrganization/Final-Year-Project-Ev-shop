@@ -8,6 +8,7 @@ import {
   ResetPasswordDTO,
 } from "./auth.dto";
 import { initializePassport } from "./passport";
+import { promisify } from "util";
 import Jwt from "jsonwebtoken";
 import logger from "../../shared/utils/logger";
 
@@ -397,14 +398,14 @@ export function authController(authService: IAuthService): IAuthController {
         const lastlogin = new Date();
         const userid = req.session.userId as string;
         await authService.updateLastLogin(userid, lastlogin);
-        req.session.destroy((err) => {
-          if (err) {
-            logger.error(`Error destroying session during logout: ${err}`);
-            return res.status(500).json({ error: "Logout failed" });
-          }
-          logger.info(`User logged out successfully: ${userid}`);
-          res.clearCookie("connect.sid"); // Clear session cookie
-        });
+        // Convert session.destroy into a Promise-based function
+        const destroySession = promisify(req.session.destroy).bind(req.session);
+        await destroySession();
+
+        res.clearCookie("connect.sid"); // Clear cookie safely
+        logger.info(`User logged out successfully: ${userid}`);
+
+        return res.status(200).json({ message: "Logout successful" });
         return res.status(200).json({ message: "Logout successful" });
       } catch (error) {
         logger.error(`Error logging out user: ${error}`);
@@ -439,7 +440,9 @@ export function authController(authService: IAuthService): IAuthController {
         req.session.jwt = newAccessToken;
         req.session.save();
 
-        return res.status(200).json({ message: "Token refreshed", success: true });
+        return res
+          .status(200)
+          .json({ message: "Token refreshed", success: true });
       } catch (error: any) {
         return res
           .status(403)

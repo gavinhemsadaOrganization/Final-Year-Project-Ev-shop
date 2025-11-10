@@ -107,7 +107,7 @@ export const authService = {
   },
 
   logOut: async () => {
-    const response = await axiosPrivate.post(`/user/logout`);
+    const response = await axiosPrivate.post(`/auth/logout`);
     return response.data;
   },
 };
