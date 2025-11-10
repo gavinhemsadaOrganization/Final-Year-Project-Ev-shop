@@ -1,4 +1,11 @@
-import React, { useState, useEffect, lazy, Suspense, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  lazy,
+  Suspense,
+  useCallback,
+  useMemo,
+} from "react";
 import "../style/buyer.css";
 import { useNavigate } from "react-router-dom";
 import { CloseIcon, ChatBubbleIcon } from "@/assets/icons/icons";
@@ -26,23 +33,26 @@ const CommunityPage = lazy(() => import("./ComunityPage"));
 import { PageLoader } from "@/components/Loader";
 import { buyerService } from "../buyerService";
 
-import type { UserRole, Notification, ActiveTab } from "@/types";
+import type { Notification, ActiveTab } from "@/types";
+
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/config/queryKeys";
 import { useAuth } from "@/context/AuthContext";
 
 const App: React.FC = () => {
-  const [userRole, setUserRole] = useState<UserRole[]>([]);
-  const [user, setUser] = useState<User_Profile | null>();
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [isBecomeSellerModalOpen, setIsBecomeSellerModalOpen] = useState(false);
   const [isBecomFinancer, setIsBecomeFinancer] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  
   const { getUserID, logout, getRoles } = useAuth();
   const navigate = useNavigate();
+
+  const userID = getUserID();
+  const userRole = useMemo(() => getRoles() || [], [getRoles]);
 
   useEffect(() => {
     const handlePageLoad = () => setLoading(false);
@@ -56,36 +66,37 @@ const App: React.FC = () => {
     return () => window.removeEventListener("load", handlePageLoad);
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const roles = getRoles();
-        const userID = getUserID()!;
-        console.log(roles);
-        if (userID) {
-          const [user, notifications, vehicles] = await Promise.all([
-            buyerService.getUserProfile(userID),
-            buyerService.getUserNotifications(userID),
-            buyerService.getEVList(),
-          ]);
-          setUser(user);
-          setNotifications(notifications);
-          setVehicles(vehicles);
-        }
+  // Fetch user profile
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    // isError: isUserError,
+  } = useQuery<User_Profile>({
+    queryKey: queryKeys.userProfile(userID!),
+    queryFn: () => buyerService.getUserProfile(userID!),
+    enabled: !!userID,
+  });
 
-        if (roles && Array.isArray(roles)) {
-          setUserRole(roles);
-        }
-      } catch (error) {
-        console.error("Failed to load user or roles:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch notifications
+  const { 
+    data: notifications = [], 
+    isLoading: isNotifLoading, 
+    // isError: isNotifError 
+  } = useQuery<Notification[]>({
+    queryKey: queryKeys.notifications(userID!),
+    queryFn: () => buyerService.getUserNotifications(userID!),
+    enabled: !!userID,
+  });
 
-    fetchData();
-  }, []);
+  // Fetch vehicles
+  const { 
+    data: vehicles = [], 
+    isLoading: isVehiclesLoading, 
+    // isError: isVehiclesError 
+  } = useQuery<Vehicle[]>({
+    queryKey: queryKeys.evlist,
+    queryFn: () => buyerService.getEVList(),
+  });
 
   const filteredVehicles = useMemo(() => {
     return vehicles.filter((vehicle) =>
@@ -119,12 +130,10 @@ const App: React.FC = () => {
     setIsSidebarExpanded((prev) => !prev);
   }, []);
 
-  // Memoize setActiveTab to prevent Header re-renders
   const handleSetActiveTab = useCallback((tab: ActiveTab) => {
     setActiveTab(tab);
   }, []);
 
-  // Memoize handleLogout
   const handleLogout = useCallback(() => {
     if (logout) {
       logout();
@@ -132,12 +141,10 @@ const App: React.FC = () => {
     navigate("/auth/login");
   }, [logout, navigate]);
 
-  // Memoize setSearchTerm callback
   const handleSearchTermChange = useCallback((term: string) => {
     setSearchTerm(term);
   }, []);
 
-  // Memoize handleSidebarTabClick
   const handleSidebarTabClick = useCallback((tab: ActiveTab) => {
     if (tab === "profile") {
       return;
@@ -145,8 +152,7 @@ const App: React.FC = () => {
     setActiveTab(tab);
   }, []);
 
-  // Move loading check AFTER all hooks
-  if (loading) {
+  if (loading || isUserLoading || isNotifLoading || isVehiclesLoading) {
     return <PageLoader />;
   }
 
@@ -193,7 +199,6 @@ const App: React.FC = () => {
         />
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Memoized callbacks prevent unnecessary re-renders */}
           <Header
             searchTerm={searchTerm}
             setSearchTerm={handleSearchTermChange}
@@ -231,7 +236,7 @@ const App: React.FC = () => {
               </nav>
             )}
 
-            <div key={activeTab + userRole} className="animate-fadeIn">
+            <div key={activeTab + userRole.join(',')} className="animate-fadeIn">
               <Suspense fallback={<PageLoader />}>{renderContent()}</Suspense>
             </div>
           </main>
@@ -242,6 +247,7 @@ const App: React.FC = () => {
         <button
           onClick={toggleChat}
           className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900"
+          aria-label={isChatOpen ? "Close chat" : "Open chat"}
         >
           {isChatOpen ? (
             <CloseIcon className="h-6 w-6" />

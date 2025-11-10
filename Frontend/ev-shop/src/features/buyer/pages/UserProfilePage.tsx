@@ -7,6 +7,8 @@ import { Loader } from "@/components/Loader";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/config/queryKeys";
 
 const apiURL = import.meta.env.VITE_API_URL;
 
@@ -53,16 +55,11 @@ const profileSchema = yup.object({
 
 const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
   const [email] = useState(user.email);
-  const [localUser, setLocalUser] = useState(user);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isChanged, setIsChanged] = useState(false);
   const { getUserID } = useAuth();
-
-  useEffect(() => {
-    setLocalUser(user);
-  }, [user]);
-
+  const userID = getUserID();
   const {
     register,
     handleSubmit,
@@ -72,21 +69,21 @@ const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
     // 👇 Explicitly cast resolver to any to avoid missing type errors
     resolver: yupResolver(profileSchema) as any,
     defaultValues: {
-      name: localUser?.name || "",
-      phone: localUser?.phone || "",
-      date_of_birth: localUser?.date_of_birth
-        ? localUser.date_of_birth.split("T")[0]
+      name: user?.name || "",
+      phone: user?.phone || "",
+      date_of_birth: user?.date_of_birth
+        ? user.date_of_birth.split("T")[0]
         : "",
       address: {
-        street: localUser.address?.street || "",
-        city: localUser.address?.city || "",
-        state: localUser.address?.state || "",
-        zipCode: localUser.address?.zipCode || "",
-        country: localUser.address?.country || "",
+        street: user.address?.street || "",
+        city: user.address?.city || "",
+        state: user.address?.state || "",
+        zipCode: user.address?.zipCode || "",
+        country: user.address?.country || "",
       },
     },
   });
-
+  const queryClient = useQueryClient();
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -102,41 +99,37 @@ const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
     };
   }, [imagePreview]);
 
+  const updateUserMutation = useMutation({
+    mutationFn: (formData: FormData) =>
+      buyerService.updateUserProfile(userID!, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.userProfile(userID!),
+      });
+      alert("Profile updated successfully!");
+    },
+    onError: () => {
+      alert("Failed to update profile. Please try again.");
+    },
+  });
+
   // ✅ Submit form data
   const onSubmit = async (data: ProfileFormData) => {
-    try {
-      const userID = getUserID();
-      if (!userID) throw new Error("User ID not found");
+    if (!userID) throw new Error("User ID not found");
 
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("phone", data.phone);
-      formData.append("date_of_birth", data.date_of_birth);
-      Object.entries(data.address).forEach(([key, value]) => {
-        formData.append(`address[${key}]`, value);
-      });
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("phone", data.phone);
+    formData.append("date_of_birth", data.date_of_birth);
+    Object.entries(data.address).forEach(([key, value]) => {
+      formData.append(`address[${key}]`, value);
+    });
 
-      if (selectedFile) {
-        formData.append("profile_image", selectedFile);
-      }
-
-      await buyerService.updateUserProfile(userID, formData);
-      setLocalUser((prev) => ({
-        ...prev,
-        name: data.name,
-        phone: data.phone,
-        date_of_birth: data.date_of_birth,
-        address: data.address,
-        profile_image: selectedFile
-          ? URL.createObjectURL(selectedFile)
-          : prev.profile_image,
-      }));
-      alert("Profile updated successfully!");
-      setIsChanged(false);
-    } catch (error) {
-      console.error("Profile update failed:", error);
-      alert("Failed to update profile. Please try again.");
+    if (selectedFile) {
+      formData.append("profile_image", selectedFile);
     }
+    updateUserMutation.mutate(formData);
+    setIsChanged(false);
   };
 
   // ✅ Watch any form value change to enable button
@@ -159,16 +152,16 @@ const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
                 document.getElementById("profile-image-upload")?.click()
               }
             >
-              {imagePreview || localUser.profile_image ? (
+              {imagePreview || user.profile_image ? (
                 <img
-                  src={imagePreview || `${apiURL}${localUser.profile_image}`}
+                  src={imagePreview || `${apiURL}${user.profile_image}`}
                   alt="User Avatar"
                   className="h-full w-full object-cover rounded-full"
                 />
               ) : (
                 <div className="h-24 w-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-400 font-semibold text-4xl">
-                  {localUser.name
-                    ? localUser.name
+                  {user.name
+                    ? user.name
                         .split(" ")
                         .map((n: string) => n[0]?.toUpperCase())
                         .slice(0, 2)
@@ -192,7 +185,7 @@ const UserProfile: React.FC<{ user: User }> = React.memo(({ user }) => {
 
           <div>
             <h2 className="text-2xl font-semibold dark:text-white">
-              {localUser.name}
+              {user.name}
             </h2>
             <p className="text-gray-500 dark:text-gray-400">{email}</p>
           </div>
