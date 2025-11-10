@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  lazy,
-  Suspense,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, lazy, Suspense, useCallback, useMemo } from "react";
 import "../style/buyer.css";
 import { useNavigate } from "react-router-dom";
 import { CloseIcon, ChatBubbleIcon } from "@/assets/icons/icons";
@@ -13,7 +6,7 @@ import { Chatbot } from "../components/ChatBot";
 import { Sidebar } from "../components/SideBar";
 import { Header } from "../components/Header";
 import { VehicleList } from "../components/VehicalList";
-import type { User_Profile, Vehicle } from "@/types";
+import type { User_Profile, Vehicle, Notification, ActiveTab } from "@/types";
 
 const OrderHistory = lazy(() => import("./OrderHistoryPage"));
 const UserProfile = lazy(() => import("./UserProfilePage"));
@@ -25,16 +18,11 @@ const MyReviewsPage = lazy(() => import("./MyReviewsPage"));
 const TestDrivesPage = lazy(() => import("./TestDrivePage"));
 const FinancingPage = lazy(() => import("./FinancingPage"));
 const BecomeSellerPage = lazy(() => import("./becomeaSellerPage"));
-const RegisterFinancialInstitutionPage = lazy(
-  () => import("./becomeaFinancingPage")
-);
+const RegisterFinancialInstitutionPage = lazy(() => import("./becomeaFinancingPage"));
 const CommunityPage = lazy(() => import("./ComunityPage"));
 
 import { PageLoader } from "@/components/Loader";
 import { buyerService } from "../buyerService";
-
-import type { Notification, ActiveTab } from "@/types";
-
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/config/queryKeys";
 import { useAuth } from "@/context/AuthContext";
@@ -50,44 +38,32 @@ const App: React.FC = () => {
 
   const { getUserID, logout, getRoles } = useAuth();
   const navigate = useNavigate();
-
   const userID = getUserID();
   const userRole = useMemo(() => getRoles() || [], [getRoles]);
 
+  // Page load state
   useEffect(() => {
-    const handlePageLoad = () => setLoading(false);
-
-    if (document.readyState === "complete") {
-      setLoading(false);
-    } else {
-      window.addEventListener("load", handlePageLoad);
+    if (document.readyState === "complete") setLoading(false);
+    else {
+      const handleLoad = () => setLoading(false);
+      window.addEventListener("load", handleLoad);
+      return () => window.removeEventListener("load", handleLoad);
     }
-
-    return () => window.removeEventListener("load", handlePageLoad);
   }, []);
 
   // Fetch user profile
-  const {
-    data: user,
-    isLoading: isUserLoading,
-    // isError: isUserError,
-  } = useQuery<User_Profile>({
+  const { data: user, isLoading: isUserLoading } = useQuery<User_Profile>({
     queryKey: queryKeys.userProfile(userID!),
     queryFn: () => buyerService.getUserProfile(userID!),
     enabled: !!userID,
     staleTime: 10 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
 
   // Fetch notifications
-  const {
-    data: notifications = [],
-    isLoading: isNotifLoading,
-    // isError: isNotifError
-  } = useQuery<Notification[]>({
+  const { data: notifications = [], isLoading: isNotifLoading } = useQuery<Notification[]>({
     queryKey: queryKeys.notifications(userID!),
     queryFn: () => buyerService.getUserNotifications(userID!),
     enabled: !!userID,
@@ -98,110 +74,55 @@ const App: React.FC = () => {
   });
 
   // Fetch vehicles
-  const {
-    data: vehicles = [],
-    isLoading: isVehiclesLoading,
-    // isError: isVehiclesError
-  } = useQuery<Vehicle[]>({
+  const { data: vehicles = [], isLoading: isVehiclesLoading } = useQuery<Vehicle[]>({
     queryKey: queryKeys.evlist,
     queryFn: () => buyerService.getEVList(),
     staleTime: 10 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
 
-  const filteredVehicles = useMemo(() => {
-    return vehicles.filter((vehicle) =>
-      vehicle.model_id.model_name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    );
-  }, [vehicles, searchTerm]);
+  const filteredVehicles = useMemo(
+    () => vehicles.filter(vehicle => vehicle.model_id.model_name.toLowerCase().includes(searchTerm.toLowerCase())),
+    [vehicles, searchTerm]
+  );
 
-  const toggleChat = useCallback(() => {
-    setIsChatOpen((prev) => !prev);
+  // Tabs with memoized components
+  const tabs = useMemo(() => ({
+    dashboard: <VehicleList vehicles={filteredVehicles} />,
+    profile: <UserProfile user={user!} />,
+    orders: <OrderHistory />,
+    services: <Services />,
+    financing: <FinancingPage />,
+    saved: <SavedVehicles />,
+    notification: <NotificationPage notifications={notifications} />,
+    cart: <CartPage />,
+    testDrives: <TestDrivesPage />,
+    reviews: <MyReviewsPage />,
+    community: <CommunityPage />,
+  }), [filteredVehicles, user, notifications]);
+
+  // Callbacks
+  const toggleChat = useCallback(() => setIsChatOpen(prev => !prev), []);
+  const setSellermodeOpen = useCallback(() => setIsBecomeSellerModalOpen(prev => !prev), []);
+  const setFinancerModeOpen = useCallback(() => setIsBecomeFinancer(prev => !prev), []);
+  const togelExpan = useCallback(() => setIsSidebarExpanded(prev => !prev), []);
+  const handleSetActiveTab = useCallback((tab: ActiveTab) => setActiveTab(tab), []);
+  const handleSearchTermChange = useCallback((term: string) => setSearchTerm(term), []);
+  const handleSidebarTabClick = useCallback((tab: ActiveTab) => {
+    if (tab !== "profile") setActiveTab(tab);
   }, []);
-
-  const becomeSelleClick = useCallback(() => {
-    setIsBecomeSellerModalOpen(false);
-  }, []);
-
-  const becomeFinancerClick = useCallback(() => {
-    setIsBecomeFinancer(false);
-  }, []);
-
-  const setSellermodeOpen = useCallback(() => {
-    setIsBecomeSellerModalOpen((prev) => !prev);
-  }, []);
-
-  const setFinancerModeOpen = useCallback(() => {
-    setIsBecomeFinancer((prev) => !prev);
-  }, []);
-
-  const togelExpan = useCallback(() => {
-    setIsSidebarExpanded((prev) => !prev);
-  }, []);
-
-  const handleSetActiveTab = useCallback((tab: ActiveTab) => {
-    setActiveTab(tab);
-  }, []);
-
   const handleLogout = useCallback(async () => {
     try {
-      if (logout) {
-        await logout();
-      }
+      if (logout) await logout();
       navigate("/auth/login");
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.error(err);
     }
   }, [logout, navigate]);
 
-  const handleSearchTermChange = useCallback((term: string) => {
-    setSearchTerm(term);
-  }, []);
-
-  const handleSidebarTabClick = useCallback((tab: ActiveTab) => {
-    if (tab === "profile") {
-      return;
-    }
-    setActiveTab(tab);
-  }, []);
-
-  if (loading || isUserLoading || isNotifLoading || isVehiclesLoading) {
-    return <PageLoader />;
-  }
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return <VehicleList vehicles={filteredVehicles} />;
-      case "orders":
-        return <OrderHistory />;
-      case "profile":
-        return <UserProfile user={user!} />;
-      case "services":
-        return <Services />;
-      case "financing":
-        return <FinancingPage />;
-      case "saved":
-        return <SavedVehicles />;
-      case "notification":
-        return <NotificationPage notifications={notifications} />;
-      case "cart":
-        return <CartPage />;
-      case "test-drives":
-        return <TestDrivesPage />;
-      case "reviews":
-        return <MyReviewsPage />;
-      case "community":
-        return <CommunityPage />;
-      default:
-        return <VehicleList vehicles={filteredVehicles} />;
-    }
-  };
+  if (loading || isUserLoading || isNotifLoading || isVehiclesLoading) return <PageLoader />;
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -231,10 +152,7 @@ const App: React.FC = () => {
 
           <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-100 dark:bg-gray-900">
             {activeTab !== "dashboard" && userRole.includes("user") && (
-              <nav
-                className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn"
-                aria-label="Breadcrumb"
-              >
+              <nav className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn" aria-label="Breadcrumb">
                 <ol className="list-none p-0 inline-flex">
                   <li className="flex items-center">
                     <button
@@ -254,39 +172,32 @@ const App: React.FC = () => {
               </nav>
             )}
 
-            <div
-              key={activeTab + userRole.join(",")}
-              className="animate-fadeIn"
-            >
-              <Suspense fallback={<PageLoader />}>{renderContent()}</Suspense>
+            {/* Render tabs */}
+            <div className="animate-fadeIn">
+              {Object.entries(tabs).map(([key, component]) => (
+                <div key={key} style={{ display: key === activeTab ? "block" : "none" }}>
+                  <Suspense fallback={<PageLoader />}>{component}</Suspense>
+                </div>
+              ))}
             </div>
           </main>
         </div>
       </div>
 
+      {/* Chat Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={toggleChat}
           className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900"
           aria-label={isChatOpen ? "Close chat" : "Open chat"}
         >
-          {isChatOpen ? (
-            <CloseIcon className="h-6 w-6" />
-          ) : (
-            <ChatBubbleIcon className="h-6 w-6" />
-          )}
+          {isChatOpen ? <CloseIcon className="h-6 w-6" /> : <ChatBubbleIcon className="h-6 w-6" />}
         </button>
       </div>
 
       {isChatOpen && <Chatbot onClose={toggleChat} />}
-
-      {isBecomeSellerModalOpen && (
-        <BecomeSellerPage onClose={becomeSelleClick} />
-      )}
-
-      {isBecomFinancer && (
-        <RegisterFinancialInstitutionPage onClose={becomeFinancerClick} />
-      )}
+      {isBecomeSellerModalOpen && <BecomeSellerPage onClose={setSellermodeOpen} />}
+      {isBecomFinancer && <RegisterFinancialInstitutionPage onClose={setFinancerModeOpen} />}
     </>
   );
 };

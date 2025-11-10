@@ -8,20 +8,20 @@ import {
   KeyIcon,
   BanknoteIcon,
 } from "@/assets/icons/icons";
-import type { ActiveTab } from "@/types";
+import { BuyerActiveTabes, type ActiveTab } from "@/types";
 import { useTheme } from "@/context/ThemeContext";
 import { SunIcon, MoonIcon } from "@/assets/icons/icons";
 import React from "react";
 
 const links = [
-  { text: "Dashboard", icon: <CarIcon />, tab: "dashboard" },
-  { text: "My Orders", icon: <ShoppingCartIcon />, tab: "orders" },
-  { text: "Saved Vehicles", icon: <HeartIcon />, tab: "saved" },
-  { text: "Services", icon: <ServiceIcon />, tab: "services" },
-  { text: "Financing", icon: <BanknoteIcon />, tab: "financing" },
-  { text: "Test Drives", icon: <KeyIcon />, tab: "test-drives" },
-  { text: "My Reviews", icon: <ReviewsIcon />, tab: "reviews" },
-  { text: "Community", icon: <CommunityIcon />, tab: "community" },
+  { text: "Dashboard", icon: <CarIcon />, tab: BuyerActiveTabes.Dashboard },
+  { text: "My Orders", icon: <ShoppingCartIcon />, tab: BuyerActiveTabes.Orders },
+  { text: "Saved Vehicles", icon: <HeartIcon />, tab: BuyerActiveTabes.Saved },
+  { text: "Services", icon: <ServiceIcon />, tab: BuyerActiveTabes.Services },
+  { text: "Financing", icon: <BanknoteIcon />, tab: BuyerActiveTabes.Financing },
+  { text: "Test Drives", icon: <KeyIcon />, tab: BuyerActiveTabes.TestDrives },
+  { text: "My Reviews", icon: <ReviewsIcon />, tab: BuyerActiveTabes.Reviews },
+  { text: "Community", icon: <CommunityIcon />, tab: BuyerActiveTabes.Community },
 ];
 
 type SidebarProps = {
