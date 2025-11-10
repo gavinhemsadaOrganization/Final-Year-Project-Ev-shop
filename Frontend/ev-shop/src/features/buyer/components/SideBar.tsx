@@ -11,6 +11,18 @@ import {
 import type { ActiveTab } from "@/types";
 import { useTheme } from "@/context/ThemeContext";
 import { SunIcon, MoonIcon } from "@/assets/icons/icons";
+import React from "react";
+
+const links = [
+  { text: "Dashboard", icon: <CarIcon />, tab: "dashboard" },
+  { text: "My Orders", icon: <ShoppingCartIcon />, tab: "orders" },
+  { text: "Saved Vehicles", icon: <HeartIcon />, tab: "saved" },
+  { text: "Services", icon: <ServiceIcon />, tab: "services" },
+  { text: "Financing", icon: <BanknoteIcon />, tab: "financing" },
+  { text: "Test Drives", icon: <KeyIcon />, tab: "test-drives" },
+  { text: "My Reviews", icon: <ReviewsIcon />, tab: "reviews" },
+  { text: "Community", icon: <CommunityIcon />, tab: "community" },
+];
 
 type SidebarProps = {
   activeTab: ActiveTab;
@@ -67,63 +79,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Main navigation links */}
       <nav className="flex-1 px-2 md:px-4 py-6 space-y-2">
-        {/* ... (All your other SidebarLinks stay the same) ... */}
-        <SidebarLink
-          text="Dashboard"
-          icon={<CarIcon className="h-5 w-5" />}
-          active={activeTab === "dashboard"}
-          onClick={() => setActiveTab("dashboard")}
-          isExpanded={isExpanded}
-        />
-        <SidebarLink
-          text="My Orders"
-          icon={<ShoppingCartIcon className="h-5 w-5" />}
-          active={activeTab === "orders"}
-          onClick={() => setActiveTab("orders")}
-          isExpanded={isExpanded}
-        />
-        <SidebarLink
-          text="Saved Vehicles"
-          icon={<HeartIcon className="h-5 w-5" />}
-          active={activeTab === "saved"}
-          onClick={() => setActiveTab("saved")}
-          isExpanded={isExpanded}
-        />
-        <SidebarLink
-          text="Services"
-          icon={<ServiceIcon className="h-5 w-5" />}
-          active={activeTab === "services"}
-          onClick={() => setActiveTab("services")}
-          isExpanded={isExpanded}
-        />
-        <SidebarLink
-          text="Financing"
-          icon={<BanknoteIcon className="h-5 w-5" />}
-          active={activeTab === "financing"}
-          onClick={() => setActiveTab("financing")}
-          isExpanded={isExpanded}
-        />
-        <SidebarLink
-          text="Test Drives"
-          icon={<KeyIcon className="h-5 w-5" />}
-          active={activeTab === "test-drives"}
-          onClick={() => setActiveTab("test-drives")}
-          isExpanded={isExpanded}
-        />
-        <SidebarLink
-          text="My Reviews"
-          icon={<ReviewsIcon />}
-          active={activeTab === "reviews"}
-          onClick={() => setActiveTab("reviews")}
-          isExpanded={isExpanded}
-        />
-        <SidebarLink
-          text="Community"
-          icon={<CommunityIcon className="h-5 w-5" />} // Use the new CommunityIcon
-          active={activeTab === "community"}
-          onClick={() => setActiveTab("community")}
-          isExpanded={isExpanded}
-        />
+        {links.map(({ text, icon, tab }) => (
+          <SidebarLink
+            key={tab}
+            text={text}
+            icon={React.cloneElement(icon, { className: "h-5 w-5" })}
+            active={activeTab === tab}
+            onClick={() => setActiveTab(tab as ActiveTab)}
+            isExpanded={isExpanded}
+          />
+        ))}
       </nav>
 
       {/* Sidebar Footer section */}
@@ -160,13 +125,13 @@ type SidebarLinkProps = {
   isExpanded: boolean;
 };
 
-const SidebarLink: React.FC<SidebarLinkProps> = ({
+const SidebarLink = React.memo(({
   text,
   icon,
   active,
   onClick,
   isExpanded,
-}) => (
+}: SidebarLinkProps) => (
   <a
     href="#"
     onClick={(e) => {
@@ -216,4 +181,4 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
       </span>
     )}
   </a>
-);
+));

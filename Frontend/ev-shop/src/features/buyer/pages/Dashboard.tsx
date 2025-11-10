@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense, useCallback } from "react";
+import React, { useState, useEffect, lazy, Suspense, useCallback, useMemo } from "react";
 import "../style/buyer.css";
 import { useNavigate } from "react-router-dom";
 import { CloseIcon, ChatBubbleIcon } from "@/assets/icons/icons";
@@ -87,7 +87,7 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
-  const filteredVehicles = React.useMemo(() => {
+  const filteredVehicles = useMemo(() => {
     return vehicles.filter((vehicle) =>
       vehicle.model_id.model_name
         .toLowerCase()
@@ -100,15 +100,56 @@ const App: React.FC = () => {
   }, []);
 
   const becomeSelleClick = useCallback(() => {
-    setIsBecomeSellerModalOpen(true);
+    setIsBecomeSellerModalOpen(false);
   }, []);
 
   const becomeFinancerClick = useCallback(() => {
-    setIsBecomeFinancer(true);
+    setIsBecomeFinancer(false);
   }, []);
+
+  const setSellermodeOpen = useCallback(() => {
+    setIsBecomeSellerModalOpen((prev) => !prev);
+  }, []);
+
+  const setFinancerModeOpen = useCallback(() => {
+    setIsBecomeFinancer((prev) => !prev);
+  }, []);
+
+  const togelExpan = useCallback(() => {
+    setIsSidebarExpanded((prev) => !prev);
+  }, []);
+
+  // Memoize setActiveTab to prevent Header re-renders
+  const handleSetActiveTab = useCallback((tab: ActiveTab) => {
+    setActiveTab(tab);
+  }, []);
+
+  // Memoize handleLogout
+  const handleLogout = useCallback(() => {
+    if (logout) {
+      logout();
+    }
+    navigate("/auth/login");
+  }, [logout, navigate]);
+
+  // Memoize setSearchTerm callback
+  const handleSearchTermChange = useCallback((term: string) => {
+    setSearchTerm(term);
+  }, []);
+
+  // Memoize handleSidebarTabClick
+  const handleSidebarTabClick = useCallback((tab: ActiveTab) => {
+    if (tab === "profile") {
+      return;
+    }
+    setActiveTab(tab);
+  }, []);
+
+  // Move loading check AFTER all hooks
   if (loading) {
     return <PageLoader />;
   }
+
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
@@ -138,53 +179,34 @@ const App: React.FC = () => {
     }
   };
 
-  // 1. Helper function to capitalize tab names for breadcrumbs
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
-  // 2. Wrapper function to "disable" profile link from sidebar
-  const handleSidebarTabClick = (tab: ActiveTab) => {
-    if (tab === "profile") {
-      // Do nothing if the sidebar tries to set the tab to "profile"
-      return;
-    }
-    setActiveTab(tab);
-  };
-
-  const handleLogout = () => {
-    if (logout) {
-      logout();
-    }
-    navigate("/auth/login"); // Redirect to login or home page
-  };
 
   return (
     <>
-      {/* Removed the inline <style> block that was forcing a light background */}
       <div className="flex h-screen bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
         <Sidebar
           activeTab={activeTab}
           setActiveTab={handleSidebarTabClick}
           isExpanded={isSidebarExpanded}
-          onExpand={() => setIsSidebarExpanded(true)}
-          onCollapse={() => setIsSidebarExpanded(false)}
+          onExpand={togelExpan}
+          onCollapse={togelExpan}
         />
 
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Memoized callbacks prevent unnecessary re-renders */}
           <Header
             searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
+            setSearchTerm={handleSearchTermChange}
             userRole={userRole}
             user={user}
             notifications={notifications}
             onLogout={handleLogout}
-            setActiveTab={setActiveTab}
-            onBecomeSellerClick={() => setIsBecomeSellerModalOpen(true)}
-            onBecomeFinancerClick={() => setIsBecomeFinancer(true)}
+            setActiveTab={handleSetActiveTab}
+            onBecomeSellerClick={setSellermodeOpen}
+            onBecomeFinancerClick={setFinancerModeOpen}
           />
 
           <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-100 dark:bg-gray-900">
-            {/* --- NEW --- */}
-            {/* 3. Added Breadcrumb Navigation */}
             {activeTab !== "dashboard" && userRole.includes("user") && (
               <nav
                 className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn"
@@ -201,14 +223,13 @@ const App: React.FC = () => {
                   </li>
                   <li className="flex items-center">
                     <span className="mx-2 dark:text-gray-500">/</span>
-                    <span className="text-gray-700 font-semibold">
+                    <span className="text-gray-700 font-semibold dark:text-gray-300">
                       {capitalize(activeTab)}
                     </span>
                   </li>
                 </ol>
               </nav>
             )}
-            {/* --- END NEW --- */}
 
             <div key={activeTab + userRole} className="animate-fadeIn">
               <Suspense fallback={<PageLoader />}>{renderContent()}</Suspense>
@@ -232,7 +253,6 @@ const App: React.FC = () => {
 
       {isChatOpen && <Chatbot onClose={toggleChat} />}
 
-      {/* --- NEW: Become a Seller Modal --- */}
       {isBecomeSellerModalOpen && (
         <BecomeSellerPage onClose={becomeSelleClick} />
       )}

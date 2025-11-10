@@ -6,7 +6,10 @@ import { ProfileDropdown } from "./ProfileDropdown";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { PageLoader } from "@/components/Loader";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import RoleButton from "./RoleButton";
+import React from "react";
+
 
 type HeaderProps = {
   searchTerm: string;
@@ -20,7 +23,7 @@ type HeaderProps = {
   onBecomeFinancerClick: () => void;
 };
 
-export const Header: React.FC<HeaderProps> = ({
+export const Header = React.memo(({
   searchTerm,
   setSearchTerm,
   userRole,
@@ -30,25 +33,33 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   onBecomeSellerClick,
   onBecomeFinancerClick,
-}) => {
+}: HeaderProps) => {
   console.log(userRole);
   const { setActiveRole } = useAuth();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const switchRoleAndNavigate = async(role: UserRole, path: string) => {
-    setLoading(true);
-    try {
-      const result = await setActiveRole(role);
-      if(result){
-        navigate(path)
+  const switchRoleAndNavigate = useCallback(
+    async (role: UserRole, path: string) => {
+      setLoading(true);
+      try {
+        const result = await setActiveRole(role);
+        if (result) {
+          navigate(path);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [setActiveRole, navigate]
+  );
+
+  const newUser = userRole.includes("user") && !userRole.includes("seller") && !userRole.includes("finance");
+  const canBecomeSeller = userRole.includes("user") && !userRole.includes("seller");
+  const canBecomeFinancer = userRole.includes("user") && !userRole.includes("finance");
+
   if (loading) {
     return <PageLoader />;
   }
@@ -69,73 +80,43 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Actions */}
       <div className="flex items-center flex-shrink-0 space-x-3 ml-3">
         {/* Show "become" buttons only if user doesn't have that role */}
-        {userRole.includes("user") &&
-          !userRole.includes("seller") &&
-          !userRole.includes("finance") && (
+        { newUser && (
             <>
-              <button
+              <RoleButton
                 onClick={onBecomeSellerClick}
-                className="flex items-center gap-2 px-4 py-2 
-      bg-blue-600 text-white text-sm font-medium rounded-full 
-      hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
-      dark:bg-blue-500 dark:hover:bg-blue-400"
                 title="Become a Seller"
-              >
-                <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
-                <span className="hidden md:inline whitespace-nowrap">
-                  Become a Seller
-                </span>
-              </button>
-
-              <button
+                icon={<ArrowUpCircle className="h-4 w-4 flex-shrink-0" />}
+                label="Become a Seller"
+              />
+              <RoleButton
                 onClick={onBecomeFinancerClick}
-                className="flex items-center gap-2 px-4 py-2 
-      bg-blue-600 text-white text-sm font-medium rounded-full 
-      hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-sm
-      dark:bg-blue-500 dark:hover:bg-blue-400"
                 title="Become a Financial Contributor"
-              >
-                <ArrowUpCircle className="h-4 w-4 flex-shrink-0" />
-                <span className="hidden md:inline whitespace-nowrap">
-                  Become a Financial Contributor
-                </span>
-              </button>
+                icon={<ArrowUpCircle className="h-4 w-4 flex-shrink-0" />}
+                label="Become a Financial Contributor"
+              />
             </>
           )}
-        {userRole.includes("seller") && userRole.includes("user") && (
-          <button
+        {canBecomeSeller && (
+          <RoleButton
             onClick={async () =>
               switchRoleAndNavigate("seller", "/seller/dashboard")
             }
-            className="flex items-center gap-2 px-4 py-2 
-      bg-gray-200 text-gray-900 text-sm font-medium rounded-full 
-      hover:bg-gray-300 active:scale-95 transition-all duration-200 shadow-sm
-      dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
             title="Switch to Seller"
-          >
-            <SwitchIcon className="h-4 w-4 flex-shrink-0" />
-            <span className="hidden md:inline whitespace-nowrap">
-              Switch to Seller
-            </span>
-          </button>
+            icon={<SwitchIcon className="h-4 w-4 flex-shrink-0" />}
+            label="Switch to Seller"
+            color="bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          />
         )}
-
-        {userRole.includes("finance") && userRole.includes("user") && (
-          <button
+        {canBecomeFinancer && (
+          <RoleButton
             onClick={() =>
               switchRoleAndNavigate("finance", "/finance/dashboard")
             }
-            className="flex items-center gap-2 px-4 py-2 
-      bg-gray-200 text-gray-900 text-sm font-medium rounded-full 
-      hover:bg-gray-300 active:scale-95 transition-all duration-200 shadow-sm
-      dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
             title="Switch to Financial Contributor"
-          >
-            <SwitchIcon className="h-4 w-4 flex-shrink-0" />
-            <span className="hidden md:inline whitespace-nowrap">
-              Switch to Financial Contributor
-            </span>
-          </button>
+            icon={<SwitchIcon className="h-4 w-4 flex-shrink-0" />}
+            label="Switch to Financial Contributor"
+            color="bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          />
         )}
 
         {/* Visual separator */}
@@ -168,4 +149,4 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
     </header>
   );
-};
+});

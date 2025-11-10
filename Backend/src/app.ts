@@ -144,10 +144,20 @@ const apiLimiter = rateLimit({
   },
 });
 
+// Serve images from the uploads directory
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "../uploads"), {
+    setHeaders: (res, path, stat) => {
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");      // prevent 304 / caching issues
+    },
+  })
+);
+
 // Payment-specific rate limiter for sensitive endpoints
 const paymentLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 5, // max 5 payment requests per minute
+  max: 10, // max 5 payment requests per minute
   message: "Too many payment requests, please try again later",
   standardHeaders: true,
   legacyHeaders: false,
@@ -203,17 +213,6 @@ initializeMonitoring(app);
 
 // Mount the API version 1 router under the "/api/v1" path
 app.use("/api/v1", apiV1Router);
-
-// Serve images from the uploads directory
-app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "../uploads"), {
-    setHeaders: (res, path, stat) => {
-      res.setHeader("Cache-Control", "no-store");       // prevent 304 / caching issues
-    },
-  })
-);
-
 
 // app.get("/uploads/:folder/:filename", (req, res) => {
 //   const { folder, filename } = req.params;

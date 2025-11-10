@@ -9,17 +9,19 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Label from "../../../components/Label";
 import Input from "../../../components/inputFiled";
 import { Loader, PageLoader } from "@/components/Loader";
+import { MessageAlert } from "@/components/MessageAlert";
 
 // Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
 import type { UserRole } from "@/types";
 
 // Import React hooks for state, side-effects, and navigation.
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Import authentication service functions for API calls.
 import { authService } from "../authService";
+import { useOAuthHandler } from "@/hooks/useOAuthHandler";
 
 // Import from validation
 import { useForm } from "react-hook-form";
@@ -76,11 +78,6 @@ const LoginPage = () => {
     resolver: yupResolver(loginSchema),
   });
 
-  // On component mount, check for and handle any OAuth callback parameters in the URL.
-  useEffect(() => {
-    handleOAuthCallback();
-  }, []);
-
   // This effect sets a timer to clear any displayed message after 5 seconds.
   useEffect(() => {
     if (message) {
@@ -90,68 +87,18 @@ const LoginPage = () => {
   }, [message]);
 
   // Helper function to show a temporary message to the user.
-  const showMessage = (text: string, type = "error") => {
+  const showMessage = useCallback((text: string, type = "error") => {
     setMessage({ id: Date.now(), text, type });
     setTimeout(() => setMessage(null), 5000);
-  };
+  }, []);
 
-  // This function handles the OAuth callback after a user is redirected from Google/Facebook.
-  // It parses user data from the URL, sets the user state, and navigates to the dashboard.
-  const handleOAuthCallback = () => {
-    const url = new URL(window.location.href);
-    const params = url.searchParams;
-    const userId = params.get("userid");
-    const role = params.getAll("role") as UserRole[];
-    const roleList = role
-      .flatMap((r) => r.split(","))
-      .map((r) => r.trim()) as UserRole[];
-    const error = params.get("error");
-    // Clean the URL by removing the query parameters.
-    window.history.replaceState({}, document.title, url.pathname);
-    console.log(role);
-    if (error) {
-      showMessage(error, "error");
-      return;
-    }
-
-    if (userId) {
-      // If authentication is successful, set user data and redirect.
-      setUserData(userId, roleList, { userid: userId });
-      setActiveRole(roleList[0]);
-      showMessage("OAuth authentication successful!", "success");
-      setTimeout(() => {
-        nav("/user/dashboard", { replace: true });
-      }, 2000);
-    }
-  };
-
-  if (loading) {
-    return <PageLoader />;
-  }
-
-  // Initiates the OAuth flow for the specified provider (Google or Facebook).
-  const handleOAuth = async (provider: string) => {
-    setLoading(true);
-    try {
-      if (provider === "google") {
-        await authService.googleLogin("login");
-      } else if (provider === "facebook") {
-        await authService.facebookLogin("login");
-      }
-    } catch (error) {
-      console.log(error);
-      showMessage("OAuth login failed", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { handleOAuth } = useOAuthHandler("register", showMessage);
 
   // Handles the form submission for standard email/password login.
   const onSubmit = async (data: { email: string; password: string }) => {
     try {
       // Call the login API service.
       const respons = await authService.login(data.email, data.password);
-      console.log(respons);
       const roleList = respons.role
         .flatMap((r: any) => r.split(","))
         .map((r: any) => r.trim()) as UserRole[];
@@ -173,6 +120,9 @@ const LoginPage = () => {
     }
   };
 
+  if (loading) {
+    return <PageLoader />;
+  }
   return (
     <div className="relative flex flex-col md:flex-row h-screen w-full bg-gray-100 md:bg-black font-sans overflow-hidden">
       {/* Left Panel: Image */}
@@ -187,18 +137,7 @@ const LoginPage = () => {
           {/* Logo */}
           <img src={Logo} alt="Logo" className="w-20 h-20 mx-auto" />
           {/* Message display area for success/error alerts */}
-          {message && (
-            <div
-              key={message.id}
-              className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 w-[70%] text-center p-3 rounded-md font-medium shadow-lg z-10 ${
-                message.type === "success"
-                  ? "bg-green-100 text-green-700 border border-green-400"
-                  : "bg-red-100 text-red-700 border border-red-400"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
+          <MessageAlert message={message} />
           {/* Form Header */}
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
@@ -214,7 +153,7 @@ const LoginPage = () => {
             {/* Google Login Button */}
             <button
               disabled={loading}
-              onClick={() => handleOAuth("google")}
+              onClick={() => handleOAuth("google", setLoading)}
               className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               <img src={GoogleIcon} alt="Google Icon" className="w-5 h-5" />
@@ -224,7 +163,7 @@ const LoginPage = () => {
             {/* Facebook Login Button */}
             <button
               disabled={loading}
-              onClick={() => handleOAuth("facebook")}
+              onClick={() => handleOAuth("facebook", setLoading)}
               className="w-full flex items-center justify-center gap-3 py-2.5 sm:py-3 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               <img src={FacebookIcon} alt="Facebook Icon" className="w-5 h-5" />
