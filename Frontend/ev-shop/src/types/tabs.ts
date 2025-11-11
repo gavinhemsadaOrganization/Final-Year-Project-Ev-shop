@@ -11,6 +11,7 @@ export const BuyerActiveTabes = {
   Financing : "financing",
   Community : "community",
 }as const;
+
 export type BuyerActiveTabes = (typeof BuyerActiveTabes)[keyof typeof BuyerActiveTabes];
 
 export type ActiveTab =
@@ -26,6 +27,20 @@ export type ActiveTab =
   | "financing"
   | "community";
 
+export const SellerActiveTabs = {
+  Dashbord: "dashboard",
+  Orders: "orders",
+  Profile: "profile",
+  EvList: "evList",
+  Saved: "saved",
+  Reviews: "reviews",
+  Community: "community",
+  TestDrives: "testDrives",
+  Notification: "notification",
+}as const;
+
+export type SellerActiveTabs = (typeof SellerActiveTabs)[keyof typeof SellerActiveTabs];
+
   export type SellerActiveTab =
   | "dashboard"
   | "orders"
@@ -34,5 +49,5 @@ export type ActiveTab =
   | "saved"
   | "reviews"
   | "community"
-  | "test-drives"
+  | "testDrives"
   | "notification";

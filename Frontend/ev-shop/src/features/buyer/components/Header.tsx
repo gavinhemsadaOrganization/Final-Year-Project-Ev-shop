@@ -57,8 +57,8 @@ export const Header = React.memo(({
   );
 
   const newUser = userRole.includes("user") && !userRole.includes("seller") && !userRole.includes("finance");
-  const canBecomeSeller = userRole.includes("user") && !userRole.includes("seller");
-  const canBecomeFinancer = userRole.includes("user") && !userRole.includes("finance");
+  const switchUserSeller = userRole.includes("user") && userRole.includes("seller");
+  const switchUserFinancer = userRole.includes("user") && userRole.includes("finance");
 
   if (loading) {
     return <PageLoader />;
@@ -96,7 +96,7 @@ export const Header = React.memo(({
               />
             </>
           )}
-        {canBecomeSeller && (
+        {switchUserSeller && (
           <RoleButton
             onClick={async () =>
               switchRoleAndNavigate("seller", "/seller/dashboard")
@@ -107,7 +107,7 @@ export const Header = React.memo(({
             color="bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
           />
         )}
-        {canBecomeFinancer && (
+        {switchUserFinancer && (
           <RoleButton
             onClick={() =>
               switchRoleAndNavigate("finance", "/finance/dashboard")

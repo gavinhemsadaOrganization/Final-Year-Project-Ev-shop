@@ -125,7 +125,7 @@ type SidebarLinkProps = {
   isExpanded: boolean;
 };
 
-const SidebarLink = React.memo(({
+const SidebarLink = ({
   text,
   icon,
   active,
@@ -181,4 +181,4 @@ const SidebarLink = React.memo(({
       </span>
     )}
   </a>
-));
+);

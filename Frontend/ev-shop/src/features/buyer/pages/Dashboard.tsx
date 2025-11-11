@@ -1,4 +1,11 @@
-import React, { useState, useEffect, lazy, Suspense, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  lazy,
+  Suspense,
+  useCallback,
+  useMemo,
+} from "react";
 import "../style/buyer.css";
 import { useNavigate } from "react-router-dom";
 import { CloseIcon, ChatBubbleIcon } from "@/assets/icons/icons";
@@ -18,7 +25,9 @@ const MyReviewsPage = lazy(() => import("./MyReviewsPage"));
 const TestDrivesPage = lazy(() => import("./TestDrivePage"));
 const FinancingPage = lazy(() => import("./FinancingPage"));
 const BecomeSellerPage = lazy(() => import("./becomeaSellerPage"));
-const RegisterFinancialInstitutionPage = lazy(() => import("./becomeaFinancingPage"));
+const RegisterFinancialInstitutionPage = lazy(
+  () => import("./becomeaFinancingPage")
+);
 const CommunityPage = lazy(() => import("./ComunityPage"));
 
 import { PageLoader } from "@/components/Loader";
@@ -35,11 +44,13 @@ const App: React.FC = () => {
   const [isBecomeSellerModalOpen, setIsBecomeSellerModalOpen] = useState(false);
   const [isBecomFinancer, setIsBecomeFinancer] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const { getUserID, logout, getRoles } = useAuth();
   const navigate = useNavigate();
   const userID = getUserID();
   const userRole = useMemo(() => getRoles() || [], [getRoles]);
+  const itemsPerPage = 9;
 
   // Page load state
   useEffect(() => {
@@ -63,7 +74,9 @@ const App: React.FC = () => {
   });
 
   // Fetch notifications
-  const { data: notifications = [], isLoading: isNotifLoading } = useQuery<Notification[]>({
+  const { data: notifications = [], isLoading: isNotifLoading } = useQuery<
+    Notification[]
+  >({
     queryKey: queryKeys.notifications(userID!),
     queryFn: () => buyerService.getUserNotifications(userID!),
     enabled: !!userID,
@@ -74,7 +87,9 @@ const App: React.FC = () => {
   });
 
   // Fetch vehicles
-  const { data: vehicles = [], isLoading: isVehiclesLoading } = useQuery<Vehicle[]>({
+  const { data: vehicles = [], isLoading: isVehiclesLoading } = useQuery<
+    Vehicle[]
+  >({
     queryKey: queryKeys.evlist,
     queryFn: () => buyerService.getEVList(),
     staleTime: 10 * 60 * 1000,
@@ -84,32 +99,76 @@ const App: React.FC = () => {
   });
 
   const filteredVehicles = useMemo(
-    () => vehicles.filter(vehicle => vehicle.model_id.model_name.toLowerCase().includes(searchTerm.toLowerCase())),
+    () =>
+      vehicles.filter((vehicle) =>
+        vehicle.model_id.model_name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      ),
     [vehicles, searchTerm]
   );
 
+  const paginatedVehicles = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredVehicles.slice(startIndex, endIndex);
+  }, [filteredVehicles, currentPage]);
+
   // Tabs with memoized components
-  const tabs = useMemo(() => ({
-    dashboard: <VehicleList vehicles={filteredVehicles} />,
-    profile: <UserProfile user={user!} />,
-    orders: <OrderHistory />,
-    services: <Services />,
-    financing: <FinancingPage />,
-    saved: <SavedVehicles />,
-    notification: <NotificationPage notifications={notifications} />,
-    cart: <CartPage />,
-    testDrives: <TestDrivesPage />,
-    reviews: <MyReviewsPage />,
-    community: <CommunityPage />,
-  }), [filteredVehicles, user, notifications]);
+  const tabs = useMemo(
+    () => ({
+      dashboard: (
+        <VehicleList
+          vehicles={paginatedVehicles}
+          totalVehicles={filteredVehicles.length}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
+      ),
+      profile: <UserProfile user={user!} />,
+      orders: <OrderHistory />,
+      services: <Services />,
+      financing: <FinancingPage />,
+      saved: <SavedVehicles />,
+      notification: <NotificationPage notifications={notifications} />,
+      cart: <CartPage />,
+      testDrives: <TestDrivesPage />,
+      reviews: <MyReviewsPage />,
+      community: <CommunityPage />,
+    }),
+    [
+      filteredVehicles,
+      user,
+      notifications,
+      paginatedVehicles,
+      currentPage,
+      itemsPerPage,
+    ]
+  );
 
   // Callbacks
-  const toggleChat = useCallback(() => setIsChatOpen(prev => !prev), []);
-  const setSellermodeOpen = useCallback(() => setIsBecomeSellerModalOpen(prev => !prev), []);
-  const setFinancerModeOpen = useCallback(() => setIsBecomeFinancer(prev => !prev), []);
-  const togelExpan = useCallback(() => setIsSidebarExpanded(prev => !prev), []);
-  const handleSetActiveTab = useCallback((tab: ActiveTab) => setActiveTab(tab), []);
-  const handleSearchTermChange = useCallback((term: string) => setSearchTerm(term), []);
+  const toggleChat = useCallback(() => setIsChatOpen((prev) => !prev), []);
+  const setSellermodeOpen = useCallback(
+    () => setIsBecomeSellerModalOpen((prev) => !prev),
+    []
+  );
+  const setFinancerModeOpen = useCallback(
+    () => setIsBecomeFinancer((prev) => !prev),
+    []
+  );
+  const togelExpan = useCallback(
+    () => setIsSidebarExpanded((prev) => !prev),
+    []
+  );
+  const handleSetActiveTab = useCallback(
+    (tab: ActiveTab) => setActiveTab(tab),
+    []
+  );
+  const handleSearchTermChange = useCallback(
+    (term: string) => setSearchTerm(term),
+    []
+  );
   const handleSidebarTabClick = useCallback((tab: ActiveTab) => {
     if (tab !== "profile") setActiveTab(tab);
   }, []);
@@ -122,7 +181,8 @@ const App: React.FC = () => {
     }
   }, [logout, navigate]);
 
-  if (loading || isUserLoading || isNotifLoading || isVehiclesLoading) return <PageLoader />;
+  if (loading || isUserLoading || isNotifLoading || isVehiclesLoading)
+    return <PageLoader />;
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -152,7 +212,10 @@ const App: React.FC = () => {
 
           <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-100 dark:bg-gray-900">
             {activeTab !== "dashboard" && userRole.includes("user") && (
-              <nav className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn" aria-label="Breadcrumb">
+              <nav
+                className="mb-4 text-sm font-medium text-gray-500 animate-fadeIn"
+                aria-label="Breadcrumb"
+              >
                 <ol className="list-none p-0 inline-flex">
                   <li className="flex items-center">
                     <button
@@ -171,14 +234,8 @@ const App: React.FC = () => {
                 </ol>
               </nav>
             )}
-
-            {/* Render tabs */}
             <div className="animate-fadeIn">
-              {Object.entries(tabs).map(([key, component]) => (
-                <div key={key} style={{ display: key === activeTab ? "block" : "none" }}>
-                  <Suspense fallback={<PageLoader />}>{component}</Suspense>
-                </div>
-              ))}
+              <Suspense fallback={<PageLoader />}>{tabs[activeTab]}</Suspense>
             </div>
           </main>
         </div>
@@ -191,13 +248,21 @@ const App: React.FC = () => {
           className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900"
           aria-label={isChatOpen ? "Close chat" : "Open chat"}
         >
-          {isChatOpen ? <CloseIcon className="h-6 w-6" /> : <ChatBubbleIcon className="h-6 w-6" />}
+          {isChatOpen ? (
+            <CloseIcon className="h-6 w-6" />
+          ) : (
+            <ChatBubbleIcon className="h-6 w-6" />
+          )}
         </button>
       </div>
 
       {isChatOpen && <Chatbot onClose={toggleChat} />}
-      {isBecomeSellerModalOpen && <BecomeSellerPage onClose={setSellermodeOpen} />}
-      {isBecomFinancer && <RegisterFinancialInstitutionPage onClose={setFinancerModeOpen} />}
+      {isBecomeSellerModalOpen && (
+        <BecomeSellerPage onClose={setSellermodeOpen} />
+      )}
+      {isBecomFinancer && (
+        <RegisterFinancialInstitutionPage onClose={setFinancerModeOpen} />
+      )}
     </>
   );
 };

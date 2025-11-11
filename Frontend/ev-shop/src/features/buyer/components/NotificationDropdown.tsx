@@ -17,7 +17,7 @@ export type NotificationDropdownProps = {
  * It includes a bell icon that shows a badge with the number of unread notifications.
  * Clicking on a notification or the "View all" button navigates the user to the main notifications tab.
  */
-export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
+export const NotificationDropdown: React.FC<NotificationDropdownProps> = React.memo(({
   notifications,
   setActiveTab,
 }) => {
@@ -139,4 +139,4 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       )}
     </div>
   );
-};
+});

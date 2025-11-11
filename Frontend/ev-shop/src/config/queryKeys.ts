@@ -9,5 +9,9 @@ export const queryKeys = {
   communityPosts: ["communityPosts"],
   communityPost: (id: string) => ["communityPost", id],
   // seller
+  sellerProfile: (id: string) => ["sellerProfile", id],
+  sellerOrders: (id: string) => ["sellerOrders", id],
+  sellerEvlist: (id: string) => ["sellerEvlist", id],
+  sellerTestDrive: (id: string) => ["sellerTestDrive", id],
   // finac
 };

@@ -58,7 +58,7 @@ const SellerDashboard: React.FC = () => {
     };
     if (userID) {
       fetchSellerData(userID);
-    }
+    }    
   }, []);
 
   const renderContent = () => {
@@ -75,7 +75,7 @@ const SellerDashboard: React.FC = () => {
         return <SavedVehicles />;
       case "notification":
         return <NotificationPage notifications={notifications} />;
-      case "test-drives":
+      case "testDrives":
         return <TestDrivesPage />;
       case "reviews":
         return <MyReviewsPage />;
@@ -154,7 +154,7 @@ const SellerDashboard: React.FC = () => {
   );
 };
 
-// --- Sub Components ---
+
 const SellerDashboardPage: React.FC<{
   listing: Listing[];
   setActiveTab: (tab: SellerActiveTab) => void;

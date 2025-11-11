@@ -6,6 +6,7 @@ import type { Vehicle } from "@/types";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, Pagination } from "swiper/modules";
 import React ,{useMemo} from "react";
+import { useInView } from 'react-intersection-observer';
 
 const apiURL = import.meta.env.VITE_API_URL;
 
@@ -117,34 +118,53 @@ export const EvModelCard = React.memo(
   }
 );
 
+const SkeletonCard: React.FC = () => (
+  <div
+    className="bg-white rounded-xl shadow-md overflow-hidden dark:bg-gray-800 dark:border dark:border-gray-700"
+    style={{ minHeight: '434px' }} // <-- CRITICAL: Set explicit min-height
+  >
+    {/* Simple skeleton animation */}
+    <div className="h-56 w-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+    <div className="p-6">
+      <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-4 animate-pulse"></div>
+      <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-4 animate-pulse"></div>
+      <div className="h-10 bg-gray-300 dark:bg-gray-600 rounded w-full mt-6 animate-pulse"></div>
+    </div>
+  </div>
+);
+
+const swiperModules = [Navigation, Autoplay, Pagination];
+
 export const VehicleCard: React.FC<{
   vehicle: Vehicle;
   className?: string;
   style?: React.CSSProperties;
-}> = React.memo(({ vehicle, className, style }) => {
+}> = ({ vehicle, className, style }) => {
   const { model_id, images } = vehicle;
-  // Memoize image URLs to prevent recreation on every render
-    const imageUrls = useMemo(
-      () => images?.map((img) => `${apiURL}${img}`) || [],
-      [images]
-    );
 
-    // Memoize image slides
-    const imageSlides = useMemo(
-      () =>
-        imageUrls.map((url, i) => (
-          <SwiperSlide key={url}>
-            <img
-              className="h-56 w-full object-cover"
-              src={url}
-              alt={`${model_id.model_name} image ${i + 1}`}
-              loading="lazy"
-              decoding="async"
-            />
-          </SwiperSlide>
-        )),
-      [imageUrls, model_id.model_name]
-    );
+  // Memoize image URLs to prevent recreation
+  const imageUrls = useMemo(
+    () => images?.map((img) => `${apiURL}${img}`) || [],
+    [images]
+  );
+
+  // Memoize image slides
+  const imageSlides = useMemo(
+    () =>
+      imageUrls.map((url, i) => (
+        <SwiperSlide key={url}>
+          <img
+            className="h-56 w-full object-cover"
+            src={url}
+            alt={`${model_id.model_name} image ${i + 1}`}
+            loading="lazy"
+            decoding="async"
+          />
+        </SwiperSlide>
+      )),
+    [imageUrls, model_id.model_name]
+  );
+
   return (
     <div
       className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700 ${className}`}
@@ -152,14 +172,16 @@ export const VehicleCard: React.FC<{
     >
       {/* 🔹 Image Slider */}
       <Swiper
-        modules={[Navigation, Autoplay, Pagination]}
+        modules={swiperModules}
         navigation
         pagination={{ clickable: true }}
-        autoplay={{ delay: 3000, disableOnInteraction: false }}
+        autoplay={false} // initially disabled for performance
         loop
         className="h-56 w-full"
+        lazyPreloadPrevNext={1}
+        watchSlidesProgress
       >
-       {imageSlides}
+        {imageSlides}
       </Swiper>
 
       {/* 🔹 Card Body */}
@@ -203,4 +225,29 @@ export const VehicleCard: React.FC<{
       </div>
     </div>
   );
-});
+};
+
+// This wrapper component does the magic
+export const LazyVehicleCard: React.FC<{
+  vehicle: Vehicle;
+  className?: string;
+  style?: React.CSSProperties;
+}> = ({ vehicle, className, style }) => {
+  const { ref, inView } = useInView({
+    triggerOnce: true, // Only load the card once
+    rootMargin: '200px 0px', // Start loading 200px *before* it enters the screen
+  });
+
+  return (
+    <div ref={ref} className={className} style={style}>
+      {/* Render the real, expensive VehicleCard only when inView is true.
+        Otherwise, render the cheap, lightweight SkeletonCard.
+      */}
+      {inView ? (
+        <VehicleCard vehicle={vehicle} />
+      ) : (
+        <SkeletonCard />
+      )}
+    </div>
+  );
+};
