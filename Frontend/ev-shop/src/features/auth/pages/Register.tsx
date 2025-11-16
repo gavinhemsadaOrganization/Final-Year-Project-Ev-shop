@@ -9,7 +9,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Label from "@/components/Label";
 import Input from "@/components/inputFiled";
 import { Loader, PageLoader } from "@/components/Loader";
-import { MessageAlert } from "@/components/MessageAlert";
+import { Alert } from "@/components/MessageAlert";
 
 // Import authentication context and related types.
 import { useOAuthHandler } from "@/hooks/useOAuthHandler";
@@ -55,8 +55,9 @@ const RegisterPage = () => {
   // State for displaying feedback messages (e.g., success or error alerts).
   const [message, setMessage] = useState<{
     id: number;
-    text: string;
-    type: string;
+    title: string;
+    message: string;
+    type: "success" | "error";
   } | null>(null);
 
   useEffect(() => {
@@ -89,8 +90,8 @@ const RegisterPage = () => {
   }, [message]);
 
   // Helper function to show a temporary message to the user.
-  const showMessage = (text: string, type = "error") => {
-    setMessage({ id: Date.now(), text, type });
+  const showMessage = (title: string, message: string, type: any) => {
+    setMessage({ id: Date.now(),title, message, type });
     setTimeout(() => setMessage(null), 5000);
   };
 
@@ -108,7 +109,7 @@ const RegisterPage = () => {
         data.password,
         data.confirmPassword
       );
-      showMessage(response.message, "success");
+      showMessage("Registration Successful", response.message, "success");
       // Redirect to the login page after a successful registration.
       setTimeout(() => {
         window.location.href = "/auth/login";
@@ -116,11 +117,12 @@ const RegisterPage = () => {
     } catch (err: any) {
       if (err.response) {
         showMessage(
-          err.response.data.message || "Registration failed",
+          "Registration failed",
+          err.response.data.message,
           "error"
         );
       } else if (err.request) {
-        showMessage("No response from server", "error");
+        showMessage("Registration failed", "No response from server", "error");
       }
     }
   };
@@ -143,7 +145,7 @@ const RegisterPage = () => {
           {/* Logo */}
           <img src={Logo} alt="Logo" className="w-20 h-20 mx-auto" />
           {/* Message display area for success/error alerts */}
-          <MessageAlert message={message} />
+          <Alert alert={message} position="right" positionValue={200}/>
 
           {/* Form Header */}
           <div className="text-center">

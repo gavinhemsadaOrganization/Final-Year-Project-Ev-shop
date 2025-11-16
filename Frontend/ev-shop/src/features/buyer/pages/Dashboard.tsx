@@ -32,7 +32,11 @@ const CommunityPage = lazy(() => import("./ComunityPage"));
 
 import { PageLoader } from "@/components/Loader";
 import { buyerService } from "../buyerService";
-import { useQuery } from "@tanstack/react-query";
+import {
+  useQueries,
+  type UseQueryOptions,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { queryKeys } from "@/config/queryKeys";
 import { useAuth } from "@/context/AuthContext";
 
@@ -62,46 +66,56 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Fetch user profile
-  const { data: user, isLoading: isUserLoading } = useQuery<User_Profile>({
-    queryKey: queryKeys.userProfile(userID!),
-    queryFn: () => buyerService.getUserProfile(userID!),
-    enabled: !!userID,
-    staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-  });
+  const result = useQueries({
+    queries: [
+      {
+        queryKey: queryKeys.evlist,
+        queryFn: () => buyerService.getEVList(),
+        staleTime: 10 * 60 * 1000,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+      } satisfies UseQueryOptions<Vehicle[]>,
+      {
+        queryKey: queryKeys.userProfile(userID!),
+        queryFn: () => buyerService.getUserProfile(userID!),
+        enabled: !!userID,
+        staleTime: 10 * 60 * 1000,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+      } satisfies UseQueryOptions<User_Profile>,
+      {
+        queryKey: queryKeys.notifications(userID!),
+        queryFn: () => buyerService.getUserNotifications(userID!),
+        enabled: !!userID,
+        staleTime: 10 * 60 * 1000,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+      } satisfies UseQueryOptions<Notification[]>,
+    ],
+  }) as [
+    UseQueryResult<Vehicle[], Error>,
+    UseQueryResult<User_Profile, Error>,
+    UseQueryResult<Notification[], Error>
+  ];
 
-  // Fetch notifications
-  const { data: notifications = [], isLoading: isNotifLoading } = useQuery<
-    Notification[]
-  >({
-    queryKey: queryKeys.notifications(userID!),
-    queryFn: () => buyerService.getUserNotifications(userID!),
-    enabled: !!userID,
-    staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-  });
+  const [evlistQuery, userProfileQuery, notificationQuery] = result;
 
-  // Fetch vehicles
-  const { data: vehicles = [], isLoading: isVehiclesLoading } = useQuery<
-    Vehicle[]
-  >({
-    queryKey: queryKeys.evlist,
-    queryFn: () => buyerService.getEVList(),
-    staleTime: 10 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-  });
+  const vehicles = evlistQuery.data || [];
+  const user = userProfileQuery.data;
+  const notifications = notificationQuery.data || [];
+
+  const isLoading =
+    evlistQuery.isLoading ||
+    userProfileQuery.isLoading ||
+    notificationQuery.isLoading;
 
   const filteredVehicles = useMemo(
     () =>
       vehicles.filter((vehicle) =>
-        vehicle.model_id.model_name
+        vehicle.model_id?.model_name
           .toLowerCase()
           .includes(searchTerm.toLowerCase())
       ),
@@ -157,10 +171,8 @@ const App: React.FC = () => {
     () => setIsBecomeFinancer((prev) => !prev),
     []
   );
-  const togelExpan = useCallback(
-    () => setIsSidebarExpanded((prev) => !prev),
-    []
-  );
+  const expandSidebar = useCallback(() => setIsSidebarExpanded(true), []);
+  const collapseSidebar = useCallback(() => setIsSidebarExpanded(false), []);
   const handleSetActiveTab = useCallback(
     (tab: ActiveTab) => setActiveTab(tab),
     []
@@ -181,8 +193,7 @@ const App: React.FC = () => {
     }
   }, [logout, navigate]);
 
-  if (loading || isUserLoading || isNotifLoading || isVehiclesLoading)
-    return <PageLoader />;
+  if (loading || isLoading) return <PageLoader />;
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -193,8 +204,8 @@ const App: React.FC = () => {
           activeTab={activeTab}
           setActiveTab={handleSidebarTabClick}
           isExpanded={isSidebarExpanded}
-          onExpand={togelExpan}
-          onCollapse={togelExpan}
+          onExpand={expandSidebar}
+          onCollapse={collapseSidebar}
         />
 
         <div className="flex-1 flex flex-col overflow-hidden">

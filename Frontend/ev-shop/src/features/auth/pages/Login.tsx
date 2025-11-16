@@ -9,7 +9,7 @@ import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Label from "../../../components/Label";
 import Input from "../../../components/inputFiled";
 import { Loader, PageLoader } from "@/components/Loader";
-import { MessageAlert } from "@/components/MessageAlert";
+import { Alert } from "@/components/MessageAlert";
 
 // Import authentication context and related types.
 import { useAuth } from "@/context/AuthContext";
@@ -50,8 +50,9 @@ const LoginPage = () => {
   // State for displaying feedback messages (e.g., success or error alerts).
   const [message, setMessage] = useState<{
     id: number;
-    text: string;
-    type: string;
+    title: string;
+    message: string;
+    type: "success" | "error";
   } | null>(null);
   // Access the setUserData function from the authentication context.
   const { setUserData, setActiveRole } = useAuth();
@@ -87,12 +88,12 @@ const LoginPage = () => {
   }, [message]);
 
   // Helper function to show a temporary message to the user.
-  const showMessage = useCallback((text: string, type = "error") => {
-    setMessage({ id: Date.now(), text, type });
+  const showMessage = useCallback((title: string, message: string, type: any) => {
+    setMessage({ id: Date.now(), title, message, type });
     setTimeout(() => setMessage(null), 5000);
   }, []);
 
-  const { handleOAuth } = useOAuthHandler("register", showMessage);
+  const { handleOAuth } = useOAuthHandler("login", showMessage);
 
   // Handles the form submission for standard email/password login.
   const onSubmit = async (data: { email: string; password: string }) => {
@@ -105,7 +106,7 @@ const LoginPage = () => {
       // On success, set user data in the context.
       setUserData(respons.user, roleList, { userid: respons.userid });
       setActiveRole(roleList[0]);
-      showMessage(respons.message, "success");
+      showMessage("Login Successful", respons.message, "success");
       // Redirect to the user dashboard after a short delay.
       setTimeout(() => {
         nav("/user/dashboard", { replace: true });
@@ -113,9 +114,9 @@ const LoginPage = () => {
     } catch (err: any) {
       // Handle different types of errors (response error vs. network error).
       if (err.response) {
-        showMessage(err.response.data.message || "Login failed", "error");
+        showMessage("Login failed", err.response.data.message, "error");
       } else if (err.request) {
-        showMessage("No response from server", "error");
+        showMessage("login failed","No response from server", "error");
       }
     }
   };
@@ -137,7 +138,7 @@ const LoginPage = () => {
           {/* Logo */}
           <img src={Logo} alt="Logo" className="w-20 h-20 mx-auto" />
           {/* Message display area for success/error alerts */}
-          <MessageAlert message={message} />
+          <Alert alert={message} position="right" positionValue={200}/>
           {/* Form Header */}
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">

@@ -4,7 +4,7 @@ import { CloseIcon } from "@/assets/icons/icons";
 import { buyerService } from "../buyerService";
 import { Loader } from "@/components/Loader";
 import { useNavigate } from "react-router-dom";
-
+import { Alert } from "@/components/MessageAlert";
 /**
  * A component for a "Register Financial Institution" form.
  * Renders as a modal overlay.
@@ -12,11 +12,6 @@ import { useNavigate } from "react-router-dom";
 const RegisterFinancialInstitutionPage: React.FC<{ onClose: () => void }> = ({
   onClose,
 }) => {
-  // DTO:
-  // user_id!: string;
-  // name!: string;
-  // type!: string;
-
   const [formData, setFormData] = useState({
     name: "",
     type: "",
@@ -31,7 +26,12 @@ const RegisterFinancialInstitutionPage: React.FC<{ onClose: () => void }> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
-
+  const [message, setMessage] = useState<{
+    id: number;
+    title: string;
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   /**
    * Handles changes for all form inputs.
    */
@@ -108,7 +108,12 @@ const RegisterFinancialInstitutionPage: React.FC<{ onClose: () => void }> = ({
 
     try {
       await buyerService.becomeaFinancing(institutionData);
-      // Clear the form on success
+      setMessage({
+        id: Date.now(),
+        title: "Success",
+        message: "Successfully register for new Financial Institution",
+        type: "success",
+      });
       setFormData({
         name: "",
         type: "",
@@ -118,9 +123,11 @@ const RegisterFinancialInstitutionPage: React.FC<{ onClose: () => void }> = ({
         contact_phone: "",
       });
     } catch (err: any) {
-      console.error("Submission failed:", err);
-      setErrors({
-        form: err.message || "An unexpected error occurred. Please try again.",
+      setMessage({
+        id: Date.now(),
+        title: "Fail Registration",
+        message: "An unexpected error occurred. Please try again.",
+        type: "error",
       });
     } finally {
       setIsLoading(false);
@@ -132,6 +139,7 @@ const RegisterFinancialInstitutionPage: React.FC<{ onClose: () => void }> = ({
       className="fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex justify-center items-center p-4 sm:p-6 lg:p-8 animate-fadeIn"
       onClick={onClose}
     >
+      <Alert alert={message} />
       <div
         className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-2xl relative flex flex-col animate-fadeInUp"
         onClick={(e) => e.stopPropagation()}
@@ -325,7 +333,11 @@ const RegisterFinancialInstitutionPage: React.FC<{ onClose: () => void }> = ({
                 disabled={isLoading}
                 className="w-full px-6 py-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
               >
-                {isLoading ? <Loader size={10} color="#4f46e5" /> : "Register Institution"}
+                {isLoading ? (
+                  <Loader size={10} color="#4f46e5" />
+                ) : (
+                  "Register Institution"
+                )}
               </button>
             </div>
           </form>

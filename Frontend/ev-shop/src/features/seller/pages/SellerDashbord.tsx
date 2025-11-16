@@ -21,7 +21,7 @@ import {
 import EvListingStepper from "./EvNewList";
 import { StatCard } from "../components/StatsCards";
 import { sellerService } from "../sellerService";
-import type { Listing } from "@/types/ev";
+import type { Vehicle } from "@/types/ev";
 
 const notifications: Notification[] = [
   { id: 1, message: "Aura EV", time: "Sedan" },
@@ -33,7 +33,7 @@ const SellerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SellerActiveTab>("dashboard");
   const [seller, setSeller] = useState<any>({});
   const [userRole, setUserRole] = useState<UserRole[]>([]);
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [listings, setListings] = useState<Vehicle[]>([]);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const { getUserID, logout, getRoles, setSellerId, getActiveRoleId } =
     useAuth();
@@ -81,6 +81,8 @@ const SellerDashboard: React.FC = () => {
         return <MyReviewsPage />;
       case "community":
         return <CommunityPage />;
+      case "editEvlist":
+        return <EvListingStepper />;
       default:
         return (
           <SellerDashboardPage listing={listings} setActiveTab={setActiveTab} />
@@ -156,7 +158,7 @@ const SellerDashboard: React.FC = () => {
 
 
 const SellerDashboardPage: React.FC<{
-  listing: Listing[];
+  listing: Vehicle[];
   setActiveTab: (tab: SellerActiveTab) => void;
 }> = ({ setActiveTab, listing }) => (
   <>

@@ -7,37 +7,168 @@ import { FormInputField } from "@/components/FormInput";
 import { StepContainer } from "@/components/StepContainer";
 import { useAuth } from "@/context/AuthContext";
 import { ListingType, VehicleCondition } from "@/types/enum";
-// --- Types ---
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
-// --- Component ---
+const EvListschema = yup.object({
+  // Step 1
+  brand_id: yup.string().required("Brand is required"),
+  category_id: yup.string().required("Category is required"),
+
+  // Step 2
+  model_name: yup.string().required("Model name is required"),
+  year: yup
+    .number()
+    .typeError("Enter a valid year")
+    .min(1900)
+    .max(new Date().getFullYear() + 1, "Invalid year"),
+  battery_capacity_kwh: yup
+    .number()
+    .typeError("Enter a valid battery capacity")
+    .positive("Must be greater than 0")
+    .required("Battery capacity is required"),
+  range_km: yup
+    .number()
+    .typeError("Enter a valid range")
+    .positive("Must be greater than 0")
+    .required("Range is required"),
+  charging_time_hours: yup
+    .number()
+    .typeError("Enter a valid charging time")
+    .positive("Must be greater than 0")
+    .required("Charging time is required"),
+  motor_type: yup.string().required("Motor type is required"),
+  seating_capacity: yup
+    .number()
+    .typeError("Enter a valid seating capacity")
+    .positive()
+    .required("Seating capacity is required"),
+  price_range: yup.string().required("Price range is required"),
+  specifications: yup
+    .array()
+    .of(yup.string())
+    .min(1, "At least 1 specification is required"),
+  features: yup
+    .array()
+    .of(yup.string())
+    .min(1, "At least 1 feature is required"),
+
+  // Step 3
+  listing_type: yup.string().required("Listing type is required"),
+  condition: yup.string().required("Condition is required"),
+  price: yup
+    .number()
+    .typeError("Enter a valid price")
+    .positive("Price must be positive")
+    .required("Price is required"),
+  battery_health: yup
+    .number()
+    .typeError("Enter a valid percentage")
+    .min(0)
+    .max(100)
+    .required("Battery health is required"),
+  color: yup.string().required("Color is required"),
+  registration_year: yup
+    .number()
+    .typeError("Enter a valid registration year")
+    .max(new Date().getFullYear(), "Year cannot exceed current year")
+    .required("Registration year is required")
+    .test(
+      "is-greater",
+      "Year must be greater than or equal to registration year",
+      function (registrationYear) {
+      const { year } = this.parent;
+      if (!year || !registrationYear) return true; 
+      return registrationYear >= year;
+    }
+    ),
+  number_of_ev: yup
+    .number()
+    .typeError("Enter a valid number of units")
+    .positive()
+    .required(),
+
+  // Step 4
+  images: yup
+    .mixed<File[]>()
+    .test("required", "At least one image is required", (value) => {
+      return value && value.length > 0;
+    })
+    .test(
+      "fileCount",
+      "You can upload a maximum of 5 images.",
+      (value) => !value || value.length <= 5
+    )
+    .test(
+      "fileDimensions",
+      "Each image must be at most 800×450 pixels.",
+      async (value) => {
+        if (!value) return true;
+
+        const checks = await Promise.all(
+          value.map(
+            // <-- No 'Array.from' needed
+            (file: File) =>
+              new Promise((resolve) => {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                img.onload = () => {
+                  const valid = img.width <= 800 && img.height <= 600;
+                  URL.revokeObjectURL(img.src);
+                  resolve(valid);
+                };
+                img.onerror = () => resolve(false);
+              })
+          )
+        );
+
+        return checks.every((valid) => valid);
+      }
+    ),
+});
+
 export default function EvListingStepper() {
   const { getActiveRoleId } = useAuth();
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [evBrands, setEvBrands] = useState<Brand[]>([]);
-  const [errors, setErrors] = useState<Partial<EvListingFormData>>({});
   const [evCatogorys, setEvCatogorys] = useState<categorie[]>([]);
-  const [formData, setFormData] = useState<EvListingFormData>({
-    brand_id: "",
-    category_id: "",
-    model_name: "",
-    year: "",
-    battery_capacity_kwh: "",
-    range_km: "",
-    charging_time_hours: "",
-    motor_type: "",
-    seating_capacity: "",
-    price_range: "",
-    specifications: [],
-    features: [],
-    listing_type: "",
-    condition: "",
-    price: "",
-    battery_health: "",
-    color: "",
-    registration_year: "",
-    number_of_ev: "",
-    images: [],
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    trigger,
+    formState: { errors },
+    watch,
+  } = useForm<EvListingFormData>({
+    resolver: yupResolver(EvListschema) as any,
+    mode: "onChange",
+    defaultValues: {
+      brand_id: "",
+      category_id: "",
+      model_name: "",
+      year: "",
+      battery_capacity_kwh: "",
+      range_km: "",
+      charging_time_hours: "",
+      motor_type: "",
+      seating_capacity: "",
+      price_range: "",
+      specifications: [],
+      features: [],
+      listing_type: "",
+      condition: "",
+      price: "",
+      battery_health: "",
+      color: "",
+      registration_year: "",
+      number_of_ev: "",
+      images: [],
+    },
   });
+
+  const formData = watch();
 
   useEffect(() => {
     const fetchBrands = async () => {
@@ -70,64 +201,6 @@ export default function EvListingStepper() {
     fetchBrands();
   }, []);
 
-  const validateField = (name: keyof EvListingFormData, value: any) => {
-    let error = "";
-    switch (name) {
-      case "brand_id":
-        if (!value) error = "Brand is required.";
-        break;
-      case "category_id":
-        if (!value) error = "Category is required.";
-        break;
-      case "model_name":
-        if (!value) error = "Model name is required.";
-        break;
-      case "year":
-        if (!value || +value > new Date().getFullYear() + 1)
-          error = "Please enter a valid year.";
-        break;
-      case "battery_capacity_kwh":
-        if (!value || +value <= 0)
-          error = "Enter a valid battery capacity.";
-        break;
-      case "range_km":
-        if (!value || +value <= 0) error = "Enter a valid range.";
-        break;
-      case "charging_time_hours":
-        if (!value || +value <= 0) error = "Enter a valid charging time.";
-        break;
-      case "motor_type":
-        if (!value) error = "Motor type is required.";
-        break;
-      case "seating_capacity":
-        if (!value || +value <= 0) error = "Enter a valid seating capacity.";
-        break;
-      case "listing_type":
-        if (!value) error = "Listing type is required.";
-        break;
-      case "condition":
-        if (!value) error = "Condition is required.";
-        break;
-      case "price":
-        if (!value || +value <= 0) error = "Please enter a valid price.";
-        break;
-      case "battery_health":
-        if (!value || +value < 0 || +value > 100)
-          error = "Enter a valid battery health (0-100).";
-        break;
-      case "color":
-        if (!value) error = "Color is required.";
-        break;
-      case "registration_year":
-        if (!value || +value > new Date().getFullYear())
-          error = "Please enter a valid registration year.";
-        break;
-      default:
-        break;
-    }
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
-
   const steps = [
     { id: 1, name: "Vehicle" },
     { id: 2, name: "Model Details" },
@@ -136,107 +209,62 @@ export default function EvListingStepper() {
     { id: 5, name: "Review & Submit" },
   ];
 
-  // --- Handlers ---
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    // Set form data first
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Then validate the field
-    validateField(name as keyof EvListingFormData, value);
+  const validateStep = async () => {
+    const stepFields: Record<number, (keyof EvListingFormData)[]> = {
+      1: ["brand_id", "category_id"],
+      2: [
+        "model_name",
+        "year",
+        "battery_capacity_kwh",
+        "range_km",
+        "charging_time_hours",
+        "motor_type",
+        "seating_capacity",
+        "price_range",
+        "specifications",
+        "features",
+      ],
+      3: [
+        "listing_type",
+        "condition",
+        "price",
+        "battery_health",
+        "color",
+        "registration_year",
+        "number_of_ev",
+      ],
+      4: ["images"],
+    };
+
+    const fieldsToValidate = stepFields[currentStep];
+    const valid = await trigger(fieldsToValidate);
+    return valid;
   };
 
-  const validateStep = () => {
-    const newErrors: Partial<EvListingFormData> = {};
-    switch (currentStep) {
-      case 1:
-        if (!formData.brand_id) newErrors.brand_id = "Brand is required.";
-        if (!formData.category_id)
-          newErrors.category_id = "Category is required.";
-        break;
-      case 2:
-        if (!formData.model_name)
-          newErrors.model_name = "Model name is required.";
-        if (!formData.year || +formData.year > new Date().getFullYear() + 1)
-          newErrors.year = "Please enter a valid year.";
-        if (
-          !formData.battery_capacity_kwh ||
-          +formData.battery_capacity_kwh <= 0
-        )
-          newErrors.battery_capacity_kwh = "Enter a valid battery capacity.";
-        if (!formData.range_km || +formData.range_km <= 0)
-          newErrors.range_km = "Enter a valid range.";
-        if (!formData.charging_time_hours || +formData.charging_time_hours <= 0)
-          newErrors.charging_time_hours = "Enter a valid charging time.";
-        if (!formData.motor_type)
-          newErrors.motor_type = "Motor type is required.";
-        if (!formData.seating_capacity || +formData.seating_capacity <= 0)
-          newErrors.seating_capacity = "Enter a valid seating capacity.";
-        break;
-      case 3:
-        if (!formData.listing_type)
-          newErrors.listing_type = "Listing type is required." as any;
-        if (!formData.condition) newErrors.condition = "Condition is required." as any;
-        if (!formData.price || +formData.price <= 0)
-          newErrors.price = "Please enter a valid price.";
-        if (
-          !formData.battery_health ||
-          +formData.battery_health < 0 ||
-          +formData.battery_health > 100
-        )
-          newErrors.battery_health = "Enter a valid battery health (0-100).";
-        if (!formData.color) newErrors.color = "Color is required.";
-        if (
-          !formData.registration_year ||
-          +formData.registration_year > new Date().getFullYear()
-        )
-          newErrors.registration_year =
-            "Please enter a valid registration year.";
-        if (!formData.number_of_ev || +formData.number_of_ev <= 0)
-          newErrors.number_of_ev = "Please enter a valid number of units.";
-        break;
-      case 4:
-        if (formData.images.length === 0)
-          (newErrors as any).images = "At least one image is required.";
-        break;
-      default:
-        break;
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const nextStep = async () => {
+    const valid = await validateStep();
+    if (valid) setCurrentStep((prev) => prev + 1);
   };
 
-  const nextStep = (e?: React.MouseEvent<HTMLButtonElement>) => {
-    if (e) e.preventDefault();
-    if (!validateStep()) {
-      return;
-    }
-    if (currentStep < steps.length) {
-      setErrors({}); // Clear errors when moving to the next step
-      setCurrentStep((prev) => prev + 1);
-    }
-  };
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmite = async (data: EvListingFormData) => {
     try {
       const modeldata = {
-        brand_id: formData.brand_id,
-        category_id: formData.category_id,
-        model_name: formData.model_name,
-        year: formData.year,
-        battery_capacity_kwh: formData.battery_capacity_kwh,
-        range_km: formData.range_km,
-        charging_time_hours: formData.charging_time_hours,
-        motor_type: formData.motor_type,
-        seating_capacity: formData.seating_capacity,
-        price_range: formData.price_range,
-        specifications: formData.specifications,
-        features: formData.features,
+        brand_id: data.brand_id,
+        category_id: data.category_id,
+        model_name: data.model_name,
+        year: data.year,
+        battery_capacity_kwh: data.battery_capacity_kwh,
+        range_km: data.range_km,
+        charging_time_hours: data.charging_time_hours,
+        motor_type: data.motor_type,
+        seating_capacity: data.seating_capacity,
+        price_range: data.price_range,
+        specifications: data.specifications,
+        features: data.features,
       };
       const modelResult = await sellerService.createnewModel(modeldata);
       console.log(modelResult);
@@ -247,43 +275,20 @@ export default function EvListingStepper() {
       const listingdata = new FormData();
       listingdata.append("seller_id", sellerid!);
       listingdata.append("model_id", modelid);
-      listingdata.append("listing_type", formData.listing_type);
-      listingdata.append("condition", formData.condition);
-      listingdata.append("price", formData.price.toString());
-      listingdata.append("battery_health", formData.battery_health.toString());
-      listingdata.append("color", formData.color);
-      listingdata.append("registration_year", formData.registration_year);
-      listingdata.append("number_of_ev", formData.number_of_ev.toString());
+      listingdata.append("listing_type", data.listing_type);
+      listingdata.append("condition", data.condition);
+      listingdata.append("price", data.price.toString());
+      listingdata.append("battery_health", data.battery_health.toString());
+      listingdata.append("color", data.color);
+      listingdata.append("registration_year", data.registration_year);
+      listingdata.append("number_of_ev", data.number_of_ev.toString());
 
-      formData.images.forEach((file) => {
-        listingdata.append("images", file); // key name should match backend
+      data.images.forEach((file) => {
+        listingdata.append("images", file);
       });
 
       const listingResult = await sellerService.createListing(listingdata);
       console.log(listingResult);
-      alert("Form submitted successfully!");
-      setFormData({
-        brand_id: "",
-        category_id: "",
-        model_name: "",
-        year: "",
-        battery_capacity_kwh: "",
-        range_km: "",
-        charging_time_hours: "",
-        motor_type: "",
-        seating_capacity: "",
-        price_range: "",
-        specifications: [],
-        features: [],
-        listing_type: "",
-        condition: "",
-        price: "",
-        battery_health: "",
-        color: "",
-        registration_year: "",
-        number_of_ev: "",
-        images: [],
-      });
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -298,25 +303,21 @@ export default function EvListingStepper() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               <FormSelectField
                 label="Brand"
-                name="brand_id"
-                value={formData.brand_id}
-                onChange={handleChange}
+                {...register("brand_id")} // <-- Use register
                 options={[{ id: "", name: "Select a brand" }, ...evBrands]}
-                error={errors.brand_id}
+                error={errors.brand_id?.message}
               />
 
               <FormSelectField
                 label="Category"
-                name="category_id"
-                value={formData.category_id}
-                onChange={handleChange}
+                {...register("category_id")} // <-- Use register
                 disabled={!formData.brand_id}
                 options={
                   formData.brand_id
                     ? [{ id: "", name: "Select a category" }, ...evCatogorys]
                     : [{ id: "", name: "Select a brand first" }]
                 }
-                error={errors.category_id}
+                error={errors.category_id?.message}
               />
             </div>
           </StepContainer>
@@ -328,115 +329,107 @@ export default function EvListingStepper() {
               {/* Model Name */}
               <FormInputField
                 label="Model Name"
-                name="model_name"
                 type="text"
                 placeholder="e.g., Tesla Model 3"
-                value={formData.model_name}
-                onChange={handleChange}
-                error={errors.model_name}
+                {...register("model_name")} // <-- Use register
+                error={errors.model_name?.message} // <-- Access message
               />
 
               {/* Year */}
               <FormInputField
                 label="Year"
-                name="year"
                 type="number"
                 placeholder="e.g., 2024"
-                value={formData.year}
-                onChange={handleChange}
-                error={errors.year}
+                {...register("year")} // <-- Use register
+                error={errors.year?.message}
               />
 
               {/* Battery Capacity */}
               <FormInputField
                 label="Battery Capacity (kWh)"
-                name="battery_capacity_kwh"
                 type="number"
                 placeholder="e.g., 75"
-                value={formData.battery_capacity_kwh}
-                onChange={handleChange}
-                error={errors.battery_capacity_kwh}
+                {...register("battery_capacity_kwh")} // <-- Use register
+                error={errors.battery_capacity_kwh?.message}
               />
 
               {/* Range */}
               <FormInputField
                 label="Range (km)"
-                name="range_km"
                 type="number"
                 placeholder="e.g., 400"
-                value={formData.range_km}
-                onChange={handleChange}
-                error={errors.range_km}
+                {...register("range_km")} // <-- Use register
+                error={errors.range_km?.message}
               />
 
               {/* Charging Time */}
               <FormInputField
                 label="Charging Time (hours)"
-                name="charging_time_hours"
                 type="number"
                 placeholder="e.g., 8"
-                value={formData.charging_time_hours}
-                onChange={handleChange}
-                error={errors.charging_time_hours}
+                {...register("charging_time_hours")} // <-- Use register
+                error={errors.charging_time_hours?.message}
               />
 
               {/* Motor Type */}
               <FormInputField
                 label="Motor Type"
-                name="motor_type"
                 type="text"
                 placeholder="e.g., Dual Motor"
-                value={formData.motor_type}
-                onChange={handleChange}
-                error={errors.motor_type}
+                {...register("motor_type")} // <-- Use register
+                error={errors.motor_type?.message}
               />
 
               {/* Seating Capacity */}
               <FormInputField
                 label="Seating Capacity"
-                name="seating_capacity"
                 type="number"
                 placeholder="e.g., 5"
-                value={formData.seating_capacity}
-                onChange={handleChange}
-                error={errors.seating_capacity}
+                {...register("seating_capacity")} // <-- Use register
+                error={errors.seating_capacity?.message}
               />
 
-              {/* Price Range */}
+              {/* Price Range (Not in schema, so control manually) */}
               <FormInputField
                 label="Price Range"
-                name="price_range"
                 type="text"
                 placeholder="e.g., $40,000 - $60,000"
-                value={formData.price_range}
-                onChange={handleChange}
-                error={errors.price_range}
+                {...register("price_range")} // <-- Use register
+                error={errors.price_range?.message}
               />
 
-              {/* Condition */}
+              {/* Specifications (Custom array field) */}
               <FormInputField
-                label="specifications"
+                label="Specifications"
                 name="specifications"
                 type="text"
                 placeholder="e.g., Air Conditioning, Power Steering"
-                value={formData.specifications.join(", ")}
+                value={(watch("specifications") || []).join(", ")}
                 onChange={(e) => {
-                  const value = e.target.value.split(",").map((v) => v.trim());
-                  setFormData({ ...formData, specifications: value });
+                  const value = e.target.value
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean); // remove empty strings
+                  setValue("specifications", value, { shouldValidate: true });
                 }}
+                error={errors.specifications?.message}
               />
 
-              {/* Registration Year */}
+              {/* Features (Custom array field) */}
               <FormInputField
                 label="Features"
                 name="features"
                 type="text"
                 placeholder="e.g., Air Conditioning, Power Steering, ABS"
-                value={formData.features.join(", ")} // join array into a readable string
+                value={(watch("features") || []).join(", ")}
                 onChange={(e) => {
-                  const value = e.target.value.split(",").map((v) => v.trim()); // split into array
-                  setFormData({ ...formData, features: value });
+                  const value = e.target.value
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean); // remove empty strings
+                  setValue("features", value, { shouldValidate: true });
                 }}
+                error={errors.features?.message}
               />
             </div>
           </StepContainer>
@@ -444,98 +437,81 @@ export default function EvListingStepper() {
       case 3:
         return (
           <StepContainer title="Step 3: Set Listing & Price">
-            {/* Listing Type */}
-            <FormSelectField
-              label="Listing Type"
-              name="listing_type"
-              value={formData.listing_type}
-              onChange={handleChange}
-              options={[
-                { id: "", name: "Select Listing Type" },
-                ...Object.values(ListingType).map((status) => ({
-                  id: status,
-                  name: status.charAt(0).toUpperCase() + status.slice(1),
-                })),
-              ]}
-              error={errors.listing_type}
-            />
-
-            {/* Condition */}
-            <FormSelectField
-              label="Condition"
-              name="condition"
-              value={formData.condition}
-              onChange={handleChange}
-              options={[
-                { id: "", name: "Select Condition" },
-                ...Object.values(VehicleCondition).map((condition) => ({
-                  id: condition,
-                  name: condition.charAt(0).toUpperCase() + condition.slice(1),
-                })),
-              ]}
-              error={errors.condition}
-            />
-
-            {/* Price */}
-            <FormInputField
-              label="Price ($)"
-              name="price"
-              type="number"
-              min="0"
-              placeholder="e.g., 35000"
-              value={formData.price === 0 ? "" : formData.price}
-              onChange={handleChange}
-              error={errors.price}
-            />
-
-            {/* Battery Health */}
-            <FormInputField
-              label="Battery Health (%)"
-              name="battery_health"
-              type="number"
-              min="0"
-              max="100"
-              placeholder="e.g., 90"
-              value={
-                formData.battery_health === 0 ? "" : formData.battery_health
-              }
-              onChange={handleChange}
-              error={errors.battery_health}
-            />
-
-            {/* Color */}
-            <FormInputField
-              label="Color"
-              name="color"
-              type="text"
-              placeholder="e.g., Pearl White"
-              value={formData.color}
-              onChange={handleChange}
-              error={errors.color}
-            />
-
-            {/* Registration Year */}
-            <FormInputField
-              label="Registration Year"
-              name="registration_year"
-              type="number"
-              placeholder="e.g., 2022"
-              value={formData.registration_year}
-              onChange={handleChange}
-              error={errors.registration_year}
-            />
-
-            {/* Number of EVs */}
-            <FormInputField
-              label="Number of Units"
-              name="number_of_ev"
-              type="number"
-              min="1"
-              placeholder="e.g., 2"
-              value={formData.number_of_ev === 0 ? "" : formData.number_of_ev}
-              onChange={handleChange}
-              error={errors.number_of_ev}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+              {" "}
+              {/* Added gap */}
+              {/* Listing Type */}
+              <FormSelectField
+                label="Listing Type"
+                {...register("listing_type")} // <-- Use register
+                options={[
+                  { id: "", name: "Select Listing Type" },
+                  ...Object.values(ListingType).map((status) => ({
+                    id: status,
+                    name: status.charAt(0).toUpperCase() + status.slice(1),
+                  })),
+                ]}
+                error={errors.listing_type?.message}
+              />
+              {/* Condition */}
+              <FormSelectField
+                label="Condition"
+                {...register("condition")} // <-- Use register
+                options={[
+                  { id: "", name: "Select Condition" },
+                  ...Object.values(VehicleCondition).map((condition) => ({
+                    id: condition,
+                    name:
+                      condition.charAt(0).toUpperCase() + condition.slice(1),
+                  })),
+                ]}
+                error={errors.condition?.message}
+              />
+              {/* Price */}
+              <FormInputField
+                label="Price ($)"
+                type="number"
+                min="0"
+                placeholder="e.g., 35000"
+                {...register("price")} // <-- Use register
+                error={errors.price?.message}
+              />
+              {/* Battery Health */}
+              <FormInputField
+                label="Battery Health (%)"
+                type="number"
+                min="0"
+                max="100"
+                placeholder="e.g., 90"
+                {...register("battery_health")} // <-- Use register
+                error={errors.battery_health?.message}
+              />
+              {/* Color */}
+              <FormInputField
+                label="Color"
+                type="text"
+                placeholder="e.g., Pearl White"
+                {...register("color")} // <-- Use register
+                error={errors.color?.message}
+              />
+              {/* Registration Year */}
+              <FormInputField
+                label="Registration Year"
+                type="number"
+                placeholder="e.g., 2022"
+                {...register("registration_year")} // <-- Use register
+                error={errors.registration_year?.message}
+              />
+              {/* Number of EVs */}
+              <FormInputField
+                label="Number of Units"
+                type="number"
+                min="1"
+                placeholder="e.g., 2"
+                {...register("number_of_ev")} // <-- Use register
+                error={errors.number_of_ev?.message}
+              />
+            </div>
           </StepContainer>
         );
       case 4:
@@ -550,32 +526,35 @@ export default function EvListingStepper() {
                 type="file"
                 multiple
                 accept="image/*"
-                onChange={(e) => {
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  // <-- Fix handler
                   const files = Array.from(e.target.files || []);
-                  if (files.length + formData.images.length > 5) {
+                  const currentImages = watch("images") || []; // Get from RHF
+
+                  if (files.length + currentImages.length > 5) {
                     alert("You can upload a maximum of 5 images.");
+                    e.target.value = ""; // Clear input
                     return;
                   }
 
-                  setFormData((prev) => ({
-                    ...prev,
-                    images: [...prev.images, ...files],
-                  }));
+                  const newImages = [...currentImages, ...files];
+                  setValue("images", newImages, { shouldValidate: true }); // Set in RHF
+                  e.target.value = ""; // Clear input to allow re-selection
                 }}
                 className="block w-full text-sm text-gray-500
-        file:mr-4 file:py-2 file:px-4
-        file:rounded-full file:border-0
-        file:text-sm file:font-semibold
-        file:bg-blue-50 file:text-blue-700
-        hover:file:bg-blue-100"
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100"
               />
-              {(errors as any).images && (
+              {errors.images && (
                 <p className="mt-2 text-sm text-red-600">
-                  {(errors as any).images}
+                  {errors.images?.message} {/* <-- Access message */}
                 </p>
               )}
 
-              {/* ✅ Preview Section */}
+              {/* ✅ Preview Section (Uses 'formData' from watch) */}
               {formData.images.length > 0 && (
                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                   {formData.images.map((file, index) => (
@@ -587,12 +566,17 @@ export default function EvListingStepper() {
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            images: prev.images.filter((_, i) => i !== index),
-                          }))
-                        }
+                        onClick={() => {
+                          // <-- Fix handler
+                          const currentImages = watch("images") || [];
+                          const newImages = currentImages.filter(
+                            (_, i) => i !== index
+                          );
+                          setValue("images", newImages, {
+                            // Set in RHF
+                            shouldValidate: true,
+                          });
+                        }}
                         className="absolute top-1 right-1 bg-red-500 text-white rounded-full text-xs p-1 opacity-0 group-hover:opacity-100 transition"
                       >
                         ✕
@@ -605,6 +589,7 @@ export default function EvListingStepper() {
           </StepContainer>
         );
       case 5:
+        // This step correctly uses 'formData' from 'watch()' for review
         return (
           <StepContainer title="Step 5: Review Your Listing">
             <div className="space-y-6 mt-4">
@@ -772,36 +757,34 @@ export default function EvListingStepper() {
       </div>
 
       {/* Step Content */}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmite)}>
         {renderStepContent()}
 
-        <div className="mt-8 pt-5 border-t border-gray-200">
-          <div className="flex justify-between">
+        <div className="flex justify-between mt-8">
+          <button
+            type="button"
+            disabled={currentStep === 1}
+            onClick={prevStep} // <-- Use prevStep handler
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md disabled:opacity-50"
+          >
+            Back
+          </button>
+          {currentStep === 5 ? (
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md"
+            >
+              Submit
+            </button>
+          ) : (
             <button
               type="button"
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={nextStep}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md"
             >
-              Back
+              Next
             </button>
-            {currentStep === steps.length ? (
-              <button
-                type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
-              >
-                Submit Listing
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={(e) => nextStep(e)}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Next
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </form>
     </div>

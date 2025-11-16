@@ -7,6 +7,9 @@ import {
 } from "../components/animations/variants";
 import { EvModelCard } from "@/components/EvModelCard";
 import bgVideo from "@/assets/Video/bg_video.mp4";
+import bgrevVideo from "@/assets/Video/bg_video_reversed.mp4";
+import ReverseLoopVideo from "@/hooks/videoRevice";
+
 
 // --- Mock Data (replace with your actual data from an API) ---
 const featuredModels = [
@@ -74,13 +77,7 @@ const HeroSection = () => (
     transition={{ duration: 1.5 }}
   >
     <div className="absolute inset-0 bg-black opacity-50 z-10"></div>
-    <video
-      autoPlay
-      loop
-      muted
-      className="absolute inset-0 w-full h-full object-cover"
-      src={bgVideo}
-    />
+    <ReverseLoopVideo forward={bgVideo} backward={bgrevVideo} />
     <motion.div
       className="relative z-20 p-4"
       variants={containerVariants}

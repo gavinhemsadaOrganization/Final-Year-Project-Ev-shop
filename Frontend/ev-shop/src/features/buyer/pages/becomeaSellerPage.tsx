@@ -4,7 +4,7 @@ import { CloseIcon } from "@/assets/icons/icons";
 import { buyerService } from "../buyerService";
 import { Loader } from "@/components/Loader";
 import { useNavigate } from "react-router-dom";
-
+import { Alert } from "@/components/MessageAlert";
 /**
  * A component for a "Become a Seller" registration form.
  * Renders as a modal overlay.
@@ -23,6 +23,12 @@ const BecomeSellerPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
+  const [message, setMessage] = useState<{
+    id: number;
+    title: string;
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   /**
    * Handles changes for all form inputs.
    */
@@ -71,15 +77,20 @@ const BecomeSellerPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     setErrors({});
     setSuccessMessage("");
 
-
     const sellerData = {
       ...formData,
-      user_id: getUserID(), 
+      user_id: getUserID(),
     };
     console.log("Submitting seller application:", sellerData);
 
     try {
       await buyerService.becomeaSeller(sellerData);
+      setMessage({
+        id: Date.now(),
+        title: "Success",
+        message: "Successfully register for new Seller",
+        type: "success",
+      });
       addnewRole("seller");
       setActiveRole("seller");
       setSuccessMessage("Application submitted successfully!");
@@ -92,12 +103,14 @@ const BecomeSellerPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         website: "",
       });
     } catch (err: any) {
-      console.error("Submission failed:", err);
-      setErrors({
-        form: err.message || "An unexpected error occurred. Please try again.",
+      setMessage({
+        id: Date.now(),
+        title: "Fail Registration",
+        message: "An unexpected error occurred. Please try again.",
+        type: "error",
       });
     } finally {
-    //   setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -107,6 +120,7 @@ const BecomeSellerPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       className="fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex justify-center items-center p-4 sm:p-6 lg:p-8 animate-fadeIn"
       onClick={onClose}
     >
+      <Alert alert={message} />
       {/* --- MODAL CONTENT --- */}
       <div
         className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-2xl relative flex flex-col animate-fadeInUp"
@@ -184,7 +198,7 @@ const BecomeSellerPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="website"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-200"
               >
-                Website 
+                Website
               </label>
               <input
                 id="website"
@@ -206,7 +220,7 @@ const BecomeSellerPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 htmlFor="description"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-200"
               >
-                Business Description 
+                Business Description
               </label>
               <textarea
                 id="description"
@@ -245,7 +259,11 @@ const BecomeSellerPage: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 disabled={isLoading}
                 className="w-full px-6 py-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-300"
               >
-                {isLoading ? <Loader size={10} color="#4f46e5" /> : "Submit Application"}
+                {isLoading ? (
+                  <Loader size={10} color="#4f46e5" />
+                ) : (
+                  "Submit Application"
+                )}
               </button>
             </div>
           </form>

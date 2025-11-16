@@ -301,9 +301,7 @@ export const EvRepository: IEvRepository = {
    * This preserves the record in the database but hides it from public view.
    */
   deleteListing: withErrorHandling(async (id) => {
-    const result = await VehicleListing.findByIdAndUpdate(id, {
-      status: "inactive",
-    });
+    const result = await VehicleListing.findByIdAndDelete(id);
     return result !== null;
   }),
 };

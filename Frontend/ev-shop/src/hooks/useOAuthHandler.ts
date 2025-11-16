@@ -6,7 +6,7 @@ import { authService } from "@/features/auth/authService";
 
 export const useOAuthHandler = (
   action: "login" | "register",
-  showMessage: (text: string, type?: string) => void
+  showMessage: (title: string, mesage: string, type?: string) => void
 ) => {
   const { setUserData, setActiveRole } = useAuth();
   const nav = useNavigate();
@@ -22,14 +22,14 @@ export const useOAuthHandler = (
     window.history.replaceState({}, document.title, url.pathname);
 
     if (error) {
-      showMessage(error, "error");
+      showMessage("OAuth authentication failed!",error, "error");
       return;
     }
 
     if (userId) {
       setUserData(userId, roleList, { userid: userId });
       setActiveRole(roleList[0]);
-      showMessage("OAuth authentication successful!", "success");
+      showMessage("OAuth authentication successful!", "Redirecting...", "success");
       setTimeout(() => {
         nav("/user/dashboard", { replace: true });
       }, 2000);

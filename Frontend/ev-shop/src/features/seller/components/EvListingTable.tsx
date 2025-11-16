@@ -3,13 +3,25 @@ import {
   EditIcon,
   TrashIcon,
 } from "@/assets/icons/icons";
-import type { SellerActiveTab, Listing } from "@/types";
+import type { SellerActiveTab, Vehicle } from "@/types";
+import { sellerService } from "../sellerService";
+
 const apiURL = import.meta.env.VITE_API_URL;
-export const ListingsTable: React.FC<{ listings: Listing[], setActiveTab: (tab: SellerActiveTab) => void }> = ({
+export const ListingsTable: React.FC<{ listings: Vehicle[], setActiveTab: (tab: SellerActiveTab) => void }> = ({
   setActiveTab,
   listings,
-}) => (
-  <>
+}) => {
+  const deleteListing = async(listingId: string, modelid: string) => {
+    const result = await sellerService.deleteModel(modelid);
+    if (result) {
+      const resultlist = await sellerService.deleteListing(listingId);
+      if (resultlist) {
+        alert("Listing deleted successfully");
+      }
+    }
+  }
+  return(
+    <>
     <div className="flex justify-between items-center mb-6">
       <h2 className="text-xl font-bold">My Vehicle Listings</h2>
       <button
@@ -50,13 +62,13 @@ export const ListingsTable: React.FC<{ listings: Listing[], setActiveTab: (tab: 
                 <img
                   className="h-10 w-10 rounded-full object-cover"
                   src={`${apiURL}${listing.images[0]}`}
-                  alt={listing.name}
+                  alt={listing.model_id?.model_name}
                 />
                 <div>
                   <div className="text-sm font-medium text-gray-900">
-                    {listing.name}
+                    {listing.model_id?.model_name}
                   </div>
-                  <div className="text-sm text-gray-500">{listing.model}</div>
+                  <div className="text-sm text-gray-500">{listing.model_id?.model_name}</div>
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -75,10 +87,10 @@ export const ListingsTable: React.FC<{ listings: Listing[], setActiveTab: (tab: 
                 {listing.listing_type}
               </td>
               <td className="px-6 py-4 text-right text-sm font-medium space-x-3">
-                <button className="text-indigo-600 hover:text-indigo-900 p-1">
+                <button onClick={() => console.log(listing._id)} className="text-indigo-600 hover:text-indigo-900 p-1">
                   <EditIcon className="h-5 w-5" />
                 </button>
-                <button className="text-red-600 hover:text-red-900 p-1">
+                <button onClick={() => deleteListing(listing._id, listing.model_id._id)} className="text-red-600 hover:text-red-900 p-1">
                   <TrashIcon className="h-5 w-5" />
                 </button>
               </td>
@@ -87,10 +99,11 @@ export const ListingsTable: React.FC<{ listings: Listing[], setActiveTab: (tab: 
         </tbody>
       </table>
     </div>
-  </>
-);
+    </>
+  )
+};
 
-const getStatusChip = (status: Listing["status"]) => {
+const getStatusChip = (status: Vehicle["status"]) => {
   switch (status) {
     case "active":
       return "bg-green-100 text-green-800";

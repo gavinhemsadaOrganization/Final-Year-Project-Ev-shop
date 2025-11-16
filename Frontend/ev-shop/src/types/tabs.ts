@@ -46,6 +46,7 @@ export type SellerActiveTabs = (typeof SellerActiveTabs)[keyof typeof SellerActi
   | "orders"
   | "profile"
   | "evList"
+  | "editEvlist"
   | "saved"
   | "reviews"
   | "community"

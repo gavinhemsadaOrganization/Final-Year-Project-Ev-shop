@@ -1,4 +1,4 @@
-import { VehicleCard, LazyVehicleCard } from "@/components/EvModelCard";
+import { LazyVehicleCard } from "@/components/EvModelCard";
 import { Pagination } from "@/components/PaginationBar";
 import type { Vehicle } from "@/types";
 import React, { useCallback } from "react";

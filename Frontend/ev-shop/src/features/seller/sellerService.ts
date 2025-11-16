@@ -25,4 +25,17 @@ export const sellerService = {
         const response = await axiosPrivate.post('/ev/listings', listingData);
         return response.data;
     },
+    updateListing: async (listingId: string, listingData: any) => {
+        const response = await axiosPrivate.put(`/ev/listings/${listingId}`, listingData);
+        return response.data;
+    },
+    deleteListing: async (id: string) => {
+        const response = await axiosPrivate.delete(`/ev/listings/${id}`);
+        return response.data;
+    },
+    deleteModel: async (id: string) => {
+        const response = await axiosPrivate.delete(`/ev/models/${id}`);
+        return response.data;
+    },
+
 };

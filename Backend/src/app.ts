@@ -149,7 +149,7 @@ app.use(
   "/uploads",
   express.static(path.join(__dirname, "../uploads"), {
     setHeaders: (res, path, stat) => {
-      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");      // prevent 304 / caching issues
+      res.setHeader("Cache-Control", "public, max-age=3600, immutable");      // prevent 304 / caching issues
     },
   })
 );
