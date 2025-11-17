@@ -22,6 +22,11 @@ import EvListingStepper from "./EvNewList";
 import { StatCard } from "../components/StatsCards";
 import { sellerService } from "../sellerService";
 import type { Vehicle } from "@/types/ev";
+import {
+  useQueries,
+  type UseQueryOptions,
+} from "@tanstack/react-query";
+import { queryKeys } from "@/config/queryKeys";
 
 const notifications: Notification[] = [
   { id: 1, message: "Aura EV", time: "Sedan" },
@@ -31,41 +36,61 @@ const notifications: Notification[] = [
 // --- Main Seller Dashboard Component ---
 const SellerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SellerActiveTab>("dashboard");
-  const [seller, setSeller] = useState<any>({});
   const [userRole, setUserRole] = useState<UserRole[]>([]);
-  const [listings, setListings] = useState<Vehicle[]>([]);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const { getUserID, logout, getRoles, setSellerId, getActiveRoleId } =
     useAuth();
   const navigate = useNavigate();
+  const roles = getRoles();
 
-  useEffect(() => {
-    const roles = getRoles();
-    if (roles) setUserRole(roles);
-    const userID = getUserID();
-    const fetchSellerData = async (userID: string) => {
-      try {
-        const result = await sellerService.getSellerProfile(userID!);
-        setSellerId(result._id);
-        const evList = await sellerService.getSellerEvList(result._id);
-        console.log(evList);
-        setListings(evList);
-        setSeller(result);
-        console.log("Seller Data:", getActiveRoleId());
-      } catch (error) {
-        console.error("Error fetching seller data:", error);
-      }
-    };
-    if (userID) {
-      fetchSellerData(userID);
-    }    
-  }, []);
+  const userID = getUserID();
+
+  const results = useQueries({
+  queries: [
+    {
+      queryKey: queryKeys.sellerProfile(userID!),
+      queryFn: () => sellerService.getSellerProfile(userID!),
+      enabled: !!userID,
+      staleTime: 10 * 60 * 1000,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      // workaround: cast to UseQueryOptions
+    },
+    {
+      queryKey: ["sellerEvlist", getActiveRoleId()],
+      queryFn: (): Promise<Vehicle[]> => sellerService.getSellerEvList(getActiveRoleId()!),
+      enabled: !!getActiveRoleId(),
+      staleTime: 10 * 60 * 1000,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    } as UseQueryOptions<Vehicle[], Error, Vehicle[], [string, string | null]>,
+  ],
+});
+
+// Manually watch seller profile to set sellerId
+
+useEffect(() => {
+  const sellerProfile = results[0].data;
+  if (sellerProfile && sellerProfile._id) {
+    setSellerId(sellerProfile._id);
+  }
+}, [results[0].data]);
+
+useEffect(() => {
+  if (roles) setUserRole(roles);
+}, [roles]);
+const [sellerProfileQuery, evListQuery] = results;
+
+  const seller = sellerProfileQuery.data;
+  const listings = evListQuery.data || [];
 
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
         return (
-          <SellerDashboardPage listing={listings} setActiveTab={setActiveTab} />
+          <SellerDashboardPage sellerid={seller?._id} listing={listings} setActiveTab={setActiveTab} />
         );
       case "orders":
         return <OrderHistory />;
@@ -85,7 +110,7 @@ const SellerDashboard: React.FC = () => {
         return <EvListingStepper />;
       default:
         return (
-          <SellerDashboardPage listing={listings} setActiveTab={setActiveTab} />
+          <SellerDashboardPage sellerid={seller?._id} listing={listings} setActiveTab={setActiveTab} />
         );
     }
   };
@@ -156,11 +181,11 @@ const SellerDashboard: React.FC = () => {
   );
 };
 
-
 const SellerDashboardPage: React.FC<{
+  sellerid: string;
   listing: Vehicle[];
   setActiveTab: (tab: SellerActiveTab) => void;
-}> = ({ setActiveTab, listing }) => (
+}> = ({ sellerid,setActiveTab, listing }) => (
   <>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
@@ -189,7 +214,7 @@ const SellerDashboardPage: React.FC<{
       />
     </div>
     <div className="mt-10 bg-white p-6 rounded-xl shadow-md">
-      <ListingsTable listings={listing} setActiveTab={setActiveTab} />
+      <ListingsTable sellerid={sellerid} listings={listing} setActiveTab={setActiveTab} />
     </div>
     <div className="mt-10 bg-white p-6 rounded-xl shadow-md">
       <AnalyticsChart />

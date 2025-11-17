@@ -241,22 +241,23 @@ export const TopMessageAlerts = ({
 };
 
 interface ConfirmAlertProps {
-  title?: string;
-  message?: string;
-  confirmText?: string;
-  cancelText?: string;
+  alert:{
+    title?: string;
+    message?: string;
+    confirmText?: string;
+    cancelText?: string;
+  }
   onConfirm: () => void;
   onCancel: () => void;
 }
 
 export const ConfirmAlert: React.FC<ConfirmAlertProps> = ({
-  title = "Are you sure?",
-  message = "Do you really want to delete this user?",
-  confirmText = "Yes, I'm sure",
-  cancelText = "No, cancel",
+  alert,
   onConfirm,
   onCancel,
 }) => {
+  if (!alert) return null;
+  const { title = "", message = "", confirmText = "Confirm", cancelText = "Cancel" } = alert;
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white border rounded-lg shadow-lg relative max-w-sm w-full animate-slide-in">

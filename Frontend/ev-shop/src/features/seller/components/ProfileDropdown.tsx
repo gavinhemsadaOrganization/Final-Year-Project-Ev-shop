@@ -10,7 +10,7 @@ import type { SellerActiveTab } from "@/types";
 const apiURL = import.meta.env.VITE_API_URL;
 
 export const ProfileDropdown: React.FC<{
-  seller: any;
+  seller?: any;
   onLogout: () => void;
   setActiveTab: (tab: SellerActiveTab) => void;
 }> = ({ seller, onLogout, setActiveTab }) => {
@@ -56,7 +56,7 @@ export const ProfileDropdown: React.FC<{
       >
         {/* This is your user snippet */}
         <div className="flex items-center space-x-2">
-          {seller.profile_image ? (
+          {seller?.profile_image ? (
             (console.log(seller.profile_image),
             (
               <img
@@ -67,7 +67,7 @@ export const ProfileDropdown: React.FC<{
             ))
           ) : (
             <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 font-semibold">
-              {seller.business_name
+              {seller?.business_name
                 ? seller.name
                     // .split(" ")
                     // .map((n: any) => n[0]?.toUpperCase())
@@ -78,7 +78,7 @@ export const ProfileDropdown: React.FC<{
           )}
           <div className="hidden md:block text-left">
             <p className="font-semibold text-sm truncate max-w-[150px]">
-              <span className="dark:text-white">{seller.business_name}</span>
+              <span className="dark:text-white">{seller?.business_name}</span>
             </p>
             {/* <p className="text-xs text-gray-500 truncate max-w-[150px]">
               <span className="dark:text-gray-400">{seller.email}</span>

@@ -5,6 +5,7 @@ import { buyerService } from "../buyerService";
 import { Loader } from "@/components/Loader";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "@/components/MessageAlert";
+import type {AlertProps} from "@/types"
 /**
  * A component for a "Register Financial Institution" form.
  * Renders as a modal overlay.
@@ -26,12 +27,7 @@ const RegisterFinancialInstitutionPage: React.FC<{ onClose: () => void }> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
-  const [message, setMessage] = useState<{
-    id: number;
-    title: string;
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const [message, setMessage] = useState<AlertProps | null>(null);
   /**
    * Handles changes for all form inputs.
    */

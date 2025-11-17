@@ -5,3 +5,4 @@ export * from "./service";
 export * from "./chatbot";
 export * from "./tabs";
 export * from "./ev";
+export * from "./alert";
